@@ -52,6 +52,8 @@ interface CartoonVideoPlayerProps {
   language: 'en' | 'ml';
   onLanguageChange?: (lang: 'en' | 'ml') => void;
   onComplete?: () => void;
+  onNextEpisode?: () => void;
+  nextChapterTitle?: string;
   isWatched?: boolean;
   onToggleWatched?: () => void;
   learnerId?: 'eadrick' | 'faidan';
@@ -80,6 +82,8 @@ export function CartoonVideoPlayer({
   language = 'en',
   onLanguageChange,
   onComplete,
+  onNextEpisode,
+  nextChapterTitle,
   isWatched = false,
   onToggleWatched,
   learnerId = 'eadrick',
@@ -99,6 +103,18 @@ export function CartoonVideoPlayer({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Reset playback and completion overlay whenever a new episode is loaded
+  useEffect(() => {
+    setCurrentSceneIdx(0);
+    setCurrentDialogueIdx(0);
+    setHasCompleted(false);
+    setIsPlaying(false);
+    stopSpeaking();
+    if (autoPlayTimerRef.current) {
+      clearTimeout(autoPlayTimerRef.current);
+    }
+  }, [episode.chapterId]);
 
   useEffect(() => {
     setSelectedProfile(getVoiceProfile());
@@ -727,15 +743,29 @@ export function CartoonVideoPlayer({
               <span>{language === 'ml' ? 'വീണ്ടും കാണുക ↺' : 'Rewatch Episode ↺'}</span>
             </button>
 
-            {onComplete && (
-              <button
-                onClick={onComplete}
-                className="px-6 py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs flex items-center space-x-2 shadow-md transition"
-              >
-                <span>{language === 'ml' ? 'തുടരുക' : 'Continue Learning'}</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            )}
+            <button
+              onClick={() => {
+                soundEffects.playPop();
+                setHasCompleted(false);
+                if (onNextEpisode) {
+                  onNextEpisode();
+                } else if (onComplete) {
+                  onComplete();
+                }
+              }}
+              className="px-6 py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-black text-xs flex items-center space-x-2 shadow-lg hover:shadow-emerald-500/30 transition cursor-pointer"
+            >
+              <span>
+                {nextChapterTitle
+                  ? language === 'ml'
+                    ? 'തുടരുക >'
+                    : 'Next Episode >'
+                  : language === 'ml'
+                  ? 'തുടരുക >'
+                  : 'Continue Learning >'}
+              </span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
       )}

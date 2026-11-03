@@ -196,6 +196,51 @@ function CartoonTheaterContent() {
   // Calculate total episodes count
   const totalEpisodesCount = textbooks.reduce((acc, b) => acc + (b.chapters?.length || 0), 0);
 
+  // Find next chapter in the current textbook or curriculum
+  const getNextChapter = (): { chapter: TextbookChapter; subjectId: string } | null => {
+    if (!currentChapter || textbooks.length === 0) return null;
+
+    for (let bIdx = 0; bIdx < textbooks.length; bIdx++) {
+      const book = textbooks[bIdx];
+      if (!book.chapters) continue;
+      const cIdx = book.chapters.findIndex((c) => c.id === currentChapter.id);
+      if (cIdx !== -1) {
+        // Next chapter in the same textbook
+        if (cIdx < book.chapters.length - 1) {
+          return { chapter: book.chapters[cIdx + 1], subjectId: book.subjectId };
+        }
+        // Last chapter of this book, move to next book if available
+        if (bIdx < textbooks.length - 1) {
+          const nextBook = textbooks[bIdx + 1];
+          if (nextBook.chapters && nextBook.chapters.length > 0) {
+            return { chapter: nextBook.chapters[0], subjectId: nextBook.subjectId };
+          }
+        }
+      }
+    }
+    return null;
+  };
+
+  const nextChapInfo = getNextChapter();
+
+  const handleNextEpisodeOrContinue = () => {
+    soundEffects.playLevelUp();
+    if (currentChapter) {
+      markChapterWatched(currentChapter.id, true);
+    }
+    if (nextChapInfo) {
+      selectChapter(nextChapInfo.chapter, nextChapInfo.subjectId);
+    } else {
+      // Last chapter reached, scroll down to catalog so user can explore other subjects
+      const el = document.getElementById('episodes-catalog');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else if (typeof window !== 'undefined') {
+        window.scrollBy({ top: 400, behavior: 'smooth' });
+      }
+    }
+  };
+
   // Filter books by subject filter
   const visibleSubjects = subjects.filter((sub) => {
     if (selectedSubjectFilter === 'all') return true;
@@ -273,6 +318,14 @@ function CartoonTheaterContent() {
             onLanguageChange={(newLang) => setLanguage(newLang)}
             isWatched={currentChapter ? watchedChapterIds.has(currentChapter.id) : false}
             learnerId={activeChild.id === 'child-2' ? 'faidan' : 'eadrick'}
+            nextChapterTitle={
+              nextChapInfo
+                ? language === 'ml'
+                  ? nextChapInfo.chapter.malayalamTitle
+                  : nextChapInfo.chapter.title
+                : undefined
+            }
+            onNextEpisode={handleNextEpisodeOrContinue}
             onComplete={() => {
               soundEffects.playLevelUp();
               if (currentChapter) {
@@ -443,7 +496,7 @@ function CartoonTheaterContent() {
           SUBJECT / CATEGORY WISE EPISODES CATALOG
           Organized cleanly by Subject with filter pills for easy navigation!
       ========================================================================= */}
-      <div className="space-y-6 pt-4 border-t-2 border-slate-200">
+      <div id="episodes-catalog" className="space-y-6 pt-4 border-t-2 border-slate-200">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center space-x-2.5">
             <div className="w-9 h-9 rounded-2xl bg-rose-500 text-white flex items-center justify-center text-lg shadow-sm">
