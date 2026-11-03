@@ -209,7 +209,8 @@ function speakWithBrowserSynthesis(
   language: 'en' | 'ml',
   rate: number,
   pitch: number,
-  onEnd?: () => void
+  onEnd?: () => void,
+  character?: string
 ): boolean {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     if (onEnd) onEnd();
@@ -272,23 +273,61 @@ function speakWithBrowserSynthesis(
           }
         }
       } else {
-        const preferredVoice =
-          voices.find(
-            (v) =>
-              v.lang.startsWith('en') &&
-              (v.name.includes('Natural') ||
-                v.name.includes('Google') ||
-                v.name.includes('Zira') ||
-                v.name.includes('Aria') ||
-                v.name.includes('Female'))
-          ) ||
-          voices.find((v) => v.lang === 'en-IN') ||
-          voices.find((v) => v.lang.startsWith('en'));
+        const charId = character || profile.id;
+        const isMalePersona = charId === 'father' || charId === 'papa_manoj';
+        const isBoyPersona = charId === 'eadrick' || charId === 'kid_bright';
 
-        if (preferredVoice) {
-          utterance.voice = preferredVoice;
-          utterance.lang = preferredVoice.lang;
+        if (isMalePersona) {
+          // Select MALE voice for Papa Manoj in English
+          const maleVoice =
+            voices.find(
+              (v) =>
+                v.lang.startsWith('en') &&
+                (v.name.includes('David') ||
+                  v.name.includes('Mark') ||
+                  v.name.includes('Guy') ||
+                  v.name.includes('George') ||
+                  v.name.includes('Male'))
+            ) || voices.find((v) => v.lang.startsWith('en'));
+
+          if (maleVoice) {
+            utterance.voice = maleVoice;
+            utterance.pitch = 0.84;
+          }
+        } else if (isBoyPersona) {
+          // Select BOY voice for Brother Eadrick
+          const boyVoice =
+            voices.find(
+              (v) =>
+                v.lang.startsWith('en') &&
+                (v.name.includes('Mark') || v.name.includes('David') || v.name.includes('Male'))
+            ) || voices.find((v) => v.lang.startsWith('en'));
+
+          if (boyVoice) {
+            utterance.voice = boyVoice;
+            utterance.pitch = 1.25;
+          }
         } else {
+          // Female / Sweet Kid voices (Mummy Tessy, Grandma Lilly, Faidan)
+          const femaleVoice =
+            voices.find(
+              (v) =>
+                v.lang.startsWith('en') &&
+                (v.name.includes('Natural') ||
+                  v.name.includes('Google') ||
+                  v.name.includes('Zira') ||
+                  v.name.includes('Aria') ||
+                  v.name.includes('Female'))
+            ) ||
+            voices.find((v) => v.lang === 'en-IN') ||
+            voices.find((v) => v.lang.startsWith('en'));
+
+          if (femaleVoice) {
+            utterance.voice = femaleVoice;
+          }
+        }
+
+        if (!utterance.voice) {
           utterance.lang = 'en-US';
         }
       }
@@ -328,7 +367,8 @@ function speakWithCloudAudio(
   language: 'en' | 'ml',
   rate: number,
   pitch: number,
-  onEnd?: () => void
+  onEnd?: () => void,
+  character?: string
 ): boolean {
   const chunks = splitIntoChunks(text, 175);
   if (chunks.length === 0) {
@@ -350,12 +390,16 @@ function speakWithCloudAudio(
 
     const hasMalayalamChars = /[\u0D00-\u0D7F]/.test(chunk);
     const effectiveLang = hasMalayalamChars || language === 'ml' ? 'ml' : 'en';
+    const profile = VOICE_PROFILES[getVoiceProfile()] || VOICE_PROFILES.kid_sweet;
+    const charParam = character || profile.id;
 
-    const url = `/api/tts?lang=${effectiveLang}&text=${encodeURIComponent(chunk)}`;
+    const url = `/api/tts?lang=${effectiveLang}&character=${encodeURIComponent(
+      charParam
+    )}&text=${encodeURIComponent(chunk)}`;
     const audio = new Audio(url);
     audio.volume = 1.0;
 
-    // Modulate pitch dynamically for character voices
+    // Pitch modulation: when preservesPitch is false, altering playbackRate shifts pitch!
     try {
       (audio as any).preservesPitch = false;
       (audio as any).mozPreservesPitch = false;
@@ -364,7 +408,6 @@ function speakWithCloudAudio(
       // ignore
     }
 
-    const profile = VOICE_PROFILES[getVoiceProfile()] || VOICE_PROFILES.kid_sweet;
     const effectiveRate = effectiveLang === 'ml' ? (profile.malayalamRate || rate) : rate;
     audio.playbackRate = Math.max(0.7, Math.min(1.4, effectiveRate));
     activeAudio = audio;
@@ -385,12 +428,26 @@ function speakWithCloudAudio(
 
     audio.onerror = () => {
       activeAudio = null;
-      speakWithBrowserSynthesis(chunks.slice(currentChunkIndex - 1).join(' '), language, rate, pitch, onEnd);
+      speakWithBrowserSynthesis(
+        chunks.slice(currentChunkIndex - 1).join(' '),
+        language,
+        rate,
+        pitch,
+        onEnd,
+        character
+      );
     };
 
     audio.play().catch(() => {
       activeAudio = null;
-      speakWithBrowserSynthesis(chunks.slice(currentChunkIndex - 1).join(' '), language, rate, pitch, onEnd);
+      speakWithBrowserSynthesis(
+        chunks.slice(currentChunkIndex - 1).join(' '),
+        language,
+        rate,
+        pitch,
+        onEnd,
+        character
+      );
     });
   };
 
@@ -403,7 +460,8 @@ export function speakText(
   language: 'en' | 'ml' = 'en',
   rate: number = 0.95,
   pitch: number = 1.1,
-  onEnd?: () => void
+  onEnd?: () => void,
+  character?: string
 ): boolean {
   if (typeof window === 'undefined') return false;
 
@@ -431,17 +489,17 @@ export function speakText(
   const effectivePitch = pitch === 1.1 ? profile.pitch : pitch;
 
   if (enginePref === 'cloud' || (hasMalayalamChars && !hasNativeMalayalamVoice)) {
-    return speakWithCloudAudio(text, language, effectiveRate, effectivePitch, onEnd);
+    return speakWithCloudAudio(text, language, effectiveRate, effectivePitch, onEnd, character);
   }
 
-  return speakWithBrowserSynthesis(text, language, effectiveRate, effectivePitch, onEnd);
+  return speakWithBrowserSynthesis(text, language, effectiveRate, effectivePitch, onEnd, character);
 }
 
 export function testVoiceSampleAudio(profId: VoiceProfileId, lang: 'en' | 'ml' = 'en') {
   const prof = VOICE_PROFILES[profId] || VOICE_PROFILES.kid_sweet;
   setVoiceProfile(profId);
   const text = lang === 'ml' ? prof.malayalamSample : prof.englishSample;
-  speakText(text, lang, prof.rate, prof.pitch);
+  speakText(text, lang, prof.rate, prof.pitch, undefined, profId);
 }
 
 export function stopSpeaking(): void {

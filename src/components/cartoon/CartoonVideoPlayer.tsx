@@ -121,15 +121,22 @@ export function CartoonVideoPlayer({
       }
 
       setIsSpeaking(true);
-      speakText(textToSpeak, lang, effectiveRate, effectivePitch, () => {
-        setIsSpeaking(false);
-        if (autoPlay && isPlaying) {
-          clearTimer();
-          autoPlayTimerRef.current = setTimeout(() => {
-            advanceDialogue();
-          }, 1200);
-        }
-      });
+      speakText(
+        textToSpeak,
+        lang,
+        effectiveRate,
+        effectivePitch,
+        () => {
+          setIsSpeaking(false);
+          if (autoPlay && isPlaying) {
+            clearTimer();
+            autoPlayTimerRef.current = setTimeout(() => {
+              advanceDialogue();
+            }, 1200);
+          }
+        },
+        dialogue.speakerId
+      );
     },
     [isMuted, autoPlay, isPlaying, selectedProfile]
   );
