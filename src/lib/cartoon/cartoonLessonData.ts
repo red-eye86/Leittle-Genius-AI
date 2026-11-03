@@ -1474,8 +1474,17 @@ export function getOrCreateCartoonEpisode(
   chapterId: string,
   chapterTitle: string,
   chapterSummary: string,
-  keyTerms: string[] = []
+  keyTerms: string[] = [],
+  learnerId?: 'eadrick' | 'faidan'
 ): CartoonEpisode {
+  // Determine effective learner: Eadrick for Class 4 lessons, Faidan for UKG
+  const isClass4 =
+    chapterId.includes('c4') ||
+    chapterId.includes('class4') ||
+    chapterId.startsWith('chap-c4-') ||
+    chapterId.startsWith('c4-');
+  const effectiveLearner: 'eadrick' | 'faidan' = learnerId || (isClass4 ? 'eadrick' : 'faidan');
+
   if (PRESET_CARTOON_EPISODES[chapterId]) {
     return PRESET_CARTOON_EPISODES[chapterId];
   }
@@ -1902,24 +1911,36 @@ export function getOrCreateCartoonEpisode(
         dialogues: [
           {
             speakerId: guest1.id,
-            englishText: `Hooray! Welcome Faidan and Eadrick! I am ${guest1.name}! Today our adventure is all about: ${chapterTitle}!`,
-            malayalamText: `സ്വാഗതം ഫൈദാൻ, ഏദ്രിക്! ഞാനാണ് ${guest1.malayalamName}! ഇന്നത്തെ നമ്മുടെ പാഠം ${chapterTitle} ആണ്!`,
+            englishText:
+              effectiveLearner === 'eadrick'
+                ? `Hooray! Welcome Eadrick! (and Little Faidan!) I am ${guest1.name}! Today our Class 4 adventure is all about: ${chapterTitle}!`
+                : `Hooray! Welcome Faidan and Eadrick! I am ${guest1.name}! Today our adventure is all about: ${chapterTitle}!`,
+            malayalamText:
+              effectiveLearner === 'eadrick'
+                ? `സ്വാഗതം ഏദ്രിക്! (കൂടെ കൊച്ചു ഫൈദാനും!) ഞാനാണ് ${guest1.malayalamName}! ഇന്നത്തെ നമ്മുടെ നാലാം ക്ലാസ് പാഠം ${chapterTitle} ആണ്!`
+                : `സ്വാഗതം ഫൈദാൻ, ഏദ്രിക്! ഞാനാണ് ${guest1.malayalamName}! ഇന്നത്തെ നമ്മുടെ പാഠം ${chapterTitle} ആണ്!`,
             emotion: 'excited',
             actionPrompt: `${guest1.name} waves happily with sparkling stage lights.`,
           },
           {
-            speakerId: 'faidan',
+            speakerId: effectiveLearner === 'eadrick' ? 'eadrick' : 'faidan',
             englishText: `Wow, look at ${guest1.name}! Papa Manoj, Mummy Tessy, can we explore ${termsString} together right now?`,
             malayalamText: `പപ്പാ, മമ്മീ! ${guest1.malayalamName}യെ കണ്ടോ! നമുക്കിത് ഒന്നിച്ച് കണ്ടുപിടിക്കാം!`,
             emotion: 'excited',
-            actionPrompt: 'Faidan hops with curiosity and points to the scene backdrop.',
+            actionPrompt: `${effectiveLearner === 'eadrick' ? 'Eadrick' : 'Faidan'} hops with curiosity and points to the scene backdrop.`,
           },
           {
             speakerId: 'father',
-            englishText: `Yes, sweet Faidan! Papa Manoj and Mummy Tessy are right beside you! In this chapter, we discover how ${chapterTitle} works in real life!`,
-            malayalamText: `തീർച്ചയായും ഫൈദാൻ മോനേ! പപ്പയും മമ്മിയും നിന്റെ കൂടെയുണ്ട്! ഈ പാഠത്തിൽ നാം പ്രധാനമായും പഠിക്കുന്നത് ${chapterTitle} ആണ്!`,
+            englishText:
+              effectiveLearner === 'eadrick'
+                ? `Yes, champion Eadrick! Papa Manoj and Mummy Tessy are right beside you! In this chapter, we discover how ${chapterTitle} works in real life!`
+                : `Yes, sweet Faidan! Papa Manoj and Mummy Tessy are right beside you! In this chapter, we discover how ${chapterTitle} works in real life!`,
+            malayalamText:
+              effectiveLearner === 'eadrick'
+                ? `തീർച്ചയായും ഏദ്രിക് മോനേ! പപ്പയും മമ്മിയും നിന്റെ കൂടെയുണ്ട്! ഈ പാഠത്തിൽ നാം പ്രധാനമായും പഠിക്കുന്നത് ${chapterTitle} ആണ്!`
+                : `തീർച്ചയായും ഫൈദാൻ മോനേ! പപ്പയും മമ്മിയും നിന്റെ കൂടെയുണ്ട്! ഈ പാഠത്തിൽ നാം പ്രധാനമായും പഠിക്കുന്നത് ${chapterTitle} ആണ്!`,
             emotion: 'explaining',
-            actionPrompt: 'Papa Manoj gives Faidan a warm, confident high-five.',
+            actionPrompt: `Papa Manoj gives ${effectiveLearner === 'eadrick' ? 'Eadrick' : 'Faidan'} a warm, confident high-five.`,
           },
           {
             speakerId: guest2.id,
@@ -1943,15 +1964,34 @@ export function getOrCreateCartoonEpisode(
         props,
         dialogues: [
           {
-            speakerId: 'eadrick',
-            englishText: `Hey Faidan, here is Big Brother Eadrick’s secret trick! Remember key terms: ${termsString}! Everything connects like a jigsaw puzzle!`,
-            malayalamText: `ഫൈദാൻ, ചേട്ടന്റെ ഒരു സൂത്രം ഓർക്കുക: ${termsString} എന്നീ വാക്കുകൾ ഓർത്തു വെയ്ക്കൂ! എല്ലാം വളരെ ലളിതമാണ്!`,
+            speakerId: effectiveLearner === 'eadrick' ? 'eadrick' : 'eadrick',
+            englishText:
+              effectiveLearner === 'eadrick'
+                ? `Here is the secret to mastering ${chapterTitle}! Remember key concepts: ${termsString}! Everything connects step by step!`
+                : `Hey Faidan, here is Big Brother Eadrick’s secret trick! Remember key terms: ${termsString}! Everything connects like a jigsaw puzzle!`,
+            malayalamText:
+              effectiveLearner === 'eadrick'
+                ? `ഈ പാഠം എളുപ്പത്തിൽ പഠിക്കാൻ ഒരു സൂത്രമുണ്ട്: ${termsString} എന്നീ ആശയങ്ങൾ ഓർക്കുക! എല്ലാം വളരെ ലളിതമാണ്!`
+                : `ഫൈദാൻ, ചേട്ടന്റെ ഒരു സൂത്രം ഓർക്കുക: ${termsString} എന്നീ വാക്കുകൾ ഓർത്തു വെയ്ക്കൂ! എല്ലാം വളരെ ലളിതമാണ്!`,
             emotion: 'excited',
             actionPrompt: 'Eadrick demonstrates the connection with lively gestures.',
           },
           {
+            speakerId: effectiveLearner === 'eadrick' ? 'faidan' : 'faidan',
+            englishText:
+              effectiveLearner === 'eadrick'
+                ? `Big brother Eadrick, you are super smart! I love learning with you!`
+                : `Hooray! I understand it now with brother Eadrick!`,
+            malayalamText:
+              effectiveLearner === 'eadrick'
+                ? `ഏദ്രിക് ചേട്ടൻ സൂപ്പറാണ്! ചേട്ടനോടൊപ്പം പഠിക്കാൻ എനിക്ക് ഭയങ്കര ഇഷ്ടമാണ്!`
+                : `യേയ്! ചേട്ടൻ പറഞ്ഞു തന്നപ്പോൾ എനിക്ക് മനസ്സിലായി!`,
+            emotion: 'happy',
+            actionPrompt: 'Faidan claps enthusiastically for his brother.',
+          },
+          {
             speakerId: 'mother',
-            englishText: `And remember my little champions: when we practice with love and joy, we remember it forever!`,
+            englishText: `And remember my champions: when we practice with love and joy, we remember it forever!`,
             malayalamText: `എന്റെ മിടുക്കന്മാർ! സന്തോഷത്തോടെ മനസ്സിലാക്കി പഠിച്ചാൽ ജീവിതകാലം മുഴുവൻ നാം ഇത് ഓർക്കും!`,
             emotion: 'happy',
             actionPrompt: 'Mummy Tessy beams with pride.',
@@ -1964,11 +2004,11 @@ export function getOrCreateCartoonEpisode(
             actionPrompt: 'Grandma Lilly applauds with a loving smile.',
           },
           {
-            speakerId: 'faidan',
-            englishText: `Hooray! Now I understand ${chapterTitle} completely! Thank you Papa, Mummy, Grandma, Eadrick, and our cartoon friends!`,
-            malayalamText: `യേയ്! ഇപ്പോൾ എനിക്ക് ${chapterTitle} പൂർണ്ണമായും മനസ്സിലായി! പപ്പയ്ക്കും മമ്മിക്കും മുത്തശ്ശിക്കും ചേട്ടനും കൂട്ടുകാർക്കും നന്ദി!`,
+            speakerId: effectiveLearner === 'eadrick' ? 'eadrick' : 'faidan',
+            englishText: `Hooray! Now I understand ${chapterTitle} completely! Thank you Papa, Mummy, Grandma, ${effectiveLearner === 'eadrick' ? 'brother Faidan' : 'brother Eadrick'}, and our cartoon friends!`,
+            malayalamText: `യേയ്! ഇപ്പോൾ എനിക്ക് ${chapterTitle} പൂർണ്ണമായും മനസ്സിലായി! പപ്പയ്ക്കും മമ്മിക്കും മുത്തശ്ശിക്കും ${effectiveLearner === 'eadrick' ? 'ഫൈദാനും' : 'ചേട്ടനും'} കൂട്ടുകാർക്കും നന്ദി!`,
             emotion: 'celebrating',
-            actionPrompt: 'Faidan jumps into the air with both hands up in celebration.',
+            actionPrompt: `${effectiveLearner === 'eadrick' ? 'Eadrick' : 'Faidan'} jumps into the air with both hands up in celebration.`,
           },
         ],
         keyConceptPopup: {

@@ -54,6 +54,7 @@ interface CartoonVideoPlayerProps {
   onComplete?: () => void;
   isWatched?: boolean;
   onToggleWatched?: () => void;
+  learnerId?: 'eadrick' | 'faidan';
 }
 
 interface StageActor {
@@ -81,6 +82,7 @@ export function CartoonVideoPlayer({
   onComplete,
   isWatched = false,
   onToggleWatched,
+  learnerId = 'eadrick',
 }: CartoonVideoPlayerProps) {
   const [currentSceneIdx, setCurrentSceneIdx] = useState(0);
   const [currentDialogueIdx, setCurrentDialogueIdx] = useState(0);
@@ -113,6 +115,11 @@ export function CartoonVideoPlayer({
   const currentScene: CartoonScene = episode.scenes[currentSceneIdx] || episode.scenes[0];
   const currentDialogue: CartoonDialogue =
     currentScene?.dialogues[currentDialogueIdx] || currentScene?.dialogues[0];
+
+  const isEadrickLearner =
+    learnerId === 'eadrick' ||
+    episode.chapterId?.includes('c4') ||
+    episode.chapterId?.includes('class4');
 
   // Helper to resolve any speaker (Family or Episode Guest Character)
   const getActor = useCallback(
@@ -153,7 +160,7 @@ export function CartoonVideoPlayer({
           tagline: guest.tagline,
         };
       }
-      const fallback = FAMILY_CHARACTERS.faidan;
+      const fallback = isEadrickLearner ? FAMILY_CHARACTERS.eadrick : FAMILY_CHARACTERS.faidan;
       return {
         id: fallback.id,
         name: fallback.name,
@@ -169,10 +176,12 @@ export function CartoonVideoPlayer({
         tagline: fallback.tagline,
       };
     },
-    [episode.cast]
+    [episode.cast, isEadrickLearner]
   );
 
-  const activeActor: StageActor = getActor(currentDialogue?.speakerId || 'faidan');
+  const activeActor: StageActor = getActor(
+    currentDialogue?.speakerId || (isEadrickLearner ? 'eadrick' : 'faidan')
+  );
 
   // Cleanup auto-timer
   const clearTimer = () => {
@@ -341,13 +350,31 @@ export function CartoonVideoPlayer({
   };
 
   // Full Stage Ensemble: Family + Episode Guest Characters
-  const familyList: CartoonCharacter[] = [
-    FAMILY_CHARACTERS.grandmother,
-    FAMILY_CHARACTERS.father,
-    FAMILY_CHARACTERS.faidan,
-    FAMILY_CHARACTERS.mother,
-    FAMILY_CHARACTERS.eadrick,
-  ];
+  // Ensure the primary student learner (Eadrick for Class 4, Faidan for UKG) is positioned front & center!
+  const familyList: CartoonCharacter[] = isEadrickLearner
+    ? [
+        FAMILY_CHARACTERS.grandmother,
+        FAMILY_CHARACTERS.father,
+        FAMILY_CHARACTERS.eadrick, // Front and center for Eadrick!
+        FAMILY_CHARACTERS.mother,
+        FAMILY_CHARACTERS.faidan,
+      ]
+    : [
+        FAMILY_CHARACTERS.grandmother,
+        FAMILY_CHARACTERS.father,
+        FAMILY_CHARACTERS.faidan, // Front and center for Faidan!
+        FAMILY_CHARACTERS.mother,
+        FAMILY_CHARACTERS.eadrick,
+      ];
+
+  const getCharacterShortLabel = (char: CartoonCharacter) => {
+    if (char.id === 'eadrick') return language === 'ml' ? 'ഏദ്രിക്' : 'Eadrick';
+    if (char.id === 'faidan') return language === 'ml' ? 'ഫൈദാൻ' : 'Faidan';
+    if (char.id === 'father') return language === 'ml' ? 'പപ്പ' : 'Papa';
+    if (char.id === 'mother') return language === 'ml' ? 'മമ്മി' : 'Mummy';
+    if (char.id === 'grandmother') return language === 'ml' ? 'മുത്തശ്ശി' : 'Grandma';
+    return language === 'ml' ? char.malayalamName.split(' ')[0] : char.name.split(' ')[0];
+  };
 
   const guestList: GuestCharacter[] = episode.cast || [];
 
@@ -552,6 +579,8 @@ export function CartoonVideoPlayer({
           {/* Family Members */}
           {familyList.map((char) => {
             const isSpeakingNow = char.id === currentDialogue.speakerId;
+            const isPrimaryLearner = char.id === (isEadrickLearner ? 'eadrick' : 'faidan');
+
             return (
               <div
                 key={char.id}
@@ -562,16 +591,23 @@ export function CartoonVideoPlayer({
                 className={`flex flex-col items-center cursor-pointer transition-all duration-300 ${
                   isSpeakingNow
                     ? 'scale-110 -translate-y-2 z-20'
+                    : isPrimaryLearner
+                    ? 'scale-100 z-15'
                     : 'opacity-85 hover:opacity-100 scale-95 z-10'
                 }`}
               >
                 {/* Character Name Pill */}
                 <div
-                  className={`text-[9px] sm:text-xs font-black px-2 py-0.5 rounded-full mb-1 shadow-md transition-all truncate max-w-[100px] ${
-                    isSpeakingNow ? `${char.badgeColor} ring-4 ring-white` : 'bg-white/90 text-slate-700'
+                  className={`text-[9px] sm:text-xs font-black px-2 py-0.5 rounded-full mb-1 shadow-md transition-all truncate max-w-[110px] flex items-center space-x-1 ${
+                    isSpeakingNow
+                      ? `${char.badgeColor} ring-4 ring-white`
+                      : isPrimaryLearner
+                      ? 'bg-amber-400 text-slate-950 ring-2 ring-amber-300'
+                      : 'bg-white/90 text-slate-700'
                   }`}
                 >
-                  {language === 'ml' ? char.malayalamName.split(' ')[0] : char.name.split(' ')[0]}
+                  {isPrimaryLearner && <span>⭐</span>}
+                  <span>{getCharacterShortLabel(char)}</span>
                 </div>
 
                 {/* 3D Character Picture Avatar Frame */}
@@ -579,6 +615,8 @@ export function CartoonVideoPlayer({
                   className={`relative rounded-2xl overflow-hidden shadow-xl transition-all ${
                     isSpeakingNow
                       ? 'w-16 h-22 sm:w-24 sm:h-32 ring-4 ring-amber-400 shadow-amber-300/50'
+                      : isPrimaryLearner
+                      ? 'w-14 h-20 sm:w-20 sm:h-26 ring-3 ring-amber-400 border-2 border-white'
                       : 'w-12 h-18 sm:w-18 sm:h-24 grayscale-10 border-2 border-white/70'
                   }`}
                 >

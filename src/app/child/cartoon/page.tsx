@@ -12,6 +12,8 @@ import {
   Users,
   Award,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Layers,
   HelpCircle,
   Box,
@@ -47,6 +49,20 @@ function CartoonTheaterContent() {
   const [episode, setEpisode] = useState<CartoonEpisode | null>(null);
   const [loading, setLoading] = useState(true);
   const [watchedChapterIds, setWatchedChapterIds] = useState<Set<string>>(new Set());
+  const [expandedSubjects, setExpandedSubjects] = useState<Record<string, boolean>>({});
+
+  const isSubjectExpanded = (subId: string) => {
+    // If explicitly set, use that; otherwise default to true (expanded)
+    return expandedSubjects[subId] !== false;
+  };
+
+  const toggleSubjectExpanded = (subId: string) => {
+    soundEffects.playPop();
+    setExpandedSubjects((prev) => ({
+      ...prev,
+      [subId]: prev[subId] === false ? true : false,
+    }));
+  };
 
   // Load watched chapters from localStorage when active child changes
   useEffect(() => {
@@ -135,13 +151,16 @@ function CartoonTheaterContent() {
           }
         }
 
+        const learnerId: 'eadrick' | 'faidan' = activeChild.id === 'child-2' ? 'faidan' : 'eadrick';
+
         if (foundChapter) {
           setCurrentChapter(foundChapter);
           const ep = getOrCreateCartoonEpisode(
             foundChapter.id,
             foundChapter.title,
             foundChapter.summary,
-            foundChapter.keyTerms
+            foundChapter.keyTerms,
+            learnerId
           );
           setEpisode(ep);
         }
@@ -161,7 +180,8 @@ function CartoonTheaterContent() {
   const selectChapter = (chap: TextbookChapter, subjectId?: string) => {
     soundEffects.playPop();
     setCurrentChapter(chap);
-    const ep = getOrCreateCartoonEpisode(chap.id, chap.title, chap.summary, chap.keyTerms);
+    const learnerId: 'eadrick' | 'faidan' = activeChild?.id === 'child-2' ? 'faidan' : 'eadrick';
+    const ep = getOrCreateCartoonEpisode(chap.id, chap.title, chap.summary, chap.keyTerms, learnerId);
     setEpisode(ep);
     router.replace(`/child/cartoon?chapterId=${chap.id}${subjectId ? `&subjectId=${subjectId}` : ''}`);
 
@@ -252,6 +272,7 @@ function CartoonTheaterContent() {
             language={language}
             onLanguageChange={(newLang) => setLanguage(newLang)}
             isWatched={currentChapter ? watchedChapterIds.has(currentChapter.id) : false}
+            learnerId={activeChild.id === 'child-2' ? 'faidan' : 'eadrick'}
             onComplete={() => {
               soundEffects.playLevelUp();
               if (currentChapter) {
@@ -440,9 +461,34 @@ function CartoonTheaterContent() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-1.5 text-xs font-black text-slate-500 bg-white px-3 py-1.5 rounded-2xl border border-slate-200 shadow-2xs">
-            <Filter className="w-3.5 h-3.5 text-indigo-600" />
-            <span>Select Category:</span>
+          <div className="flex items-center space-x-2">
+            <div className="relative inline-flex items-center">
+              <select
+                value={selectedSubjectFilter}
+                onChange={(e) => {
+                  soundEffects.playPop();
+                  const val = e.target.value;
+                  setSelectedSubjectFilter(val);
+                  if (val !== 'all') {
+                    setExpandedSubjects((prev) => ({ ...prev, [val]: true }));
+                  }
+                }}
+                className="appearance-none bg-white font-black text-xs text-slate-700 pl-3.5 pr-8 py-2 rounded-2xl border-2 border-indigo-200 hover:border-indigo-400 shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-300 transition"
+              >
+                <option value="all">🎬 {language === 'ml' ? 'എല്ലാ വിഷയങ്ങളും (All Subjects)' : 'All Subjects'} ({totalEpisodesCount})</option>
+                {subjects.map((sub) => {
+                  const subBooks = textbooks.filter((b) => b.subjectId === sub.id);
+                  const count = subBooks.reduce((acc, b) => acc + (b.chapters?.length || 0), 0);
+                  if (count === 0) return null;
+                  return (
+                    <option key={sub.id} value={sub.id}>
+                      {sub.icon} {language === 'ml' ? sub.malayalamName : sub.name} ({count} {language === 'ml' ? 'എപ്പിസോഡുകൾ' : 'episodes'})
+                    </option>
+                  );
+                })}
+              </select>
+              <ChevronDown className="w-4 h-4 text-indigo-600 absolute right-2.5 pointer-events-none" />
+            </div>
           </div>
         </div>
 
@@ -455,7 +501,7 @@ function CartoonTheaterContent() {
             }}
             className={`px-4 py-2 rounded-2xl text-xs font-black transition flex items-center space-x-2 flex-shrink-0 shadow-xs ${
               selectedSubjectFilter === 'all'
-                ? 'bg-rose-600 text-white shadow-rose-200'
+                ? 'bg-rose-600 text-white shadow-rose-200 ring-2 ring-rose-300'
                 : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-rose-300'
             }`}
           >
@@ -468,6 +514,7 @@ function CartoonTheaterContent() {
             >
               {totalEpisodesCount}
             </span>
+            <ChevronDown className="w-3.5 h-3.5 opacity-80" />
           </button>
 
           {subjects.map((sub) => {
@@ -483,10 +530,11 @@ function CartoonTheaterContent() {
                 onClick={() => {
                   soundEffects.playPop();
                   setSelectedSubjectFilter(sub.id);
+                  setExpandedSubjects((prev) => ({ ...prev, [sub.id]: true }));
                 }}
                 className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center space-x-2 flex-shrink-0 shadow-xs ${
                   isSelected
-                    ? 'bg-indigo-600 text-white shadow-indigo-200'
+                    ? 'bg-indigo-600 text-white shadow-indigo-200 ring-2 ring-indigo-300'
                     : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-indigo-300'
                 }`}
               >
@@ -501,6 +549,7 @@ function CartoonTheaterContent() {
                 >
                   {count}
                 </span>
+                <ChevronDown className={`w-3.5 h-3.5 transition ${isSelected ? 'text-white' : 'text-slate-400'}`} />
               </button>
             );
           })}
@@ -514,25 +563,29 @@ function CartoonTheaterContent() {
             if (allChaps.length === 0) return null;
 
             const bookTitle = matchingBooks[0]?.title || sub.name;
+            const isExpanded = isSubjectExpanded(sub.id);
 
             return (
               <div
                 key={sub.id}
                 className="bg-white rounded-3xl p-5 sm:p-6 border-3 border-slate-200 shadow-sm space-y-4 hover:border-indigo-300 transition"
               >
-                {/* Subject Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                {/* Subject Header with Dropdown / Collapse Button */}
+                <div
+                  onClick={() => toggleSubjectExpanded(sub.id)}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2 cursor-pointer select-none group"
+                >
                   <div className="flex items-center space-x-3">
                     <div
                       className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${
                         sub.bgGradient || 'from-indigo-500 to-purple-600'
-                      } text-white flex items-center justify-center text-2xl shadow-sm flex-shrink-0`}
+                      } text-white flex items-center justify-center text-2xl shadow-sm flex-shrink-0 group-hover:scale-105 transition`}
                     >
                       {sub.icon}
                     </div>
                     <div>
-                      <h3 className="text-base sm:text-lg font-black text-slate-800 leading-tight">
-                        {language === 'ml' ? sub.malayalamName : sub.name}
+                      <h3 className="text-base sm:text-lg font-black text-slate-800 leading-tight group-hover:text-indigo-600 transition flex items-center space-x-1.5">
+                        <span>{language === 'ml' ? sub.malayalamName : sub.name}</span>
                       </h3>
                       <p className="text-[11px] text-purple-600 font-bold truncate max-w-sm sm:max-w-md">
                         📖 {bookTitle}
@@ -544,138 +597,182 @@ function CartoonTheaterContent() {
                     <span className="text-[11px] font-black px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
                       {allChaps.length} {language === 'ml' ? 'കാർട്ടൂൺ എപ്പിസോഡുകൾ' : 'Episodes'}
                     </span>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSubjectExpanded(sub.id);
+                      }}
+                      className={`px-2.5 py-1.5 rounded-xl border transition flex items-center space-x-1 text-xs font-black ${
+                        isExpanded
+                          ? 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100'
+                          : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
+                      }`}
+                      title={isExpanded ? 'Collapse chapters' : 'Expand chapters'}
+                    >
+                      <span className="text-[11px] hidden sm:inline">
+                        {isExpanded
+                          ? language === 'ml'
+                            ? 'ചാപ്റ്ററുകൾ ചുരുക്കുക'
+                            : 'Hide'
+                          : language === 'ml'
+                          ? 'ചാപ്റ്ററുകൾ കാണുക'
+                          : 'Show'}
+                      </span>
+                      {isExpanded ? (
+                        <ChevronUp className="w-4 h-4 text-indigo-600" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-slate-600" />
+                      )}
+                    </button>
                   </div>
                 </div>
 
-                {/* Grid of Chapter Episodes under this Subject */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                  {matchingBooks.map((book) =>
-                    book.chapters?.map((chap) => {
-                      const isActive = currentChapter?.id === chap.id;
-                      const isWatched = watchedChapterIds.has(chap.id);
-                      const presetEp = PRESET_CARTOON_EPISODES[chap.id];
-                      const hasPreset = Boolean(presetEp);
-                      const themeEmoji = presetEp?.themeEmoji || '🎬';
+                {/* Grid of Chapter Episodes under this Subject (Collapsible) */}
+                {isExpanded ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 animate-in fade-in duration-200">
+                    {matchingBooks.map((book) =>
+                      book.chapters?.map((chap) => {
+                        const isActive = currentChapter?.id === chap.id;
+                        const isWatched = watchedChapterIds.has(chap.id);
+                        const presetEp = PRESET_CARTOON_EPISODES[chap.id];
+                        const hasPreset = Boolean(presetEp);
+                        const themeEmoji = presetEp?.themeEmoji || '🎬';
 
-                      return (
-                        <div
-                          key={chap.id}
-                          onClick={() => selectChapter(chap, sub.id)}
-                          className={`p-3.5 rounded-2xl border-2 cursor-pointer transition flex items-start space-x-3 group relative ${
-                            isActive
-                              ? 'bg-rose-50 border-rose-500 shadow-md ring-4 ring-rose-200/70 scale-[1.01]'
-                              : isWatched
-                              ? 'bg-emerald-50/50 border-emerald-300 hover:border-emerald-500 hover:bg-emerald-50/80 shadow-2xs hover:shadow-sm'
-                              : 'bg-slate-50/70 border-slate-200 hover:border-indigo-400 hover:bg-white shadow-2xs hover:shadow-sm'
-                          }`}
-                        >
-                          {/* Chapter Number Badge */}
+                        return (
                           <div
-                            className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0 transition ${
+                            key={chap.id}
+                            onClick={() => selectChapter(chap, sub.id)}
+                            className={`p-3.5 rounded-2xl border-2 cursor-pointer transition flex items-start space-x-3 group relative ${
                               isActive
-                                ? 'bg-rose-500 text-white shadow-md'
+                                ? 'bg-rose-50 border-rose-500 shadow-md ring-4 ring-rose-200/70 scale-[1.01]'
                                 : isWatched
-                                ? 'bg-emerald-600 text-white shadow-xs'
-                                : 'bg-white text-slate-700 border border-slate-200 group-hover:bg-indigo-50 group-hover:text-indigo-600'
+                                ? 'bg-emerald-50/50 border-emerald-300 hover:border-emerald-500 hover:bg-emerald-50/80 shadow-2xs hover:shadow-sm'
+                                : 'bg-slate-50/70 border-slate-200 hover:border-indigo-400 hover:bg-white shadow-2xs hover:shadow-sm'
                             }`}
                           >
-                            {isActive ? '▶' : isWatched ? '✓' : chap.chapterNumber}
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-1">
-                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">
-                                Episode {chap.chapterNumber} {themeEmoji}
-                              </span>
-
-                              <div className="flex items-center space-x-1">
-                                {isWatched ? (
-                                  <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center space-x-1 shadow-2xs">
-                                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                                    <span>{language === 'ml' ? 'കണ്ടു കഴിഞ്ഞു ✓' : 'Watched ✓'}</span>
-                                  </span>
-                                ) : hasPreset ? (
-                                  <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-800">
-                                    Featured ⭐
-                                  </span>
-                                ) : null}
-                              </div>
-                            </div>
-
-                            <h4
-                              className={`text-xs font-black truncate mt-0.5 ${
+                            {/* Chapter Number Badge */}
+                            <div
+                              className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0 transition ${
                                 isActive
-                                  ? 'text-rose-900'
+                                  ? 'bg-rose-500 text-white shadow-md'
                                   : isWatched
-                                  ? 'text-emerald-950 font-black'
-                                  : 'text-slate-800 group-hover:text-indigo-600'
+                                  ? 'bg-emerald-600 text-white shadow-xs'
+                                  : 'bg-white text-slate-700 border border-slate-200 group-hover:bg-indigo-50 group-hover:text-indigo-600'
                               }`}
                             >
-                              {language === 'ml' ? chap.malayalamTitle : chap.title}
-                            </h4>
+                              {isActive ? '▶' : isWatched ? '✓' : chap.chapterNumber}
+                            </div>
 
-                            <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5 leading-snug">
-                              {language === 'ml' ? chap.malayalamSummary : chap.summary}
-                            </p>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-1">
+                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">
+                                  Episode {chap.chapterNumber} {themeEmoji}
+                                </span>
 
-                            <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100/90 gap-1">
-                              {isActive ? (
-                                <span className="text-[10px] font-black text-rose-600 flex items-center space-x-1">
-                                  <PlayCircle className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
-                                  <span>
-                                    {isWatched
-                                      ? language === 'ml'
-                                        ? 'ഇപ്പോൾ കാണുന്നു (വീണ്ടും)'
-                                        : 'Watching Now (Rewatch)'
-                                      : language === 'ml'
-                                      ? 'ഇപ്പോൾ കാണുന്നു'
-                                      : 'Watching Now'}
+                                <div className="flex items-center space-x-1">
+                                  {isWatched ? (
+                                    <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center space-x-1 shadow-2xs">
+                                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                      <span>{language === 'ml' ? 'കണ്ടു കഴിഞ്ഞു ✓' : 'Watched ✓'}</span>
+                                    </span>
+                                  ) : hasPreset ? (
+                                    <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-800">
+                                      Featured ⭐
+                                    </span>
+                                  ) : null}
+                                </div>
+                              </div>
+
+                              <h4
+                                className={`text-xs font-black truncate mt-0.5 ${
+                                  isActive
+                                    ? 'text-rose-900'
+                                    : isWatched
+                                    ? 'text-emerald-950 font-black'
+                                    : 'text-slate-800 group-hover:text-indigo-600'
+                                }`}
+                              >
+                                {language === 'ml' ? chap.malayalamTitle : chap.title}
+                              </h4>
+
+                              <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5 leading-snug">
+                                {language === 'ml' ? chap.malayalamSummary : chap.summary}
+                              </p>
+
+                              <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100/90 gap-1">
+                                {isActive ? (
+                                  <span className="text-[10px] font-black text-rose-600 flex items-center space-x-1">
+                                    <PlayCircle className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
+                                    <span>
+                                      {isWatched
+                                        ? language === 'ml'
+                                          ? 'ഇപ്പോൾ കാണുന്നു (വീണ്ടും)'
+                                          : 'Watching Now (Rewatch)'
+                                        : language === 'ml'
+                                        ? 'ഇപ്പോൾ കാണുന്നു'
+                                        : 'Watching Now'}
+                                    </span>
                                   </span>
-                                </span>
-                              ) : isWatched ? (
-                                <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-2.5 py-1 rounded-xl flex items-center space-x-1.5 border border-emerald-300 transition group-hover:scale-105 shadow-2xs">
-                                  <RotateCcw className="w-3 h-3 text-emerald-700" />
-                                  <span>{language === 'ml' ? 'വീണ്ടും കാണുക ↺' : 'Rewatch ↺'}</span>
-                                </span>
-                              ) : (
-                                <span className="text-[10px] font-bold text-indigo-600 flex items-center space-x-1 group-hover:underline">
-                                  <PlayCircle className="w-3 h-3 text-indigo-500" />
-                                  <span>{language === 'ml' ? 'കാർട്ടൂൺ കാണുക ▶' : 'Watch Cartoon ▶'}</span>
-                                </span>
-                              )}
-
-                              <div className="flex items-center space-x-1.5">
-                                {isActive && (
-                                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                                ) : isWatched ? (
+                                  <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-2.5 py-1 rounded-xl flex items-center space-x-1.5 border border-emerald-300 transition group-hover:scale-105 shadow-2xs">
+                                    <RotateCcw className="w-3 h-3 text-emerald-700" />
+                                    <span>{language === 'ml' ? 'വീണ്ടും കാണുക ↺' : 'Rewatch ↺'}</span>
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] font-bold text-indigo-600 flex items-center space-x-1 group-hover:underline">
+                                    <PlayCircle className="w-3 h-3 text-indigo-500" />
+                                    <span>{language === 'ml' ? 'കാർട്ടൂൺ കാണുക ▶' : 'Watch Cartoon ▶'}</span>
+                                  </span>
                                 )}
 
-                                <button
-                                  onClick={(e) => toggleChapterWatched(chap.id, e)}
-                                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md flex items-center space-x-0.5 transition ${
-                                    isWatched
-                                      ? 'text-emerald-700 hover:bg-emerald-100 bg-emerald-50'
-                                      : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200/60'
-                                  }`}
-                                  title={
-                                    isWatched
-                                      ? language === 'ml'
-                                        ? 'കണ്ടിട്ടില്ല എന്ന് മാറ്റുക'
-                                        : 'Mark as uncompleted'
-                                      : language === 'ml'
-                                      ? 'കണ്ടു എന്ന് രേഖപ്പെടുത്തുക'
-                                      : 'Mark as finished'
-                                  }
-                                >
-                                  <span>{isWatched ? '✓ Done' : 'Mark'}</span>
-                                </button>
+                                <div className="flex items-center space-x-1.5">
+                                  {isActive && (
+                                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                                  )}
+
+                                  <button
+                                    onClick={(e) => toggleChapterWatched(chap.id, e)}
+                                    className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md flex items-center space-x-0.5 transition ${
+                                      isWatched
+                                        ? 'text-emerald-700 hover:bg-emerald-100 bg-emerald-50'
+                                        : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200/60'
+                                    }`}
+                                    title={
+                                      isWatched
+                                        ? language === 'ml'
+                                          ? 'കണ്ടിട്ടില്ല എന്ന് മാറ്റുക'
+                                          : 'Mark as uncompleted'
+                                        : language === 'ml'
+                                        ? 'കണ്ടു എന്ന് രേഖപ്പെടുത്തുക'
+                                        : 'Mark as finished'
+                                    }
+                                  >
+                                    <span>{isWatched ? '✓ Done' : 'Mark'}</span>
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
+                        );
+                      })
+                    )}
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => toggleSubjectExpanded(sub.id)}
+                    className="py-3 px-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-center cursor-pointer hover:bg-indigo-50/50 hover:border-indigo-300 transition"
+                  >
+                    <p className="text-xs font-bold text-slate-500 flex items-center justify-center space-x-1.5">
+                      <span>
+                        {language === 'ml'
+                          ? `ഈ വിഷയത്തിലെ ${allChaps.length} കാർട്ടൂൺ പാഠങ്ങൾ കാണാൻ ഇവിടെ ക്ലിക്ക് ചെയ്യുക`
+                          : `Click to drop down and view all ${allChaps.length} cartoon chapter videos`}
+                      </span>
+                      <ChevronDown className="w-3.5 h-3.5 text-indigo-500" />
+                    </p>
+                  </div>
+                )}
               </div>
             );
           })}
