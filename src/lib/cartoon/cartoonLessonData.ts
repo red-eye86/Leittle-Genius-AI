@@ -1019,6 +1019,182 @@ export const PRESET_CARTOON_EPISODES: Record<string, CartoonEpisode> = {
       },
     ],
   },
+
+  // =========================================================================
+  // 9. HINDI UDAN KHATOLA 4 — CH 3: THE MAGICAL SKY CHARIOT ADVENTURE
+  // =========================================================================
+  'chap-c4-hin-3': {
+    chapterId: 'chap-c4-hin-3',
+    title: 'उड़न खटोला की रोमांचक सैर: The Sky Chariot Flight!',
+    malayalamTitle: 'ഉഡൻ ഖടോലയുടെ ആകാശയാത്ര!',
+    subjectTitle: 'उड़न खटोला 4 (रचना सागर) — Chapter 3',
+    bannerGradient: 'from-rose-500 via-pink-600 to-red-600',
+    themeEmoji: '🛸✨',
+    worldName: { en: 'The Flying Chariot Sky Realm', ml: 'ഉഡൻ ഖടോല ആകാശ ലോകം' },
+    moral: { en: 'Imagination takes us across snowy mountains and sparkling rivers!', ml: 'ഭാവനയും അറിവും നമ്മെ ഹിമാലയ പർവ്വതങ്ങൾക്കും പുഴകൾക്കും മുകളിലൂടെ പറക്കാൻ സഹായിക്കുന്നു!' },
+    cast: [
+      {
+        id: 'khatola_ufo',
+        name: 'Khatola the Magical Flying Chariot',
+        malayalamName: 'ഉഡൻ ഖടോല മാന്ത്രിക രഥം',
+        role: 'Flying Sky Guide',
+        malayalamRole: 'ആകാശയാത്രയിലെ മാന്ത്രിക വാഹനം',
+        emoji: '🛸',
+        voiceKey: 'voice_creature',
+        voicePitch: 1.3,
+        voiceRate: 1.05,
+        bgGradient: 'from-rose-400 to-pink-600',
+        badgeColor: 'bg-rose-600 text-white',
+        borderColor: 'border-rose-400',
+        tagline: 'सर्र-सर्र! बादलों के बीच उड़ते चलो, भारत के सुंदर दृश्य देखते चलो!',
+      },
+      {
+        id: 'birbal_wise',
+        name: 'Birbal the Clever Vizier',
+        malayalamName: 'ബുദ്ധിമാനായ ബീർബൽ',
+        role: 'Royal Wit and Problem Solver',
+        malayalamRole: 'അക്ബറുടെ കൊട്ടാരത്തിലെ ബുദ്ധിമാൻ',
+        emoji: '👑',
+        voiceKey: 'voice_wise',
+        voicePitch: 0.88,
+        voiceRate: 0.95,
+        bgGradient: 'from-amber-400 to-yellow-600',
+        badgeColor: 'bg-amber-600 text-slate-900',
+        borderColor: 'border-amber-400',
+        tagline: 'बुद्धि और चतुराई से हर उलझन को सुलझाना ही सबसे बड़ी शक्ति है!',
+      },
+    ],
+    scenes: [
+      {
+        sceneNumber: 1,
+        title: 'Flying High above Clouds with Khatola',
+        malayalamTitle: 'ഉഡൻ ഖടോലയിലെ ആകാശയാത്ര',
+        backdrop: 'sky',
+        visualStageEmoji: '🛸☁️🏔️🇮🇳',
+        props: ['🛸', '☁️', '🏔️', '✨'],
+        dialogues: [
+          {
+            speakerId: 'khatola_ufo',
+            englishText: 'Namaste Eadrick and Faidan! Hop aboard your book cover’s magical उड़न खटोला! Let’s glide over snowy Himalayan peaks!',
+            malayalamText: 'നമസ്തേ ഏദ്രിക്, ഫൈദാൻ! നിങ്ങളുടെ ഹിന്ദി പുസ്തകത്തിലെ മാന്ത്രിക ഉഡൻ ഖടോലയിൽ കയറൂ! ഹിമാലയ കൊടുമുടികൾക്ക് മുകളിലൂടെ പറക്കാം!',
+            emotion: 'excited',
+            actionPrompt: 'Khatola spins with golden stardust sparkles across the blue sky.',
+          },
+          {
+            speakerId: 'eadrick',
+            englishText: 'Wah, look down Papa Manoj! I can see the holy Ganga river flowing like a silver ribbon through the green valleys!',
+            malayalamText: 'പപ്പാ താഴോട്ട് നോക്കൂ! ഗംഗാനദി വെള്ളിനൂലുപോലെ പച്ചപ്പുനിറഞ്ഞ താഴ്‌വരകളിലൂടെ ഒഴുകുന്നത് കാണാം!',
+            emotion: 'excited',
+            actionPrompt: 'Eadrick leans over the side of the chariot with amazement.',
+          },
+          {
+            speakerId: 'birbal_wise',
+            englishText: 'Muskuraiye Eadrick! Hindi is the thread of unity that connects millions of hearts across our proud nation!',
+            malayalamText: 'പുഞ്ചിരിക്കൂ ഏദ്രിക്! ഹിന്ദി ഭാഷ ഭാരതത്തിലെ കോടിക്കണക്കിന് ഹൃദയങ്ങളെ സ്നേഹത്തോടെ കോർത്തിണക്കുന്നു!',
+            emotion: 'happy',
+            actionPrompt: 'Birbal folds his hands with a warm royal greeting.',
+          },
+          {
+            speakerId: 'father',
+            englishText: 'Just like Rachna Sagar’s Udan Khatola teaches us, stories and poems make learning Hindi effortless and joyful!',
+            malayalamText: 'ഉഡൻ ഖടോല പുസ്തകം നമ്മെ പഠിപ്പിക്കുന്നതുപോലെ കഥകളിലൂടെ ഹിന്ദി പഠിക്കുന്നത് എത്ര എളുപ്പമാണ്!',
+            emotion: 'celebrating',
+          },
+        ],
+        keyConceptPopup: {
+          english: 'उड़न खटोला (Udan Khatola) = Magical Flying Chariot in Indian Folklore!',
+          malayalam: 'ഉഡൻ ഖടോല എന്നാൽ ആകാശത്ത് പറക്കുന്ന മാന്ത്രിക രഥം!',
+        },
+      },
+    ],
+  },
+
+  // =========================================================================
+  // 10. GRAMMAR FEST 4 (HEADWORD) — CH 1: THE 4 KINDS OF SENTENCES
+  // =========================================================================
+  'chap-c4-eng-1': {
+    chapterId: 'chap-c4-eng-1',
+    title: 'Grammar Fest: The 4 Sentence Superheroes!',
+    malayalamTitle: 'ഗ്രാമർ ഫെസ്റ്റ്: 4 തരം വാക്യങ്ങൾ!',
+    subjectTitle: 'Grammar Fest 4 (Headword Publishing) — Chapter 1',
+    bannerGradient: 'from-indigo-600 via-purple-600 to-blue-700',
+    themeEmoji: '✍️🦘',
+    worldName: { en: 'Grammar Fest Carnival', ml: 'ഗ്രാമർ ഫെസ്റ്റ് ഉത്സവം' },
+    moral: { en: 'Expressing your thoughts with the right sentence structure opens doors everywhere!', ml: 'ശരിയായ വാക്യങ്ങളിലൂടെ ആശയങ്ങൾ പങ്കുവെക്കുമ്പോൾ എല്ലാവർക്കും അത് വ്യക്തമായി മനസ്സിലാകും!' },
+    cast: [
+      {
+        id: 'prof_punctuation',
+        name: 'Professor Punctuation',
+        malayalamName: 'പ്രൊഫസർ ചിഹ്ന മാന്ത്രികൻ',
+        role: 'Chief Punctuation Inspector',
+        malayalamRole: 'വാക്യ ചിഹ്നങ്ങളുടെ സൂക്ഷിപ്പുകാരൻ',
+        emoji: '✍️',
+        voiceKey: 'voice_wise',
+        voicePitch: 0.88,
+        voiceRate: 0.95,
+        bgGradient: 'from-purple-500 to-indigo-600',
+        badgeColor: 'bg-purple-600 text-white',
+        borderColor: 'border-purple-400',
+        tagline: 'Always begin with a Capital Letter and end with the right punctuation sign!',
+      },
+      {
+        id: 'wordy_kangaroo',
+        name: 'Wordy the Grammar Kangaroo',
+        malayalamName: 'വേർഡി ചാട്ടക്കാരൻ കംഗാരു',
+        role: 'Sentence Trampoline Champion',
+        malayalamRole: 'വാക്യങ്ങൾ നിർമ്മിച്ച് ചാടുന്ന കംഗാരു',
+        emoji: '🦘',
+        voiceKey: 'voice_creature',
+        voicePitch: 1.35,
+        voiceRate: 1.05,
+        bgGradient: 'from-amber-400 to-orange-500',
+        badgeColor: 'bg-amber-500 text-slate-900',
+        borderColor: 'border-amber-400',
+        tagline: 'Boing boing! Bouncing on the Grammar Fest trampoline with 4 kinds of sentences!',
+      },
+    ],
+    scenes: [
+      {
+        sceneNumber: 1,
+        title: 'Bouncing on the Trampoline with 4 Sentence Types',
+        malayalamTitle: 'നാല് തരം വാക്യങ്ങൾ പരിചയപ്പെടുന്നു',
+        backdrop: 'classroom',
+        visualStageEmoji: '✍️🦘❓❗.',
+        props: ['✍️', '🦘', '❓', '❗'],
+        dialogues: [
+          {
+            speakerId: 'wordy_kangaroo',
+            englishText: 'Boing boing! Welcome to Grammar Fest, Eadrick! Just like the kids bouncing on your book cover trampoline, let’s build 4 sentence types!',
+            malayalamText: 'സ്വാഗതം ഗ്രാമർ ഫെസ്റ്റിലേക്ക് ഏദ്രിക്! നിന്റെ ബുക്കിന്റെ പുറംചട്ടയിലെ കുട്ടികളെപ്പോലെ നമുക്ക് 4 തരം വാക്യങ്ങളിലേക്ക് ചാടാം!',
+            emotion: 'excited',
+            actionPrompt: 'Wordy does a bouncy trampoline leap across the stage.',
+          },
+          {
+            speakerId: 'prof_punctuation',
+            englishText: 'Listen carefully: Declarative makes a STATEMENT (.), Interrogative asks a QUESTION (?), Imperative gives a COMMAND (.), Exclamatory shows EXCITEMENT (!)!',
+            malayalamText: 'ശ്രദ്ധിക്കൂ: പ്രസ്താവന (.), ചോദ്യം (?), നിർദ്ദേശം (.), ആശ്ചര്യവാക്യം (!) — ഇവയാണ് 4 തരം വാക്യങ്ങൾ!',
+            emotion: 'explaining',
+          },
+          {
+            speakerId: 'eadrick',
+            englishText: '"Eadrick loves science." is Declarative! "Are you ready?" is Interrogative! And "What a glorious day!" is Exclamatory!',
+            malayalamText: '"ഏദ്രിക് സയൻസ് ഇഷ്ടപ്പെടുന്നു" എന്നത് പ്രസ്താവന! "തയ്യാറാണോ?" എന്നത് ചോദ്യം! "എത്ര മനോഹരമായ ദിവസം!" എന്നത് ആശ്ചര്യവാക്യം!',
+            emotion: 'celebrating',
+          },
+          {
+            speakerId: 'mother',
+            englishText: 'Spot on, Eadrick! Master your Grammar Fest lessons and your writing will always be crystal clear and brilliant!',
+            malayalamText: 'വളരെ കൃത്യമായി പറഞ്ഞു ഏദ്രിക്! വ്യാകരണം പഠിച്ചാൽ ഇംഗ്ലീഷ് എഴുത്തും സംസാരവും ഒന്നാംകിടയാകും!',
+            emotion: 'happy',
+          },
+        ],
+        keyConceptPopup: {
+          english: '4 Sentences: Declarative (.), Interrogative (?), Imperative (.), Exclamatory (!)',
+          malayalam: '4 തരം വാക്യങ്ങൾ: പ്രസ്താവന (.), ചോദ്യം (?), നിർദ്ദേശം (.), ആശ്ചര്യവാക്യം (!)',
+        },
+      },
+    ],
+  },
 };
 
 /**
@@ -1322,6 +1498,82 @@ export function getOrCreateCartoonEpisode(
       badgeColor: 'bg-sky-600 text-white',
       borderColor: 'border-sky-400',
       tagline: 'തുമ്പപ്പൂവിൽ തേനുണ്ടോ എന്ന് പാടിപ്പാറി നടക്കുന്ന കൊച്ചു കൂട്ടുകാരി!',
+    };
+  } else if (textLower.includes('hindi') || textLower.includes('हिन्दी') || textLower.includes('उड़न') || textLower.includes('खटोला') || textLower.includes('बीरबल') || textLower.includes('पाठ')) {
+    category = 'hindi';
+    backdrop = 'sky';
+    bannerGradient = 'from-rose-500 via-pink-600 to-red-600';
+    themeEmoji = '🛸🪶';
+    worldName = { en: 'Udan Khatola Hindi Realm', ml: 'ഉഡൻ ഖടോല വിസ്മയ ലോകം' };
+    props = ['🛸', '🪶', '🏔️', '✨'];
+    moral = { en: 'Hindi literature inspires wisdom, courage, and love for nature!', ml: 'ഹിന്ദി സാഹിത്യം വിവേകവും പ്രകൃതിസ്നേഹവും പകർന്നുതരുന്നു!' };
+    guest1 = {
+      id: 'khatola_dynamic',
+      name: 'Khatola the Flying Chariot',
+      malayalamName: 'ഉഡൻ ഖടോല മാന്ത്രിക രഥം',
+      role: 'Sky Chariot of Wisdom',
+      malayalamRole: 'ആകാശയാത്രയിലെ മാന്ത്രിക വാഹനം',
+      emoji: '🛸',
+      voiceKey: 'voice_creature',
+      voicePitch: 1.3,
+      voiceRate: 1.05,
+      bgGradient: 'from-rose-400 to-pink-600',
+      badgeColor: 'bg-rose-600 text-white',
+      borderColor: 'border-rose-400',
+      tagline: 'जादुई उड़न खटोले में बैठकर भारत के सुंदर पर्वतों और नदियों की सैर करें!',
+    };
+    guest2 = {
+      id: 'birbal_dynamic',
+      name: 'Birbal the Clever Vizier',
+      malayalamName: 'ബുദ്ധിമാനായ ബീർബൽ',
+      role: 'Champion of Wit & Justice',
+      malayalamRole: 'നീതിമാനും ബുദ്ധിമാനുമായ മന്ത്രി',
+      emoji: '👑',
+      voiceKey: 'voice_wise',
+      voicePitch: 0.88,
+      voiceRate: 0.95,
+      bgGradient: 'from-amber-400 to-yellow-600',
+      badgeColor: 'bg-amber-600 text-slate-900',
+      borderColor: 'border-amber-400',
+      tagline: 'बुद्धि और हास्य-बोध से हर मुश्किल समस्या का हल निकलता है!',
+    };
+  } else if (textLower.includes('grammar') || textLower.includes('sentence') || textLower.includes('predicate') || textLower.includes('noun') || textLower.includes('adverb') || textLower.includes('pronoun') || textLower.includes('conjunction')) {
+    category = 'english_grammar';
+    backdrop = 'classroom';
+    bannerGradient = 'from-indigo-600 via-purple-600 to-blue-700';
+    themeEmoji = '✍️🦘';
+    worldName = { en: 'Grammar Fest Carnival', ml: 'ഗ്രാമർ ഫെസ്റ്റ് ഉത്സവം' };
+    props = ['✍️', '🦘', '📚', '🎯'];
+    moral = { en: 'Clear grammar lets your thoughts shine like bright stars!', ml: 'വ്യക്തമായ വ്യാകരണം ആശയവിനിമയത്തെ മനോഹരമാക്കുന്നു!' };
+    guest1 = {
+      id: 'prof_punctuation_dyn',
+      name: 'Professor Punctuation',
+      malayalamName: 'പ്രൊഫസർ ചിഹ്ന മാന്ത്രികൻ',
+      role: 'Chief Punctuation Inspector',
+      malayalamRole: 'വാക്യ ചിഹ്നങ്ങളുടെ സൂക്ഷിപ്പുകാരൻ',
+      emoji: '✍️',
+      voiceKey: 'voice_wise',
+      voicePitch: 0.88,
+      voiceRate: 0.95,
+      bgGradient: 'from-purple-500 to-indigo-600',
+      badgeColor: 'bg-purple-600 text-white',
+      borderColor: 'border-purple-400',
+      tagline: 'Every sentence begins with a Capital Letter and ends with proper punctuation!',
+    };
+    guest2 = {
+      id: 'wordy_kangaroo_dyn',
+      name: 'Wordy the Grammar Kangaroo',
+      malayalamName: 'വേർഡി ചാട്ടക്കാരൻ കംഗാരു',
+      role: 'Sentence Trampoline Champion',
+      malayalamRole: 'വാക്യങ്ങൾ നിർമ്മിച്ച് ചാടുന്ന കംഗാരു',
+      emoji: '🦘',
+      voiceKey: 'voice_creature',
+      voicePitch: 1.35,
+      voiceRate: 1.05,
+      bgGradient: 'from-amber-400 to-orange-500',
+      badgeColor: 'bg-amber-500 text-slate-900',
+      borderColor: 'border-amber-400',
+      tagline: 'Boing boing! Bouncing on the trampoline of Grammar Fest!',
     };
   } else {
     // Default smart educational explorer theme
