@@ -15,65 +15,93 @@ export interface VoiceProfileConfig {
   name: string;
   malayalamName: string;
   description: string;
+  malayalamDescription: string;
   icon: string;
   pitch: number;
   rate: number;
+  malayalamRate: number;
+  malayalamSample: string;
+  englishSample: string;
 }
 
 export const VOICE_PROFILES: Record<VoiceProfileId, VoiceProfileConfig> = {
   kid_sweet: {
     id: 'kid_sweet',
-    name: 'Sweet Kid Voice (UKG)',
-    malayalamName: 'മധുരമുള്ള കുട്ടിശബ്ദം (UKG)',
+    name: 'Sweet Kid Voice (Faidan / UKG)',
+    malayalamName: 'മധുരമുള്ള കുട്ടിശബ്ദം (ഫൈദാൻ)',
     description: 'Very sweet, cute & cheerful child voice — perfect for UKG and Little Faidan!',
+    malayalamDescription: 'കൊച്ചു കുട്ടികളുടെ മധുരമുള്ള ശബ്ദം — UKG പാഠങ്ങൾക്കും ഫൈദാനും അനുയോജ്യം',
     icon: '🧒',
     pitch: 1.5,
     rate: 0.9,
+    malayalamRate: 1.16,
+    malayalamSample: 'ഹലോ! ഞാൻ കൊച്ചു ഫൈദാൻ! നമുക്ക് മലയാളം പാഠങ്ങൾ ഒന്നിച്ചു പഠിക്കാം!',
+    englishSample: "Hello! I am little Faidan. Let's learn our fun lessons together!",
   },
   kid_bright: {
     id: 'kid_bright',
     name: 'Big Brother Eadrick',
-    malayalamName: 'ചേട്ടൻ ഏദ്രിക് ശബ്ദം',
+    malayalamName: 'ചേട്ടൻ ഏദ്രിക് (നാലാം ക്ലാസ്)',
     description: 'Energetic, confident boy voice (Class 4 primary explorer)',
+    malayalamDescription: 'ഉത്സാഹഭരിതമായ ചേട്ടന്റെ കുട്ടിക്കൂട്ടുകാരൻ ശബ്ദം',
     icon: '👦',
     pitch: 1.32,
     rate: 0.98,
+    malayalamRate: 1.1,
+    malayalamSample: 'ഹേയ് ഫൈദാൻ, ചേട്ടൻ ഏദ്രിക്കാണ്! നമുക്ക് ഈ പാഠം അടിപൊളിയായി പഠിക്കാം!',
+    englishSample: 'Hey Faidan! Brother Eadrick is here! Let us ace this chapter together!',
   },
   grandma_lilly: {
     id: 'grandma_lilly',
     name: 'Grandma Lilly Joseph',
-    malayalamName: 'മുത്തശ്ശി ലില്ലി ജോസഫ്',
+    malayalamName: 'മുത്തശ്ശി ലില്ലി ജോസഫ് (കഥാകാരി)',
     description: 'Warm, gentle & affectionate grandmother storytelling voice',
+    malayalamDescription: 'സ്നേഹത്തോടെ കഥ പറഞ്ഞുതരുന്ന മുത്തശ്ശിയുടെ വാത്സല്യ ശബ്ദം',
     icon: '👵',
     pitch: 1.12,
     rate: 0.88,
+    malayalamRate: 0.88,
+    malayalamSample: 'എന്റെ പൊന്നുമക്കൾക്ക് മുത്തശ്ശി ലില്ലി നല്ലൊരു കഥ പറഞ്ഞുതരാം കേട്ടോ!',
+    englishSample: 'My sweet children, Grandma Lilly will tell you a wonderful story!',
   },
   mummy_tessy: {
     id: 'mummy_tessy',
     name: 'Mummy Tessy',
-    malayalamName: 'മമ്മി ടെസ്സി',
+    malayalamName: 'മമ്മി ടെസ്സി (സ്നേഹ അധ്യാപിക)',
     description: 'Sweet, encouraging maternal teacher voice',
+    malayalamDescription: 'സ്നേഹനിധിയായ അമ്മയുടെയും അധ്യാപികയുടെയും മധുര ശബ്ദം',
     icon: '👩',
     pitch: 1.25,
     rate: 0.95,
+    malayalamRate: 1.02,
+    malayalamSample: 'മക്കൾ രണ്ടുപേരും നല്ല മിടുക്കരായി മലയാളം പാഠങ്ങൾ വായിക്കണം കേട്ടോ!',
+    englishSample: 'Mummy is so proud of you both! Keep learning with joy!',
   },
   papa_manoj: {
     id: 'papa_manoj',
     name: 'Papa Manoj',
-    malayalamName: 'പപ്പ മനോജ്',
+    malayalamName: 'പപ്പ മനോജ് (മാർഗ്ഗദർശി)',
     description: 'Calm, clear and reassuring fatherly guide',
+    malayalamDescription: 'വ്യക്തതയുള്ള ശാന്തമായ അച്ഛന്റെ മാർഗ്ഗദർശന ശബ്ദം',
     icon: '👨',
     pitch: 0.92,
     rate: 0.95,
+    malayalamRate: 0.92,
+    malayalamSample: 'നല്ല കുട്ടികളായി പാഠങ്ങൾ പഠിച്ചാൽ പപ്പ നിങ്ങൾക്ക് സമ്മാനങ്ങൾ തരാം!',
+    englishSample: 'Work hard and learn well, champions! Papa is always here for you.',
   },
   natural: {
     id: 'natural',
     name: 'Hootie Owl Teacher',
     malayalamName: 'ഹുട്ടി ടീച്ചർ',
     description: 'Balanced friendly school teacher voice',
+    malayalamDescription: 'സ്കൂളിലെ നല്ല ടീച്ചറുടെ വ്യക്തമായ ശബ്ദം',
     icon: '🦉',
     pitch: 1.05,
     rate: 0.95,
+    malayalamRate: 0.98,
+    malayalamSample: 'നമസ്കാരം കൂട്ടുകാരേ! ഇന്നത്തെ മലയാളം പാഠം ശ്രദ്ധിച്ചു കേൾക്കൂ!',
+    englishSample: "Welcome Little Geniuses! Listen carefully to today's lesson.",
   },
 };
 
@@ -326,7 +354,19 @@ function speakWithCloudAudio(
     const url = `/api/tts?lang=${effectiveLang}&text=${encodeURIComponent(chunk)}`;
     const audio = new Audio(url);
     audio.volume = 1.0;
-    audio.playbackRate = rate;
+
+    // Modulate pitch dynamically for character voices
+    try {
+      (audio as any).preservesPitch = false;
+      (audio as any).mozPreservesPitch = false;
+      (audio as any).webkitPreservesPitch = false;
+    } catch (e) {
+      // ignore
+    }
+
+    const profile = VOICE_PROFILES[getVoiceProfile()] || VOICE_PROFILES.kid_sweet;
+    const effectiveRate = effectiveLang === 'ml' ? (profile.malayalamRate || rate) : rate;
+    audio.playbackRate = Math.max(0.7, Math.min(1.4, effectiveRate));
     activeAudio = audio;
 
     // Route to preferred headset sink if supported and set
@@ -386,11 +426,22 @@ export function speakText(
 
   // Use Native Browser/OS SpeechSynthesis by default for English (works directly with Windows Headsets!)
   // Only use Cloud TTS stream when user explicitly chooses 'cloud' OR when speaking Malayalam without a native Malayalam voice.
+  const profile = VOICE_PROFILES[getVoiceProfile()] || VOICE_PROFILES.kid_sweet;
+  const effectiveRate = rate === 0.95 ? profile.rate : rate;
+  const effectivePitch = pitch === 1.1 ? profile.pitch : pitch;
+
   if (enginePref === 'cloud' || (hasMalayalamChars && !hasNativeMalayalamVoice)) {
-    return speakWithCloudAudio(text, language, rate, pitch, onEnd);
+    return speakWithCloudAudio(text, language, effectiveRate, effectivePitch, onEnd);
   }
 
-  return speakWithBrowserSynthesis(text, language, rate, pitch, onEnd);
+  return speakWithBrowserSynthesis(text, language, effectiveRate, effectivePitch, onEnd);
+}
+
+export function testVoiceSampleAudio(profId: VoiceProfileId, lang: 'en' | 'ml' = 'en') {
+  const prof = VOICE_PROFILES[profId] || VOICE_PROFILES.kid_sweet;
+  setVoiceProfile(profId);
+  const text = lang === 'ml' ? prof.malayalamSample : prof.englishSample;
+  speakText(text, lang, prof.rate, prof.pitch);
 }
 
 export function stopSpeaking(): void {

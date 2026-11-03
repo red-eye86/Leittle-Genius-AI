@@ -38,6 +38,9 @@ import {
   getSelectedVoiceURI,
   setSelectedVoiceURI,
   getAvailableBrowserVoices,
+  speakText,
+  stopSpeaking,
+  testVoiceSampleAudio,
 } from '@/lib/audio/tts';
 
 interface CartoonVideoPlayerProps {
@@ -95,83 +98,47 @@ export function CartoonVideoPlayer({
     }
   };
 
-  // Speak character line using native SpeechSynthesis with unique pitch per family member or chosen kid voice
+  // Speak character line using speakText (supports both crystal-clear Malayalam and English!)
   const speakDialogue = useCallback(
     (dialogue: CartoonDialogue, lang: 'en' | 'ml') => {
-      if (typeof window === 'undefined' || !window.speechSynthesis || isMuted) {
+      if (typeof window === 'undefined' || isMuted) {
         return;
       }
 
-      window.speechSynthesis.cancel();
+      stopSpeaking();
       const textToSpeak = lang === 'ml' ? dialogue.malayalamText : dialogue.englishText;
-      const utterance = new SpeechSynthesisUtterance(textToSpeak);
       const speaker = FAMILY_CHARACTERS[dialogue.speakerId] || FAMILY_CHARACTERS.faidan;
 
-      // When 'kid_sweet' profile is active, give all children an extra sweet high-pitched tone
-      const profile = VOICE_PROFILES[selectedProfile] || VOICE_PROFILES.kid_sweet;
-      if (selectedProfile === 'kid_sweet') {
-        utterance.pitch = dialogue.speakerId === 'faidan' ? 1.55 : speaker.voicePitch;
-        utterance.rate = dialogue.speakerId === 'faidan' ? 0.9 : speaker.voiceRate;
-      } else if (selectedProfile === 'grandma_lilly') {
-        utterance.pitch = dialogue.speakerId === 'grandmother' ? 1.15 : speaker.voicePitch;
-        utterance.rate = 0.88;
-      } else {
-        utterance.pitch = speaker.voicePitch;
-        utterance.rate = speaker.voiceRate;
+      let effectivePitch = speaker.voicePitch;
+      let effectiveRate = speaker.voiceRate;
+
+      if (selectedProfile === 'kid_sweet' && dialogue.speakerId === 'faidan') {
+        effectivePitch = 1.55;
+        effectiveRate = 0.9;
+      } else if (selectedProfile === 'grandma_lilly' && dialogue.speakerId === 'grandmother') {
+        effectivePitch = 1.15;
+        effectiveRate = 0.88;
       }
 
-      utterance.lang = lang === 'ml' ? 'ml-IN' : 'en-US';
-
-      // Pick selected voice if user picked one
-      const voices = window.speechSynthesis.getVoices();
-      if (selectedVoiceUri) {
-        const found = voices.find((v) => v.voiceURI === selectedVoiceUri);
-        if (found) utterance.voice = found;
-      }
-
-      if (!utterance.voice && voices.length > 0) {
-        const langVoice = voices.find((v) =>
-          lang === 'ml' ? v.lang.startsWith('ml') : v.lang.startsWith('en')
-        );
-        if (langVoice) {
-          utterance.voice = langVoice;
-        }
-      }
-
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => {
+      setIsSpeaking(true);
+      speakText(textToSpeak, lang, effectiveRate, effectivePitch, () => {
         setIsSpeaking(false);
         if (autoPlay && isPlaying) {
           clearTimer();
           autoPlayTimerRef.current = setTimeout(() => {
             advanceDialogue();
-          }, 1400);
+          }, 1200);
         }
-      };
-      utterance.onerror = () => setIsSpeaking(false);
-
-      window.speechSynthesis.speak(utterance);
+      });
     },
-    [isMuted, autoPlay, isPlaying, selectedProfile, selectedVoiceUri]
+    [isMuted, autoPlay, isPlaying, selectedProfile]
   );
 
-  const testVoiceSample = (profId: VoiceProfileId) => {
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const prof = VOICE_PROFILES[profId];
-    const sampleText =
-      language === 'ml'
-        ? `ഹലോ ഫൈദാൻ! ${prof.malayalamName} ആണ് സംസാരിക്കുന്നത്. പാഠങ്ങൾ പഠിക്കാൻ തയ്യാറാണോ?`
-        : `Hello Faidan! This is ${prof.name}. Let's learn our lesson together!`;
-    const utt = new SpeechSynthesisUtterance(sampleText);
-    utt.pitch = prof.pitch;
-    utt.rate = prof.rate;
-    utt.lang = language === 'ml' ? 'ml-IN' : 'en-US';
-    if (selectedVoiceUri) {
-      const v = window.speechSynthesis.getVoices().find((x) => x.voiceURI === selectedVoiceUri);
-      if (v) utt.voice = v;
-    }
-    window.speechSynthesis.speak(utt);
+  const testVoiceSample = (profId: VoiceProfileId, testLang: 'en' | 'ml' = language) => {
+    soundEffects.playPop();
+    setSelectedProfile(profId);
+    setVoiceProfile(profId);
+    testVoiceSampleAudio(profId, testLang);
   };
 
   // Advance dialogue or next scene
@@ -624,25 +591,56 @@ export function CartoonVideoPlayer({
                 return (
                   <div
                     key={pKey}
-                    onClick={() => {
-                      soundEffects.playPop();
-                      setSelectedProfile(pKey);
-                      setVoiceProfile(pKey);
-                      testVoiceSample(pKey);
-                    }}
-                    className={`p-3 rounded-2xl border-2 cursor-pointer transition flex items-start space-x-3 ${
+                    className={`p-3 rounded-2xl border-2 transition flex flex-col justify-between space-y-2 ${
                       isSelected
-                        ? 'bg-amber-50 border-amber-500 shadow-md ring-2 ring-amber-300'
+                        ? 'bg-amber-50/80 border-amber-500 shadow-md ring-2 ring-amber-300'
                         : 'bg-slate-50 border-slate-200 hover:border-amber-300'
                     }`}
                   >
-                    <span className="text-2xl p-2 rounded-xl bg-white shadow-xs">{prof.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-black text-slate-800 truncate">{prof.name}</h4>
-                        {isSelected && <Check className="w-4 h-4 text-amber-600 flex-shrink-0" />}
+                    <div
+                      onClick={() => {
+                        soundEffects.playPop();
+                        setSelectedProfile(pKey);
+                        setVoiceProfile(pKey);
+                        testVoiceSample(pKey, language);
+                      }}
+                      className="cursor-pointer flex items-start space-x-3"
+                    >
+                      <span className="text-2xl p-2 rounded-xl bg-white shadow-xs shrink-0">{prof.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-xs font-black text-slate-800 truncate">{prof.name}</h4>
+                          {isSelected && <Check className="w-4 h-4 text-amber-600 flex-shrink-0" />}
+                        </div>
+                        <p className="text-[11px] font-bold text-amber-800 line-clamp-1">{prof.malayalamName}</p>
+                        <p className="text-[10px] text-slate-500 line-clamp-2 mt-0.5">
+                          {language === 'ml' ? prof.malayalamDescription : prof.description}
+                        </p>
                       </div>
-                      <p className="text-[10px] text-slate-500 line-clamp-2 mt-0.5">{prof.description}</p>
+                    </div>
+
+                    {/* Dual Language Hear Sample Buttons */}
+                    <div className="flex items-center space-x-1.5 pt-1.5 border-t border-slate-200/60">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          testVoiceSample(pKey, 'en');
+                        }}
+                        className="flex-1 py-1 px-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-[10px] font-bold border border-slate-200 flex items-center justify-center space-x-1 transition shadow-2xs"
+                        title="Hear English voice sample"
+                      >
+                        <span>🇺🇸 English</span>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          testVoiceSample(pKey, 'ml');
+                        }}
+                        className="flex-1 py-1 px-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200 flex items-center justify-center space-x-1 transition shadow-2xs"
+                        title="Hear Malayalam voice sample"
+                      >
+                        <span>🌴 മലയാളം</span>
+                      </button>
                     </div>
                   </div>
                 );
@@ -677,22 +675,33 @@ export function CartoonVideoPlayer({
               </div>
             )}
 
-            {/* Test Sample Button & Done */}
-            <div className="pt-2 flex items-center justify-between gap-3">
-              <button
-                onClick={() => testVoiceSample(selectedProfile)}
-                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center space-x-1.5 transition"
-              >
-                <Volume2 className="w-4 h-4 text-amber-600" />
-                <span>Hear Sample 🔊</span>
-              </button>
+            {/* Test Sample Buttons & Done */}
+            <div className="pt-2 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => testVoiceSample(selectedProfile, 'en')}
+                  className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center space-x-1 transition"
+                  title="Test English"
+                >
+                  <Volume2 className="w-3.5 h-3.5 text-sky-600" />
+                  <span>Hear English 🇺🇸</span>
+                </button>
+                <button
+                  onClick={() => testVoiceSample(selectedProfile, 'ml')}
+                  className="px-3 py-2 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs flex items-center space-x-1 transition shadow-xs"
+                  title="Test Malayalam"
+                >
+                  <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>മലയാളം കേൾക്കാം 🌴</span>
+                </button>
+              </div>
 
               <button
                 onClick={() => {
                   soundEffects.playStar();
                   setIsVoiceModalOpen(false);
                 }}
-                className="px-6 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs shadow-md transition"
+                className="px-6 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs shadow-md transition ml-auto"
               >
                 Done / Save
               </button>

@@ -28,6 +28,7 @@ import {
   VoiceProfileId,
   getVoiceProfile,
   setVoiceProfile,
+  testVoiceSampleAudio,
 } from '@/lib/audio/tts';
 
 export default function Navbar() {
@@ -360,8 +361,8 @@ export default function Navbar() {
                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
                         Learning Voice Style
                       </p>
-                      <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
-                        Tap to Test
+                      <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                        English & മലയാളം
                       </span>
                     </div>
 
@@ -370,27 +371,54 @@ export default function Navbar() {
                         const prof = VOICE_PROFILES[profKey];
                         const isSelected = activeVoiceProfileId === profKey;
                         return (
-                          <button
+                          <div
                             key={profKey}
-                            onClick={() => {
-                              setActiveVoiceProfileId(profKey);
-                              setVoiceProfile(profKey);
-                              soundEffects.playStar();
-                              speak(
-                                language === 'ml'
-                                  ? `ഹലോ! ${prof.malayalamName} ശബ്ദമാണ് ഇപ്പോൾ തിരഞ്ഞെടുത്തത്.`
-                                  : `Hello! ${prof.name} is now speaking.`
-                              );
-                            }}
-                            className={`p-2 rounded-xl text-left text-xs border transition flex items-center space-x-1.5 ${
+                            className={`p-1.5 rounded-xl border transition flex flex-col justify-between ${
                               isSelected
                                 ? 'bg-amber-50 border-amber-400 text-slate-900 font-black ring-1 ring-amber-300'
                                 : 'bg-slate-50 border-slate-200 text-slate-600 font-bold hover:bg-slate-100'
                             }`}
                           >
-                            <span className="text-base">{prof.icon}</span>
-                            <span className="text-[11px] truncate leading-tight">{prof.name.split(' (')[0]}</span>
-                          </button>
+                            <button
+                              onClick={() => {
+                                setActiveVoiceProfileId(profKey);
+                                setVoiceProfile(profKey);
+                                soundEffects.playStar();
+                                testVoiceSampleAudio(profKey, language);
+                              }}
+                              className="text-left flex items-center space-x-1.5 w-full"
+                            >
+                              <span className="text-base">{prof.icon}</span>
+                              <span className="text-[11px] truncate leading-tight font-black">
+                                {prof.name.split(' (')[0]}
+                              </span>
+                            </button>
+
+                            <div className="flex items-center space-x-1 mt-1 pt-1 border-t border-slate-200/50">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveVoiceProfileId(profKey);
+                                  testVoiceSampleAudio(profKey, 'en');
+                                }}
+                                className="flex-1 py-0.5 text-[9px] font-bold text-slate-600 bg-white rounded hover:bg-slate-100 border border-slate-200 text-center"
+                                title="Hear English"
+                              >
+                                🇺🇸 En
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveVoiceProfileId(profKey);
+                                  testVoiceSampleAudio(profKey, 'ml');
+                                }}
+                                className="flex-1 py-0.5 text-[9px] font-bold text-emerald-800 bg-emerald-100/70 rounded hover:bg-emerald-200 border border-emerald-300 text-center"
+                                title="Hear Malayalam"
+                              >
+                                🌴 മല
+                              </button>
+                            </div>
+                          </div>
                         );
                       })}
                     </div>
