@@ -225,10 +225,10 @@ function CartoonTheaterContent() {
               {language === 'ml' ? 'നമ്മുടെ കാർട്ടൂൺ കുടുംബാംഗങ്ങൾ' : 'Meet The Cartoon Family Stars'}
             </h2>
           </div>
-          <span className="text-xs font-bold text-slate-400">4 Loving Voices</span>
+          <span className="text-xs font-bold text-slate-400">5 Loving Family Voices</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {Object.values(FAMILY_CHARACTERS).map((char) => (
             <div
               key={char.id}
@@ -322,3 +322,4 @@ export default function CartoonPage() {
     </Suspense>
   );
 }
+

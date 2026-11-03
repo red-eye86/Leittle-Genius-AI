@@ -302,8 +302,8 @@ export default function ChildDashboardPage() {
             </h3>
             <p className="text-xs sm:text-sm text-pink-100 mt-1.5 font-medium">
               {language === 'ml'
-                ? 'പപ്പ മനോജ്, മമ്മി ടെസ്സി, ചേട്ടൻ ഏദ്രിക്, കൊച്ചു ഫൈദാൻ എന്നിവരോടൊപ്പം എല്ലാ UKG പാഠങ്ങളും ആസ്വദിക്കൂ!'
-                : 'Starring Papa Manoj, Mummy Tessy, Brother Eadrick & Little Faidan in animated video lessons!'}
+                ? 'മുത്തശ്ശി ലില്ലി ജോസഫ്, പപ്പ മനോജ്, മമ്മി ടെസ്സി, ചേട്ടൻ ഏദ്രിക്, കൊച്ചു ഫൈദാൻ എന്നിവരോടൊപ്പം എല്ലാ UKG പാഠങ്ങളും ആസ്വദിക്കൂ!'
+                : 'Starring Grandma Lilly Joseph, Papa Manoj, Mummy Tessy, Brother Eadrick & Little Faidan in animated video lessons!'}
             </p>
 
             <div className="mt-4 inline-flex items-center space-x-2 px-5 py-2.5 rounded-2xl bg-white text-slate-900 font-black text-xs shadow-lg btn-kid-3d">
@@ -313,8 +313,11 @@ export default function ChildDashboardPage() {
             </div>
           </div>
 
-          {/* 4 Family Character Photo Badges */}
+          {/* 5 Family Character Photo Badges */}
           <div className="flex items-center -space-x-4 bg-white/10 backdrop-blur-md p-2.5 rounded-3xl border border-white/25 shadow-inner">
+            <div className="relative w-14 h-18 sm:w-16 sm:h-22 rounded-2xl overflow-hidden border-2 border-white shadow-md hover:scale-110 transition duration-200">
+              <Image src="/characters/grandmother_lilly.jpg" alt="Grandma Lilly Joseph" fill className="object-cover object-top" />
+            </div>
             <div className="relative w-14 h-18 sm:w-16 sm:h-22 rounded-2xl overflow-hidden border-2 border-white shadow-md hover:scale-110 transition duration-200">
               <Image src="/characters/father_manoj.jpg" alt="Papa Manoj" fill className="object-cover object-top" />
             </div>

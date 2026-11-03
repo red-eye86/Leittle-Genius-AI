@@ -2,11 +2,115 @@
 // Uses Native OS/Browser SpeechSynthesis (works directly with Windows Headsets & zero latency)
 // + Cloud TTS Audio Stream for Malayalam when native Malayalam OS voice is not installed.
 
+export type VoiceProfileId =
+  | 'kid_sweet'       // Sweet Kid Voice (UKG & Faidan default: pitch 1.5, rate 0.90)
+  | 'kid_bright'      // Energetic Kid Voice (Eadrick: pitch 1.35, rate 0.96)
+  | 'grandma_lilly'   // Grandma Lilly Joseph (Storyteller: pitch 1.12, rate 0.88)
+  | 'mummy_tessy'     // Mummy Tessy (Sweet maternal: pitch 1.25, rate 0.95)
+  | 'papa_manoj'      // Papa Manoj (Calm guide: pitch 0.92, rate 0.95)
+  | 'natural';        // Natural teacher voice (pitch 1.05, rate 0.95)
+
+export interface VoiceProfileConfig {
+  id: VoiceProfileId;
+  name: string;
+  malayalamName: string;
+  description: string;
+  icon: string;
+  pitch: number;
+  rate: number;
+}
+
+export const VOICE_PROFILES: Record<VoiceProfileId, VoiceProfileConfig> = {
+  kid_sweet: {
+    id: 'kid_sweet',
+    name: 'Sweet Kid Voice (UKG)',
+    malayalamName: 'മധുരമുള്ള കുട്ടിശബ്ദം (UKG)',
+    description: 'Very sweet, cute & cheerful child voice — perfect for UKG and Little Faidan!',
+    icon: '🧒',
+    pitch: 1.5,
+    rate: 0.9,
+  },
+  kid_bright: {
+    id: 'kid_bright',
+    name: 'Big Brother Eadrick',
+    malayalamName: 'ചേട്ടൻ ഏദ്രിക് ശബ്ദം',
+    description: 'Energetic, confident boy voice (Class 4 primary explorer)',
+    icon: '👦',
+    pitch: 1.32,
+    rate: 0.98,
+  },
+  grandma_lilly: {
+    id: 'grandma_lilly',
+    name: 'Grandma Lilly Joseph',
+    malayalamName: 'മുത്തശ്ശി ലില്ലി ജോസഫ്',
+    description: 'Warm, gentle & affectionate grandmother storytelling voice',
+    icon: '👵',
+    pitch: 1.12,
+    rate: 0.88,
+  },
+  mummy_tessy: {
+    id: 'mummy_tessy',
+    name: 'Mummy Tessy',
+    malayalamName: 'മമ്മി ടെസ്സി',
+    description: 'Sweet, encouraging maternal teacher voice',
+    icon: '👩',
+    pitch: 1.25,
+    rate: 0.95,
+  },
+  papa_manoj: {
+    id: 'papa_manoj',
+    name: 'Papa Manoj',
+    malayalamName: 'പപ്പ മനോജ്',
+    description: 'Calm, clear and reassuring fatherly guide',
+    icon: '👨',
+    pitch: 0.92,
+    rate: 0.95,
+  },
+  natural: {
+    id: 'natural',
+    name: 'Hootie Owl Teacher',
+    malayalamName: 'ഹുട്ടി ടീച്ചർ',
+    description: 'Balanced friendly school teacher voice',
+    icon: '🦉',
+    pitch: 1.05,
+    rate: 0.95,
+  },
+};
+
 let activeAudio: HTMLAudioElement | null = null;
 let isCancelled = false;
 let activeUtterance: SpeechSynthesisUtterance | null = null;
 let cachedVoices: SpeechSynthesisVoice[] = [];
 let preferredSinkId: string = '';
+
+export function getVoiceProfile(): VoiceProfileId {
+  if (typeof window === 'undefined') return 'kid_sweet';
+  const saved = localStorage.getItem('lg_voice_profile') as VoiceProfileId;
+  return saved && VOICE_PROFILES[saved] ? saved : 'kid_sweet';
+}
+
+export function setVoiceProfile(profileId: VoiceProfileId) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('lg_voice_profile', profileId);
+  }
+}
+
+export function getSelectedVoiceURI(): string {
+  if (typeof window === 'undefined') return '';
+  return localStorage.getItem('lg_selected_voice_uri') || '';
+}
+
+export function setSelectedVoiceURI(uri: string) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('lg_selected_voice_uri', uri);
+  }
+}
+
+export function getAvailableBrowserVoices(): SpeechSynthesisVoice[] {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return [];
+  const voices = window.speechSynthesis.getVoices();
+  return voices.length > 0 ? voices : cachedVoices;
+}
 
 if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
   const loadVoices = () => {
@@ -104,46 +208,61 @@ function speakWithBrowserSynthesis(
 
     const utterance = new SpeechSynthesisUtterance(cleaned);
     activeUtterance = utterance; // Keep strong reference so Chrome V8 doesn't GC mid-speech
+    const profile = VOICE_PROFILES[getVoiceProfile()] || VOICE_PROFILES.kid_sweet;
+    const effectivePitch = pitch === 1.1 ? profile.pitch : pitch;
+    const effectiveRate = rate === 0.95 ? profile.rate : rate;
+
     utterance.volume = 1.0;
-    utterance.rate = rate;
-    utterance.pitch = pitch;
+    utterance.rate = effectiveRate;
+    utterance.pitch = effectivePitch;
 
     const voices = cachedVoices.length > 0 ? cachedVoices : window.speechSynthesis.getVoices();
     const hasMalayalamChars = /[\u0D00-\u0D7F]/.test(cleaned);
+    const customVoiceUri = getSelectedVoiceURI();
 
-    if (language === 'ml' || hasMalayalamChars) {
-      const mlVoice = voices.find((v) => v.lang.toLowerCase().startsWith('ml'));
-      if (mlVoice) {
-        utterance.voice = mlVoice;
-        utterance.lang = mlVoice.lang;
-      } else {
-        const inVoice = voices.find((v) => v.lang.includes('IN') || v.name.includes('India'));
-        if (inVoice) {
-          utterance.voice = inVoice;
-          utterance.lang = inVoice.lang;
-        } else {
-          utterance.lang = 'en-IN';
-        }
+    if (customVoiceUri) {
+      const customVoice = voices.find((v) => v.voiceURI === customVoiceUri);
+      if (customVoice) {
+        utterance.voice = customVoice;
+        utterance.lang = customVoice.lang;
       }
-    } else {
-      const preferredVoice =
-        voices.find(
-          (v) =>
-            v.lang.startsWith('en') &&
-            (v.name.includes('Natural') ||
-              v.name.includes('Google') ||
-              v.name.includes('Zira') ||
-              v.name.includes('Aria') ||
-              v.name.includes('Female'))
-        ) ||
-        voices.find((v) => v.lang === 'en-IN') ||
-        voices.find((v) => v.lang.startsWith('en'));
+    }
 
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-        utterance.lang = preferredVoice.lang;
+    if (!utterance.voice) {
+      if (language === 'ml' || hasMalayalamChars) {
+        const mlVoice = voices.find((v) => v.lang.toLowerCase().startsWith('ml'));
+        if (mlVoice) {
+          utterance.voice = mlVoice;
+          utterance.lang = mlVoice.lang;
+        } else {
+          const inVoice = voices.find((v) => v.lang.includes('IN') || v.name.includes('India'));
+          if (inVoice) {
+            utterance.voice = inVoice;
+            utterance.lang = inVoice.lang;
+          } else {
+            utterance.lang = 'en-IN';
+          }
+        }
       } else {
-        utterance.lang = 'en-US';
+        const preferredVoice =
+          voices.find(
+            (v) =>
+              v.lang.startsWith('en') &&
+              (v.name.includes('Natural') ||
+                v.name.includes('Google') ||
+                v.name.includes('Zira') ||
+                v.name.includes('Aria') ||
+                v.name.includes('Female'))
+          ) ||
+          voices.find((v) => v.lang === 'en-IN') ||
+          voices.find((v) => v.lang.startsWith('en'));
+
+        if (preferredVoice) {
+          utterance.voice = preferredVoice;
+          utterance.lang = preferredVoice.lang;
+        } else {
+          utterance.lang = 'en-US';
+        }
       }
     }
 

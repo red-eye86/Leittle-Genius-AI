@@ -21,7 +21,14 @@ import MascotOwl from './MascotOwl';
 import ParentPinModal from './ParentPinModal';
 import KidAvatar from './KidAvatar';
 import { soundEffects } from '@/lib/audio/soundEffects';
-import { setPreferredAudioOutputDevice, getPreferredAudioOutputDevice } from '@/lib/audio/tts';
+import {
+  setPreferredAudioOutputDevice,
+  getPreferredAudioOutputDevice,
+  VOICE_PROFILES,
+  VoiceProfileId,
+  getVoiceProfile,
+  setVoiceProfile,
+} from '@/lib/audio/tts';
 
 export default function Navbar() {
   const router = useRouter();
@@ -45,12 +52,14 @@ export default function Navbar() {
   const [voiceEngine, setVoiceEngine] = useState<'system' | 'cloud'>('system');
   const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
+  const [activeVoiceProfileId, setActiveVoiceProfileId] = useState<VoiceProfileId>('kid_sweet');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedEngine = (localStorage.getItem('lg_voice_engine') as 'system' | 'cloud') || 'system';
       setVoiceEngine(savedEngine);
       setSelectedDeviceId(getPreferredAudioOutputDevice());
+      setActiveVoiceProfileId(getVoiceProfile());
     }
   }, []);
 
@@ -343,6 +352,48 @@ export default function Navbar() {
                       </div>
                       {voiceEngine === 'cloud' && <CheckCircle2 className="w-4 h-4 text-sky-600 shrink-0" />}
                     </button>
+                  </div>
+
+                  {/* Voice Style Selector (Sweet Kid / Family Voice) */}
+                  <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                        Learning Voice Style
+                      </p>
+                      <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+                        Tap to Test
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {(Object.keys(VOICE_PROFILES) as VoiceProfileId[]).map((profKey) => {
+                        const prof = VOICE_PROFILES[profKey];
+                        const isSelected = activeVoiceProfileId === profKey;
+                        return (
+                          <button
+                            key={profKey}
+                            onClick={() => {
+                              setActiveVoiceProfileId(profKey);
+                              setVoiceProfile(profKey);
+                              soundEffects.playStar();
+                              speak(
+                                language === 'ml'
+                                  ? `ഹലോ! ${prof.malayalamName} ശബ്ദമാണ് ഇപ്പോൾ തിരഞ്ഞെടുത്തത്.`
+                                  : `Hello! ${prof.name} is now speaking.`
+                              );
+                            }}
+                            className={`p-2 rounded-xl text-left text-xs border transition flex items-center space-x-1.5 ${
+                              isSelected
+                                ? 'bg-amber-50 border-amber-400 text-slate-900 font-black ring-1 ring-amber-300'
+                                : 'bg-slate-50 border-slate-200 text-slate-600 font-bold hover:bg-slate-100'
+                            }`}
+                          >
+                            <span className="text-base">{prof.icon}</span>
+                            <span className="text-[11px] truncate leading-tight">{prof.name.split(' (')[0]}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* Audio Output Device Selector (if available) */}

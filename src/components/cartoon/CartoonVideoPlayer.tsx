@@ -16,6 +16,10 @@ import {
   Globe,
   Maximize2,
   Minimize2,
+  Mic,
+  Settings2,
+  Check,
+  X,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import {
@@ -26,6 +30,15 @@ import {
   CartoonCharacter,
 } from '@/lib/cartoon/cartoonLessonData';
 import { soundEffects } from '@/lib/audio/soundEffects';
+import {
+  VOICE_PROFILES,
+  VoiceProfileId,
+  getVoiceProfile,
+  setVoiceProfile,
+  getSelectedVoiceURI,
+  setSelectedVoiceURI,
+  getAvailableBrowserVoices,
+} from '@/lib/audio/tts';
 
 interface CartoonVideoPlayerProps {
   episode: CartoonEpisode;
@@ -48,14 +61,31 @@ export function CartoonVideoPlayer({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [hasCompleted, setHasCompleted] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState<VoiceProfileId>('kid_sweet');
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoiceUri, setSelectedVoiceUriState] = useState('');
 
   const containerRef = useRef<HTMLDivElement>(null);
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  useEffect(() => {
+    setSelectedProfile(getVoiceProfile());
+    setSelectedVoiceUriState(getSelectedVoiceURI());
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const v = window.speechSynthesis.getVoices();
+      setAvailableVoices(v);
+      window.speechSynthesis.onvoiceschanged = () => {
+        setAvailableVoices(window.speechSynthesis.getVoices());
+      };
+    }
+  }, []);
+
   const currentScene: CartoonScene = episode.scenes[currentSceneIdx] || episode.scenes[0];
   const currentDialogue: CartoonDialogue =
     currentScene?.dialogues[currentDialogueIdx] || currentScene?.dialogues[0];
-  const activeSpeaker: CartoonCharacter = FAMILY_CHARACTERS[currentDialogue?.speakerId] || FAMILY_CHARACTERS.faidan;
+  const activeSpeaker: CartoonCharacter =
+    FAMILY_CHARACTERS[currentDialogue?.speakerId] || FAMILY_CHARACTERS.faidan;
 
   // Cleanup auto-timer
   const clearTimer = () => {
@@ -65,7 +95,7 @@ export function CartoonVideoPlayer({
     }
   };
 
-  // Speak character line using native SpeechSynthesis with unique pitch per family member
+  // Speak character line using native SpeechSynthesis with unique pitch per family member or chosen kid voice
   const speakDialogue = useCallback(
     (dialogue: CartoonDialogue, lang: 'en' | 'ml') => {
       if (typeof window === 'undefined' || !window.speechSynthesis || isMuted) {
@@ -75,15 +105,31 @@ export function CartoonVideoPlayer({
       window.speechSynthesis.cancel();
       const textToSpeak = lang === 'ml' ? dialogue.malayalamText : dialogue.englishText;
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
-      const speaker = FAMILY_CHARACTERS[dialogue.speakerId];
+      const speaker = FAMILY_CHARACTERS[dialogue.speakerId] || FAMILY_CHARACTERS.faidan;
 
-      utterance.pitch = speaker.voicePitch;
-      utterance.rate = speaker.voiceRate;
+      // When 'kid_sweet' profile is active, give all children an extra sweet high-pitched tone
+      const profile = VOICE_PROFILES[selectedProfile] || VOICE_PROFILES.kid_sweet;
+      if (selectedProfile === 'kid_sweet') {
+        utterance.pitch = dialogue.speakerId === 'faidan' ? 1.55 : speaker.voicePitch;
+        utterance.rate = dialogue.speakerId === 'faidan' ? 0.9 : speaker.voiceRate;
+      } else if (selectedProfile === 'grandma_lilly') {
+        utterance.pitch = dialogue.speakerId === 'grandmother' ? 1.15 : speaker.voicePitch;
+        utterance.rate = 0.88;
+      } else {
+        utterance.pitch = speaker.voicePitch;
+        utterance.rate = speaker.voiceRate;
+      }
+
       utterance.lang = lang === 'ml' ? 'ml-IN' : 'en-US';
 
-      // Pick matching voice if available
+      // Pick selected voice if user picked one
       const voices = window.speechSynthesis.getVoices();
-      if (voices.length > 0) {
+      if (selectedVoiceUri) {
+        const found = voices.find((v) => v.voiceURI === selectedVoiceUri);
+        if (found) utterance.voice = found;
+      }
+
+      if (!utterance.voice && voices.length > 0) {
         const langVoice = voices.find((v) =>
           lang === 'ml' ? v.lang.startsWith('ml') : v.lang.startsWith('en')
         );
@@ -95,7 +141,6 @@ export function CartoonVideoPlayer({
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => {
         setIsSpeaking(false);
-        // If autoplay is active, advance to next line after a gentle pause
         if (autoPlay && isPlaying) {
           clearTimer();
           autoPlayTimerRef.current = setTimeout(() => {
@@ -107,9 +152,27 @@ export function CartoonVideoPlayer({
 
       window.speechSynthesis.speak(utterance);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isMuted, autoPlay, isPlaying]
+    [isMuted, autoPlay, isPlaying, selectedProfile, selectedVoiceUri]
   );
+
+  const testVoiceSample = (profId: VoiceProfileId) => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const prof = VOICE_PROFILES[profId];
+    const sampleText =
+      language === 'ml'
+        ? `ഹലോ ഫൈദാൻ! ${prof.malayalamName} ആണ് സംസാരിക്കുന്നത്. പാഠങ്ങൾ പഠിക്കാൻ തയ്യാറാണോ?`
+        : `Hello Faidan! This is ${prof.name}. Let's learn our lesson together!`;
+    const utt = new SpeechSynthesisUtterance(sampleText);
+    utt.pitch = prof.pitch;
+    utt.rate = prof.rate;
+    utt.lang = language === 'ml' ? 'ml-IN' : 'en-US';
+    if (selectedVoiceUri) {
+      const v = window.speechSynthesis.getVoices().find((x) => x.voiceURI === selectedVoiceUri);
+      if (v) utt.voice = v;
+    }
+    window.speechSynthesis.speak(utt);
+  };
 
   // Advance dialogue or next scene
   const advanceDialogue = useCallback(() => {
@@ -198,12 +261,13 @@ export function CartoonVideoPlayer({
     }
   };
 
-  // Cast layout: all 4 family members displayed on stage
+  // Cast layout: all 5 family members displayed on stage
   const castList: CartoonCharacter[] = [
-    FAMILY_CHARACTERS.eadrick,
+    FAMILY_CHARACTERS.grandmother,
     FAMILY_CHARACTERS.father,
     FAMILY_CHARACTERS.faidan,
     FAMILY_CHARACTERS.mother,
+    FAMILY_CHARACTERS.eadrick,
   ];
 
   return (
@@ -226,6 +290,19 @@ export function CartoonVideoPlayer({
         </div>
 
         <div className="flex items-center space-x-2">
+          {/* Voice Selection Button */}
+          <button
+            onClick={() => {
+              soundEffects.playPop();
+              setIsVoiceModalOpen(true);
+            }}
+            className="px-2.5 py-1 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 text-xs font-black flex items-center space-x-1.5 shadow-sm transition"
+            title="Choose Voice Style"
+          >
+            <Mic className="w-3.5 h-3.5" />
+            <span>{VOICE_PROFILES[selectedProfile]?.icon} {VOICE_PROFILES[selectedProfile]?.name.split(' ')[0]}</span>
+          </button>
+
           {/* Language Toggle */}
           <button
             onClick={() => {
@@ -512,6 +589,118 @@ export function CartoonVideoPlayer({
           </button>
         </div>
       </div>
+
+      {/* Voice Selection Modal */}
+      {isVoiceModalOpen && (
+        <div className="absolute inset-0 z-50 bg-slate-950/85 backdrop-blur-md p-4 sm:p-6 flex flex-col justify-center items-center animate-fade-in overflow-y-auto">
+          <div className="bg-white rounded-3xl p-6 max-w-xl w-full shadow-2xl border-4 border-amber-300 text-slate-800 space-y-4 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl">🎙️</span>
+                <div>
+                  <h3 className="text-lg font-black text-slate-800">
+                    {language === 'ml' ? 'ശബ്ദം തിരഞ്ഞെടുക്കാം (Voice Selection)' : 'Choose Your Learning Voice'}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-bold">
+                    {language === 'ml'
+                      ? 'UKG പാഠങ്ങൾക്കായി മധുരമുള്ള കുട്ടിശബ്ദമോ കുടുംബാംഗങ്ങളുടെ ശബ്ദമോ തിരഞ്ഞെടുക്കൂ!'
+                      : 'Sweet kid voice for UKG, or choose your favourite family voice!'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsVoiceModalOpen(false)}
+                className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Voice Profiles Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {(Object.keys(VOICE_PROFILES) as VoiceProfileId[]).map((pKey) => {
+                const prof = VOICE_PROFILES[pKey];
+                const isSelected = selectedProfile === pKey;
+                return (
+                  <div
+                    key={pKey}
+                    onClick={() => {
+                      soundEffects.playPop();
+                      setSelectedProfile(pKey);
+                      setVoiceProfile(pKey);
+                      testVoiceSample(pKey);
+                    }}
+                    className={`p-3 rounded-2xl border-2 cursor-pointer transition flex items-start space-x-3 ${
+                      isSelected
+                        ? 'bg-amber-50 border-amber-500 shadow-md ring-2 ring-amber-300'
+                        : 'bg-slate-50 border-slate-200 hover:border-amber-300'
+                    }`}
+                  >
+                    <span className="text-2xl p-2 rounded-xl bg-white shadow-xs">{prof.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-black text-slate-800 truncate">{prof.name}</h4>
+                        {isSelected && <Check className="w-4 h-4 text-amber-600 flex-shrink-0" />}
+                      </div>
+                      <p className="text-[10px] text-slate-500 line-clamp-2 mt-0.5">{prof.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Browser/OS Installed Voices Dropdown */}
+            {availableVoices.length > 0 && (
+              <div className="pt-2 border-t border-slate-100">
+                <label className="text-xs font-bold text-slate-600 block mb-1">
+                  {language === 'ml' ? 'കമ്പ്യൂട്ടറിലെ പ്രത്യേക ശബ്ദം:' : 'Custom System Voice (Installed on your PC):'}
+                </label>
+                <select
+                  value={selectedVoiceUri}
+                  onChange={(e) => {
+                    const uri = e.target.value;
+                    setSelectedVoiceUriState(uri);
+                    setSelectedVoiceURI(uri);
+                    if (uri) {
+                      testVoiceSample(selectedProfile);
+                    }
+                  }}
+                  className="w-full text-xs font-bold p-2.5 rounded-xl border-2 border-slate-200 bg-white text-slate-800 focus:outline-none focus:border-amber-500"
+                >
+                  <option value="">Default Recommended Voice (Auto-tuned)</option>
+                  {availableVoices.map((v) => (
+                    <option key={v.voiceURI} value={v.voiceURI}>
+                      {v.name} ({v.lang})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Test Sample Button & Done */}
+            <div className="pt-2 flex items-center justify-between gap-3">
+              <button
+                onClick={() => testVoiceSample(selectedProfile)}
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center space-x-1.5 transition"
+              >
+                <Volume2 className="w-4 h-4 text-amber-600" />
+                <span>Hear Sample 🔊</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  soundEffects.playStar();
+                  setIsVoiceModalOpen(false);
+                }}
+                className="px-6 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs shadow-md transition"
+              >
+                Done / Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

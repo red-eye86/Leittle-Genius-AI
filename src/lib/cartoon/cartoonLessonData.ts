@@ -1,5 +1,5 @@
 export interface CartoonCharacter {
-  id: 'father' | 'mother' | 'eadrick' | 'faidan';
+  id: 'father' | 'mother' | 'eadrick' | 'faidan' | 'grandmother';
   name: string;
   malayalamName: string;
   role: string;
@@ -13,6 +13,19 @@ export interface CartoonCharacter {
 }
 
 export const FAMILY_CHARACTERS: Record<string, CartoonCharacter> = {
+  grandmother: {
+    id: 'grandmother',
+    name: 'Grandma Lilly Joseph',
+    malayalamName: 'മുത്തശ്ശി ലില്ലി ജോസഫ്',
+    role: 'Loving Grandmother & Storyteller',
+    malayalamRole: 'സ്നേഹനിധിയായ മുത്തശ്ശി (അമ്മാച്ചി)',
+    avatarUrl: '/characters/grandmother_lilly.jpg',
+    voicePitch: 1.12,
+    voiceRate: 0.88,
+    badgeColor: 'bg-purple-700 text-white',
+    borderColor: 'border-purple-500',
+    tagline: 'Tells the sweetest bedtime stories, rhymes, and gives warm hugs! 👵❤️',
+  },
   father: {
     id: 'father',
     name: 'Papa Manoj',
@@ -59,8 +72,8 @@ export const FAMILY_CHARACTERS: Record<string, CartoonCharacter> = {
     role: 'Younger Brother (UKG, Age 5)',
     malayalamRole: 'ഇളയ സഹോദരൻ (UKG)',
     avatarUrl: '/characters/faidan.jpg',
-    voicePitch: 1.45,
-    voiceRate: 0.92,
+    voicePitch: 1.5,
+    voiceRate: 0.9,
     badgeColor: 'bg-emerald-500 text-white',
     borderColor: 'border-emerald-400',
     tagline: 'Super curious explorer in UKG Div A who loves cartoons! 🌟',
@@ -77,7 +90,7 @@ export type SceneBackdrop =
   | 'nature';
 
 export interface CartoonDialogue {
-  speakerId: 'father' | 'mother' | 'eadrick' | 'faidan';
+  speakerId: 'father' | 'mother' | 'eadrick' | 'faidan' | 'grandmother';
   englishText: string;
   malayalamText: string;
   emotion: 'happy' | 'excited' | 'thinking' | 'explaining' | 'celebrating';
@@ -628,3 +641,4 @@ export function getOrCreateCartoonEpisode(
     ],
   };
 }
+
