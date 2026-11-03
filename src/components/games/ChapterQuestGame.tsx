@@ -251,3 +251,4 @@ export default function ChapterQuestGame({ chapter, subject }: ChapterQuestGameP
     </div>
   );
 }
+

@@ -43,8 +43,16 @@ export function getDb(): DatabaseState {
           (t) => !icseIds.has(t.id) && !['tb-c3-sci-1', 'tb-c3-math-1', 'tb-ukg-phonics-1', 'tb-ukg-math-1'].includes(t.id)
         );
         parsed.textbooks = [...JSON.parse(JSON.stringify(ICSE_EBOOK_TEXTBOOKS)), ...customUploaded];
-        // Clear old cached flashcards for updated Social Science chapters so they regenerate cleanly
-        parsed.flashcards = (parsed.flashcards || []).filter((f) => !f.chapterId.startsWith('chap-c4-soc-'));
+        // Clear old cached flashcards for updated Social Science and UKG chapters so they regenerate cleanly
+        parsed.flashcards = (parsed.flashcards || []).filter(
+          (f) =>
+            !f.chapterId.startsWith('chap-c4-soc-') &&
+            !f.chapterId.startsWith('chap-ukg-evs-') &&
+            !f.chapterId.startsWith('chap-ukg-mal-') &&
+            !f.chapterId.startsWith('chap-ukg-phonics-') &&
+            !f.chapterId.startsWith('chap-ukg-math-') &&
+            !f.chapterId.startsWith('chap-ukg-listen-')
+        );
         updated = true;
       }
 
@@ -55,6 +63,65 @@ export function getDb(): DatabaseState {
         socSub.malayalamName = 'സാമൂഹ്യശാസ്ത്രം (Social Science)';
         socSub.description = 'New Trends in Social Studies (Evergreen Publications) — History, Civics & Geography';
         socSub.malayalamDescription = 'ന്യൂ ട്രെൻഡ്സ് ഇൻ സോഷ്യൽ സ്റ്റഡീസ് (Evergreen) — ചരിത്രം, പൗരധർമ്മം, ഭൂമിശാസ്ത്രം';
+        updated = true;
+      }
+
+      // Ensure UKG Malayalam & General Awareness subjects reflect Faidan Bryan M's actual publications
+      const ukgMalSub = parsed.subjects?.find((s) => s.id === 'sub-ukg-malayalam');
+      if (ukgMalSub && ukgMalSub.name !== 'Malayalam (ചങ്ങാതി Book-B)') {
+        ukgMalSub.name = 'Malayalam (ചങ്ങാതി Book-B)';
+        ukgMalSub.malayalamName = 'മലയാളം — ചങ്ങാതി പഠനപ്രവർത്തനങ്ങൾ Book-B';
+        ukgMalSub.description = 'Poorna Academia ചങ്ങാതി പഠനപ്രവർത്തനങ്ങൾ Book-B — സ്വരാക്ഷരങ്ങൾ, വ്യഞ്ജനാക്ഷരങ്ങൾ, പ്രകൃതിയിലെ കൂട്ടുകാർ, കുട്ടിപ്പാട്ടുകൾ';
+        ukgMalSub.malayalamDescription = 'പൂർണ്ണ അക്കാദമിയ ചങ്ങാതി പഠനപ്രവർത്തനങ്ങൾ Book-B — അക്ഷരങ്ങൾ, വാക്കുകൾ, പ്രകൃതിയിലെ കൂട്ടുകാർ, കുട്ടിപ്പാട്ടുകൾ';
+        updated = true;
+      }
+
+      const ukgGenSub = parsed.subjects?.find((s) => s.id === 'sub-ukg-general');
+      if (ukgGenSub && ukgGenSub.name !== 'General Awareness (KG2 GA)') {
+        ukgGenSub.name = 'General Awareness (KG2 GA)';
+        ukgGenSub.malayalamName = 'പൊതുവിജ്ഞാനം (Kindergarten Skills KG2 GA)';
+        ukgGenSub.icon = '🌱';
+        ukgGenSub.description = 'LEARNWAREi Kindergarten Skills: General Awareness (KG2 GA, NCF-FS) — My Body, Family, Plants, Animals, Helpers, Transport & Seasons';
+        ukgGenSub.malayalamDescription = 'LEARNWAREi Kindergarten Skills (KG2 GA) — ശരീരഭാഗങ്ങൾ, കുടുംബം, സസ്യങ്ങൾ, മൃഗങ്ങൾ, സഹായികൾ, വാഹനങ്ങൾ, കാലാവസ്ഥ';
+        updated = true;
+      }
+
+      // Ensure UKG English Reader reflects LEARNWAREi
+      const ukgReaderSub = parsed.subjects?.find((s) => s.id === 'sub-ukg-phonics');
+      if (ukgReaderSub && ukgReaderSub.name !== 'English Reader (KG2 ENGLISH 2)') {
+        ukgReaderSub.name = 'English Reader (KG2 ENGLISH 2)';
+        ukgReaderSub.malayalamName = 'ഇംഗ്ലീഷ് റീഡർ (KG2 ENGLISH 2)';
+        ukgReaderSub.icon = '📖';
+        ukgReaderSub.description = 'LEARNWAREi Kindergarten Skills: English Reader (KG2 ENGLISH 2, NCF-FS) — Phonics, CVC words, Sight words & Short stories';
+        ukgReaderSub.malayalamDescription = 'LEARNWAREi ഇംഗ്ലീഷ് റീഡർ — അക്ഷര ശബ്ദങ്ങൾ, മൂന്നക്ഷര വാക്കുകൾ, സൈറ്റ് വേർഡുകൾ, കൊച്ചു ചിത്രകഥകൾ';
+        updated = true;
+      }
+
+      // Ensure UKG English Listen & Speak exists
+      let ukgListenSub = parsed.subjects?.find((s) => s.id === 'sub-ukg-english-listen');
+      if (!ukgListenSub) {
+        parsed.subjects.push({
+          id: 'sub-ukg-english-listen',
+          childId: 'child-2',
+          name: 'English Listen & Speak (KG2 2)',
+          malayalamName: 'ഇംഗ്ലീഷ് ലിസൺ & സ്പീക്ക് (KG2 2)',
+          icon: '🗣️',
+          color: '#8b5cf6',
+          bgGradient: 'from-purple-400 to-indigo-500',
+          classGrade: 'UKG',
+          description: 'LEARNWAREi Kindergarten Skills: English Listen & Speak (KG2 2, NCF-FS) — Greetings, Rhymes, Questions & Conversations',
+          malayalamDescription: 'LEARNWAREi ഇംഗ്ലീഷ് ലിസൺ & സ്പീക്ക് — സംഭാഷണങ്ങൾ, റൈംസ്, ചോദ്യോത്തരങ്ങൾ, ആക്ഷൻ വാക്കുകൾ',
+        });
+        updated = true;
+      }
+
+      // Ensure UKG Math reflects Fun with Numbers
+      const ukgMathSub = parsed.subjects?.find((s) => s.id === 'sub-ukg-math');
+      if (ukgMathSub && ukgMathSub.name !== 'Fun with Numbers (KG2 MATH)') {
+        ukgMathSub.name = 'Fun with Numbers (KG2 MATH)';
+        ukgMathSub.malayalamName = 'സംഖ്യകളും കൂട്ടലും (KG2 MATH)';
+        ukgMathSub.description = 'LEARNWAREi Kindergarten Skills: Fun with Numbers (KG2 MATH, NCF-FS) — 1-50 Counting, 5+2=7 Addition, Subtraction, Shapes & Clock';
+        ukgMathSub.malayalamDescription = 'LEARNWAREi സംഖ്യകളും കണക്കും — 1-50 എണ്ണൽ, 5+2=7 കൂട്ടൽ, കുറയ്ക്കൽ, രൂപങ്ങൾ, ക്ലോക്ക്';
         updated = true;
       }
 
@@ -81,15 +148,66 @@ export function syncIcseSyllabus(): Textbook[] {
     (t) => !icseIds.has(t.id) && !['tb-c3-sci-1', 'tb-c3-math-1'].includes(t.id)
   );
   db.textbooks = [...JSON.parse(JSON.stringify(ICSE_EBOOK_TEXTBOOKS)), ...customBooks];
-  db.flashcards = (db.flashcards || []).filter((f) => !f.chapterId.startsWith('chap-c4-soc-'));
-  db.lessons = (db.lessons || []).filter((l) => !l.chapterId.startsWith('chap-c4-soc-'));
-  db.quizzes = (db.quizzes || []).filter((q) => !q.chapterId.startsWith('chap-c4-soc-'));
+  db.flashcards = (db.flashcards || []).filter(
+    (f) => !f.chapterId.startsWith('chap-c4-soc-') && !f.chapterId.startsWith('chap-ukg-evs-') && !f.chapterId.startsWith('chap-ukg-mal-')
+  );
+  db.lessons = (db.lessons || []).filter(
+    (l) => !l.chapterId.startsWith('chap-c4-soc-') && !l.chapterId.startsWith('chap-ukg-evs-') && !l.chapterId.startsWith('chap-ukg-mal-')
+  );
+  db.quizzes = (db.quizzes || []).filter(
+    (q) => !q.chapterId.startsWith('chap-c4-soc-') && !q.chapterId.startsWith('chap-ukg-evs-') && !q.chapterId.startsWith('chap-ukg-mal-')
+  );
   const socSub = db.subjects?.find((s) => s.id === 'sub-c3-social');
   if (socSub) {
     socSub.name = 'Social Science';
     socSub.malayalamName = 'സാമൂഹ്യശാസ്ത്രം (Social Science)';
     socSub.description = 'New Trends in Social Studies (Evergreen Publications) — History, Civics & Geography';
     socSub.malayalamDescription = 'ന്യൂ ട്രെൻഡ്സ് ഇൻ സോഷ്യൽ സ്റ്റഡീസ് (Evergreen) — ചരിത്രം, പൗരധർമ്മം, ഭൂമിശാസ്ത്രം';
+  }
+  const ukgMalSub = db.subjects?.find((s) => s.id === 'sub-ukg-malayalam');
+  if (ukgMalSub) {
+    ukgMalSub.name = 'Malayalam (ചങ്ങാതി Book-B)';
+    ukgMalSub.malayalamName = 'മലയാളം — ചങ്ങാതി പഠനപ്രവർത്തനങ്ങൾ Book-B';
+    ukgMalSub.description = 'Poorna Academia ചങ്ങാതി പഠനപ്രവർത്തനങ്ങൾ Book-B — സ്വരാക്ഷരങ്ങൾ, വ്യഞ്ജനാക്ഷരങ്ങൾ, പ്രകൃതിയിലെ കൂട്ടുകാർ, കുട്ടിപ്പാട്ടുകൾ';
+    ukgMalSub.malayalamDescription = 'പൂർണ്ണ അക്കാദമിയ ചങ്ങാതി പഠനപ്രവർത്തനങ്ങൾ Book-B — അക്ഷരങ്ങൾ, വാക്കുകൾ, പ്രകൃതിയിലെ കൂട്ടുകാർ, കുട്ടിപ്പാട്ടുകൾ';
+  }
+  const ukgGenSub = db.subjects?.find((s) => s.id === 'sub-ukg-general');
+  if (ukgGenSub) {
+    ukgGenSub.name = 'General Awareness (KG2 GA)';
+    ukgGenSub.malayalamName = 'പൊതുവിജ്ഞാനം (Kindergarten Skills KG2 GA)';
+    ukgGenSub.icon = '🌱';
+    ukgGenSub.description = 'LEARNWAREi Kindergarten Skills: General Awareness (KG2 GA, NCF-FS) — My Body, Family, Plants, Animals, Helpers, Transport & Seasons';
+    ukgGenSub.malayalamDescription = 'LEARNWAREi Kindergarten Skills (KG2 GA) — ശരീരഭാഗങ്ങൾ, കുടുംബം, സസ്യങ്ങൾ, മൃഗങ്ങൾ, സഹായികൾ, വാഹനങ്ങൾ, കാലാവസ്ഥ';
+  }
+  const ukgReaderSub = db.subjects?.find((s) => s.id === 'sub-ukg-phonics');
+  if (ukgReaderSub) {
+    ukgReaderSub.name = 'English Reader (KG2 ENGLISH 2)';
+    ukgReaderSub.malayalamName = 'ഇംഗ്ലീഷ് റീഡർ (KG2 ENGLISH 2)';
+    ukgReaderSub.icon = '📖';
+    ukgReaderSub.description = 'LEARNWAREi Kindergarten Skills: English Reader (KG2 ENGLISH 2, NCF-FS) — Phonics, CVC words, Sight words & Short stories';
+    ukgReaderSub.malayalamDescription = 'LEARNWAREi ഇംഗ്ലീഷ് റീഡർ — അക്ഷര ശബ്ദങ്ങൾ, മൂന്നക്ഷര വാക്കുകൾ, സൈറ്റ് വേർഡുകൾ, കൊച്ചു ചിത്രകഥകൾ';
+  }
+  let ukgListenSub = db.subjects?.find((s) => s.id === 'sub-ukg-english-listen');
+  if (!ukgListenSub) {
+    db.subjects.push({
+      id: 'sub-ukg-english-listen',
+      childId: 'child-2',
+      name: 'English Listen & Speak (KG2 2)',
+      malayalamName: 'ഇംഗ്ലീഷ് ലിസൺ & സ്പീക്ക് (KG2 2)',
+      icon: '🗣️',
+      color: '#8b5cf6',
+      bgGradient: 'from-purple-400 to-indigo-500',
+      classGrade: 'UKG',
+      description: 'LEARNWAREi Kindergarten Skills: English Listen & Speak (KG2 2, NCF-FS) — Greetings, Rhymes, Questions & Conversations',
+      malayalamDescription: 'LEARNWAREi ഇംഗ്ലീഷ് ലിസൺ & സ്പീക്ക് — സംഭാഷണങ്ങൾ, റൈംസ്, ചോദ്യോത്തരങ്ങൾ, ആക്ഷൻ വാക്കുകൾ',
+    });
+  }
+  const ukgMathSub = db.subjects?.find((s) => s.id === 'sub-ukg-math');
+  if (ukgMathSub) {
+    ukgMathSub.name = 'Fun with Numbers (KG2 MATH)';
+    ukgMathSub.malayalamName = 'സംഖ്യകളും കൂട്ടലും (KG2 MATH)';
+    ukgMathSub.description = 'LEARNWAREi Kindergarten Skills: Fun with Numbers (KG2 MATH, NCF-FS) — 1-50 Counting, 5+2=7 Addition, Subtraction, Shapes & Clock';
+    ukgMathSub.malayalamDescription = 'LEARNWAREi സംഖ്യകളും കണക്കും — 1-50 എണ്ണൽ, 5+2=7 കൂട്ടൽ, കുറയ്ക്കൽ, രൂപങ്ങൾ, ക്ലോക്ക്';
   }
   saveDb(db);
   return db.textbooks;

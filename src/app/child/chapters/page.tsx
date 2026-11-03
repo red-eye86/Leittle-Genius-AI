@@ -12,6 +12,7 @@ import {
   Gamepad2,
   CheckCircle,
   Volume2,
+  Tv,
 } from 'lucide-react';
 import { useApp } from '@/lib/context/AppContext';
 import { soundEffects } from '@/lib/audio/soundEffects';
@@ -166,6 +167,17 @@ function ChaptersContent() {
                 >
                   <Sparkles className="w-4 h-4 text-amber-300" />
                   <span>{t('teachMe')}</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    soundEffects.playPop();
+                    router.push(`/child/cartoon?chapterId=${chap.id}&subjectId=${subject?.id || ''}`);
+                  }}
+                  className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-black text-xs flex items-center space-x-1.5 shadow-md btn-kid-3d"
+                >
+                  <Tv className="w-4 h-4" />
+                  <span>{language === 'ml' ? 'കാർട്ടൂൺ വീഡിയോ' : 'Cartoon Video 🎬'}</span>
                 </button>
 
                 <button

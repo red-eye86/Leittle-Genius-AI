@@ -14,6 +14,7 @@ import {
   Award,
   Headphones,
   CheckCircle2,
+  Tv,
 } from 'lucide-react';
 import { useApp } from '@/lib/context/AppContext';
 import MascotOwl from './MascotOwl';
@@ -158,6 +159,15 @@ export default function Navbar() {
               >
                 <Box className="w-4 h-4 text-blue-500" />
                 <span>{t('world3d')}</span>
+              </button>
+              <button
+                onClick={() => router.push('/child/cartoon')}
+                className={`px-3 py-2 rounded-2xl flex items-center space-x-1 transition ${
+                  pathname?.includes('/child/cartoon') ? 'bg-rose-100 text-rose-700 shadow-sm' : 'hover:bg-slate-100 text-slate-600'
+                }`}
+              >
+                <Tv className="w-4 h-4 text-rose-500" />
+                <span>{language === 'ml' ? 'കാർട്ടൂൺ' : 'Cartoons 🎬'}</span>
               </button>
               <button
                 onClick={() => router.push('/child/progress')}

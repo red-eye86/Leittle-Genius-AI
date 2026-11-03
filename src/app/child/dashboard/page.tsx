@@ -2,6 +2,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
   BookOpen,
   Bot,
@@ -16,6 +17,7 @@ import {
   Volume2,
   FileText,
   Edit3,
+  Tv,
 } from 'lucide-react';
 import { useApp } from '@/lib/context/AppContext';
 import MascotOwl from '@/components/ui/MascotOwl';
@@ -274,6 +276,56 @@ export default function ChildDashboardPage() {
               <p className="text-[11px] text-teal-100 font-bold mt-1">
                 {language === 'ml' ? 'നല്ല കഥകൾ' : 'Bedtime Stories'}
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Family Cartoon Video Theater Banner */}
+      <section
+        onClick={() => {
+          soundEffects.playPop();
+          router.push('/child/cartoon');
+        }}
+        className="cursor-pointer relative overflow-hidden rounded-4xl bg-gradient-to-r from-purple-700 via-pink-600 to-rose-500 p-6 sm:p-8 text-white shadow-xl card-kid-hover border-4 border-pink-300"
+      >
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="max-w-xl text-center md:text-left">
+            <span className="text-[11px] font-black uppercase tracking-wider bg-white/20 px-3 py-1 rounded-full inline-flex items-center space-x-1.5 backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-amber-300 animate-ping"></span>
+              <span>🎬 {language === 'ml' ? 'പുതിയ ഫീച്ചർ' : 'New Feature'}: Family Cartoon Theater</span>
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-black mt-2 leading-tight">
+              {language === 'ml'
+                ? 'കാർട്ടൂൺ വീഡിയോകളിലൂടെ എല്ലാ പാഠങ്ങളും പഠിക്കാം!'
+                : 'Learn Every Lesson with Cartoon Family Stories!'}
+            </h3>
+            <p className="text-xs sm:text-sm text-pink-100 mt-1.5 font-medium">
+              {language === 'ml'
+                ? 'പപ്പ മനോജ്, മമ്മി ടെസ്സി, ചേട്ടൻ ഏദ്രിക്, കൊച്ചു ഫൈദാൻ എന്നിവരോടൊപ്പം എല്ലാ UKG പാഠങ്ങളും ആസ്വദിക്കൂ!'
+                : 'Starring Papa Manoj, Mummy Tessy, Brother Eadrick & Little Faidan in animated video lessons!'}
+            </p>
+
+            <div className="mt-4 inline-flex items-center space-x-2 px-5 py-2.5 rounded-2xl bg-white text-slate-900 font-black text-xs shadow-lg btn-kid-3d">
+              <Tv className="w-4 h-4 text-rose-600" />
+              <span>{language === 'ml' ? 'കാർട്ടൂൺ തീയേറ്ററിലേക്ക് പോകാം' : 'Watch Cartoon Lessons 🎬'}</span>
+              <ArrowRight className="w-4 h-4 text-slate-500 ml-1" />
+            </div>
+          </div>
+
+          {/* 4 Family Character Photo Badges */}
+          <div className="flex items-center -space-x-4 bg-white/10 backdrop-blur-md p-2.5 rounded-3xl border border-white/25 shadow-inner">
+            <div className="relative w-14 h-18 sm:w-16 sm:h-22 rounded-2xl overflow-hidden border-2 border-white shadow-md hover:scale-110 transition duration-200">
+              <Image src="/characters/father_manoj.jpg" alt="Papa Manoj" fill className="object-cover object-top" />
+            </div>
+            <div className="relative w-14 h-18 sm:w-16 sm:h-22 rounded-2xl overflow-hidden border-2 border-white shadow-md hover:scale-110 transition duration-200">
+              <Image src="/characters/mother_tessy.jpg" alt="Mummy Tessy" fill className="object-cover object-top" />
+            </div>
+            <div className="relative w-14 h-18 sm:w-16 sm:h-22 rounded-2xl overflow-hidden border-2 border-white shadow-md hover:scale-110 transition duration-200">
+              <Image src="/characters/brother_eadrick.jpg" alt="Brother Eadrick" fill className="object-cover object-top" />
+            </div>
+            <div className="relative w-14 h-18 sm:w-16 sm:h-22 rounded-2xl overflow-hidden border-2 border-white shadow-md hover:scale-110 transition duration-200 ring-2 ring-amber-300">
+              <Image src="/characters/faidan.jpg" alt="Little Faidan" fill className="object-cover object-top" />
             </div>
           </div>
         </div>
