@@ -22,7 +22,7 @@ import { Quiz, QuizQuestion } from '@/lib/db/types';
 function QuizContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const chapterId = searchParams.get('chapterId') || 'chap-c3-sci-1';
+  const chapterId = searchParams.get('chapterId') || 'chap-c4-sci-1';
   const { activeChild, language, t, speak, addStars } = useApp();
 
   const [quiz, setQuiz] = useState<Quiz | null>(null);

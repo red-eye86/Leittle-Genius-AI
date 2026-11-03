@@ -23,7 +23,7 @@ import { Lesson, LessonSection } from '@/lib/db/types';
 function LessonContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const chapterId = searchParams.get('chapterId') || 'chap-c3-sci-1';
+  const chapterId = searchParams.get('chapterId') || 'chap-c4-sci-1';
   const { activeChild, language, t, speak, stopSpeech, isSpeaking, addStars } = useApp();
 
   const [lesson, setLesson] = useState<Lesson | null>(null);
@@ -133,7 +133,13 @@ function LessonContent() {
 
             <div className="flex items-center space-x-3">
               <button
-                onClick={handleReadSection}
+                onClick={() => {
+                  if (isSpeaking) {
+                    stopSpeech();
+                  } else {
+                    handleReadSection();
+                  }
+                }}
                 className={`p-3 sm:px-5 sm:py-3 rounded-2xl font-black text-xs sm:text-sm flex items-center space-x-2 shadow-lg transition btn-kid-3d ${
                   isSpeaking
                     ? 'bg-amber-400 text-slate-900 animate-pulse'

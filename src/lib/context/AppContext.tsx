@@ -16,7 +16,9 @@ interface AppContextType {
   soundEnabled: boolean;
   setSoundEnabled: (enabled: boolean) => void;
   speak: (text: string, onEnd?: () => void) => void;
+  speakText: (text: string, onEnd?: () => void) => void;
   stopSpeech: () => void;
+  stopSpeaking: () => void;
   isSpeaking: boolean;
   addStars: (count: number) => void;
   refreshProfiles: () => Promise<void>;
@@ -125,7 +127,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         soundEnabled,
         setSoundEnabled,
         speak,
+        speakText: speak,
         stopSpeech,
+        stopSpeaking: stopSpeech,
         isSpeaking,
         addStars,
         refreshProfiles,

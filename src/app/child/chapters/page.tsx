@@ -122,10 +122,16 @@ function ChaptersContent() {
                         {language === 'ml' ? chap.malayalamTitle : chap.title}
                       </h3>
                       <button
-                        onClick={() =>
-                          speak(language === 'ml' ? chap.malayalamTitle : chap.title)
-                        }
-                        className="p-1 text-slate-400 hover:text-indigo-600"
+                        onClick={() => {
+                          soundEffects.playPop();
+                          speak(
+                            language === 'ml'
+                              ? `${chap.malayalamTitle}. ${chap.malayalamSummary}`
+                              : `${chap.title}. ${chap.summary}`
+                          );
+                        }}
+                        className="p-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 transition shadow-sm"
+                        title="Listen to Chapter Summary"
                       >
                         <Volume2 className="w-4 h-4" />
                       </button>
@@ -153,7 +159,7 @@ function ChaptersContent() {
                 <button
                   onClick={() => {
                     soundEffects.playPop();
-                    router.push(`/child/lesson?chapterId=${chap.id}`);
+                    router.push(`/child/lesson?chapterId=${chap.id}&subjectId=${subject?.id || ''}`);
                   }}
                   className="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs flex items-center space-x-2 shadow-md btn-kid-3d"
                 >
@@ -164,7 +170,7 @@ function ChaptersContent() {
                 <button
                   onClick={() => {
                     soundEffects.playPop();
-                    router.push(`/child/quiz?chapterId=${chap.id}`);
+                    router.push(`/child/quiz?chapterId=${chap.id}&subjectId=${subject?.id || ''}`);
                   }}
                   className="px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-black text-xs flex items-center space-x-1.5 shadow-sm btn-kid-3d"
                 >
@@ -175,9 +181,9 @@ function ChaptersContent() {
                 <button
                   onClick={() => {
                     soundEffects.playPop();
-                    router.push(`/child/flashcards?chapterId=${chap.id}`);
+                    router.push(`/child/flashcards?chapterId=${chap.id}&subjectId=${subject?.id || ''}`);
                   }}
-                  className="px-4 py-2.5 rounded-2xl bg-purple-100 hover:bg-purple-200 text-purple-800 font-black text-xs flex items-center space-x-1.5"
+                  className="px-4 py-2.5 rounded-2xl bg-purple-100 hover:bg-purple-200 text-purple-800 font-black text-xs flex items-center space-x-1.5 shadow-sm btn-kid-3d"
                 >
                   <Layers className="w-4 h-4" />
                   <span>{t('flashcards')}</span>
@@ -186,9 +192,9 @@ function ChaptersContent() {
                 <button
                   onClick={() => {
                     soundEffects.playPop();
-                    router.push('/child/world3d');
+                    router.push(`/child/world3d?chapterId=${chap.id}&subjectId=${subject?.id || ''}`);
                   }}
-                  className="px-4 py-2.5 rounded-2xl bg-sky-100 hover:bg-sky-200 text-sky-800 font-black text-xs flex items-center space-x-1.5"
+                  className="px-4 py-2.5 rounded-2xl bg-sky-100 hover:bg-sky-200 text-sky-800 font-black text-xs flex items-center space-x-1.5 shadow-sm btn-kid-3d"
                 >
                   <Box className="w-4 h-4" />
                   <span>{t('explore3d')}</span>

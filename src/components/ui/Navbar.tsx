@@ -20,6 +20,7 @@ export default function Navbar() {
     setLanguage,
     soundEnabled,
     setSoundEnabled,
+    stopSpeech,
     t,
   } = useApp();
 
@@ -180,7 +181,13 @@ export default function Navbar() {
 
             {/* Sound Toggle */}
             <button
-              onClick={() => setSoundEnabled(!soundEnabled)}
+              onClick={() => {
+                const next = !soundEnabled;
+                setSoundEnabled(next);
+                if (!next) {
+                  stopSpeech();
+                }
+              }}
               className="p-2 bg-slate-100 hover:bg-slate-200 rounded-2xl text-slate-700 transition"
               title={soundEnabled ? 'Mute Sound Effects' : 'Enable Sound Effects'}
             >

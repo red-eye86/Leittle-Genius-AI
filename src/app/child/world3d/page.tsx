@@ -1,33 +1,110 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowLeft,
-  Sparkles,
-  Layers,
-  Box,
   Eye,
   Volume2,
+  BookOpen,
+  Box,
 } from 'lucide-react';
 import { useApp } from '@/lib/context/AppContext';
 import SolarSystem3D from '@/components/3d/SolarSystem3D';
 import MathBlocks3D from '@/components/3d/MathBlocks3D';
 import AlphabetWorld3D from '@/components/3d/AlphabetWorld3D';
 import Classroom3D from '@/components/3d/Classroom3D';
+import ChapterConcept3D from '@/components/3d/ChapterConcept3D';
 import ThreeCanvasFallback from '@/components/3d/ThreeCanvasFallback';
 import { soundEffects } from '@/lib/audio/soundEffects';
+import { Subject, Textbook, Chapter } from '@/lib/db/types';
 
-export default function World3DPage() {
+function World3DContent() {
   const router = useRouter();
-  const { activeChild, language, t } = useApp();
-  const [activeZone, setActiveZone] = useState<'science' | 'math' | 'english' | 'classroom'>('science');
+  const searchParams = useSearchParams();
+  const queryChapterId = searchParams.get('chapterId') || '';
+  const querySubjectId = searchParams.get('subjectId') || '';
+
+  const { activeChild, language, t, speakText } = useApp();
+
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [textbooks, setTextbooks] = useState<Textbook[]>([]);
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(querySubjectId);
+  const [selectedChapterId, setSelectedChapterId] = useState<string>(queryChapterId);
+
+  const [activeZone, setActiveZone] = useState<'chapter3d' | 'science' | 'math' | 'english' | 'classroom'>('chapter3d');
   const [useFallback2D, setUseFallback2D] = useState(false);
 
   const isUKG = activeChild?.classGrade === 'UKG';
 
+  useEffect(() => {
+    if (!activeChild) return;
+
+    Promise.all([
+      fetch(`/api/data/subjects?childId=${activeChild.id}`).then((r) => r.json()),
+      fetch(`/api/data/textbooks?childId=${activeChild.id}`).then((r) => r.json()),
+    ])
+      .then(([subData, tbData]) => {
+        const subs: Subject[] = subData.subjects || [];
+        const tbs: Textbook[] = tbData.textbooks || [];
+        setSubjects(subs);
+        setTextbooks(tbs);
+
+        if (queryChapterId) {
+          let foundSubId = querySubjectId;
+          if (!foundSubId) {
+            for (const tb of tbs) {
+              if (tb.chapters?.some((c) => c.id === queryChapterId)) {
+                foundSubId = tb.subjectId;
+                break;
+              }
+            }
+          }
+          setSelectedSubjectId(foundSubId || subs[0]?.id || '');
+          setSelectedChapterId(queryChapterId);
+          setActiveZone('chapter3d');
+        } else if (querySubjectId) {
+          setSelectedSubjectId(querySubjectId);
+          const subTbs = tbs.filter((tb) => tb.subjectId === querySubjectId);
+          const firstChap = subTbs.flatMap((tb) => tb.chapters || [])[0];
+          setSelectedChapterId(firstChap?.id || '');
+          setActiveZone('chapter3d');
+        } else if (subs.length > 0) {
+          const defaultSubId = subs[0].id;
+          setSelectedSubjectId(defaultSubId);
+          const subTbs = tbs.filter((tb) => tb.subjectId === defaultSubId);
+          const firstChap = subTbs.flatMap((tb) => tb.chapters || [])[0];
+          setSelectedChapterId(firstChap?.id || '');
+        }
+      })
+      .catch(() => {});
+  }, [activeChild, queryChapterId, querySubjectId]);
+
+  const subjectChapters: Chapter[] = textbooks
+    .filter((tb) => !selectedSubjectId || tb.subjectId === selectedSubjectId)
+    .flatMap((tb) => tb.chapters || []);
+
+  const activeSubject = subjects.find((s) => s.id === selectedSubjectId);
+  const activeChapter = subjectChapters.find((c) => c.id === selectedChapterId) || subjectChapters[0];
+
+  const handleSubjectSelect = (subId: string) => {
+    soundEffects.playPop();
+    setSelectedSubjectId(subId);
+    const subTbs = textbooks.filter((tb) => tb.subjectId === subId);
+    const chaps = subTbs.flatMap((tb) => tb.chapters || []);
+    setSelectedChapterId(chaps[0]?.id || '');
+    setActiveZone('chapter3d');
+  };
+
+  const handleChapterSelect = (chapId: string) => {
+    soundEffects.playPop();
+    setSelectedChapterId(chapId);
+    setActiveZone('chapter3d');
+  };
+
   const zones = [
-    { id: 'science', label: '3D Science World', malayalamLabel: 'സയൻസ് ലോകം 🪐', icon: '🪐' },
+    { id: 'chapter3d', label: 'Chapter 3D Explorer', malayalamLabel: 'പാഠഭാഗം 3D 🧊', icon: '🧊' },
+    { id: 'science', label: '3D Solar System', malayalamLabel: 'സൗരയൂഥം 🪐', icon: '🪐' },
     { id: 'math', label: '3D Math Counting', malayalamLabel: 'കണക്ക് ലോകം 🍎', icon: '🍎' },
     { id: 'english', label: '3D Phonics & A-Z', malayalamLabel: 'അക്ഷര ലോകം 🔤', icon: '🔤' },
     { id: 'classroom', label: 'Virtual Classroom', malayalamLabel: 'ക്ലാസ്സ്‌റൂം 🦉', icon: '🦉' },
@@ -38,11 +115,11 @@ export default function World3DPage() {
       {/* Top Bar */}
       <div className="flex items-center justify-between">
         <button
-          onClick={() => router.push('/child/dashboard')}
+          onClick={() => router.back()}
           className="flex items-center space-x-1.5 text-xs font-black text-slate-500 hover:text-slate-800 bg-white px-3 py-2 rounded-2xl border border-slate-200 shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>{language === 'ml' ? 'ഹോം' : 'Dashboard'}</span>
+          <span>{language === 'ml' ? 'തിരികെ' : 'Back'}</span>
         </button>
 
         <button
@@ -58,23 +135,101 @@ export default function World3DPage() {
       </div>
 
       {/* Main Banner */}
-      <div className="bg-gradient-to-r from-sky-400 via-indigo-500 to-purple-600 rounded-4xl p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-sky-500 via-indigo-600 to-purple-600 rounded-4xl p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <span className="text-xs font-black uppercase tracking-wider text-amber-200 bg-white/20 px-3 py-1 rounded-full">
-            Interactive 3D Engine
+            {activeSubject ? `${activeSubject.icon} ${activeSubject.name} • 3D Interactive Syllabus` : 'Interactive 3D Engine'}
           </span>
-          <h1 className="text-2xl sm:text-4xl font-black mt-2">
-            {t('world3d')}
+          <h1 className="text-2xl sm:text-3xl font-black mt-2">
+            {activeZone === 'chapter3d' && activeChapter
+              ? `Ch ${activeChapter.chapterNumber}: ${activeChapter.title}`
+              : t('world3d')}
           </h1>
-          <p className="text-xs sm:text-sm text-sky-100 mt-1">
-            {language === 'ml'
+          <p className="text-xs sm:text-sm text-sky-100 mt-1 max-w-2xl">
+            {activeZone === 'chapter3d' && activeChapter
+              ? activeChapter.summary
+              : language === 'ml'
               ? 'വസ്തുക്കളെ തിരിക്കാം, തൊടാം, ശബ്ദം കേട്ട് ആസ്വദിച്ചു പഠിക്കാം!'
-              : 'Rotate, touch, zoom, and explore curriculum concepts in 3D!'}
+              : 'Rotate, touch, zoom, and explore every subject & chapter in 3D!'}
           </p>
         </div>
 
-        <span className="text-5xl animate-bounce-gentle">🚀</span>
+        <div className="flex items-center space-x-3 shrink-0">
+          {activeZone === 'chapter3d' && activeChapter && (
+            <button
+              onClick={() => {
+                soundEffects.playPop();
+                speakText(`${activeChapter.title}. ${activeChapter.summary}`);
+              }}
+              className="bg-white/20 hover:bg-white/30 text-white px-4 py-2.5 rounded-2xl font-black text-xs flex items-center space-x-1.5 border border-white/30 shadow-sm transition"
+            >
+              <Volume2 className="w-4 h-4" />
+              <span>{language === 'ml' ? 'ശബ്ദം കേൾക്കാം' : 'Listen to Chapter'}</span>
+            </button>
+          )}
+          <span className="text-5xl animate-bounce-gentle">🚀</span>
+        </div>
       </div>
+
+      {/* Subject & Chapter Selector Card */}
+      {subjects.length > 0 && (
+        <div className="bg-white rounded-3xl p-4 sm:p-5 border-2 border-sky-100 shadow-sm space-y-4">
+          {/* Subject Tabs */}
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-2 flex items-center space-x-1">
+              <BookOpen className="w-3.5 h-3.5 text-sky-500" />
+              <span>{language === 'ml' ? '1. വിഷയം തിരഞ്ഞെടുക്കുക:' : '1. Select Subject for 3D Exploration:'}</span>
+            </p>
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              {subjects.map((sub) => {
+                const isSelected = sub.id === selectedSubjectId;
+                return (
+                  <button
+                    key={sub.id}
+                    onClick={() => handleSubjectSelect(sub.id)}
+                    className={`px-3.5 py-2 rounded-2xl text-xs font-black whitespace-nowrap transition flex items-center space-x-1.5 border ${
+                      isSelected
+                        ? 'bg-sky-500 text-white border-sky-500 shadow-md scale-[1.02]'
+                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-sky-50 hover:border-sky-200'
+                    }`}
+                  >
+                    <span>{sub.icon}</span>
+                    <span>{language === 'ml' && sub.malayalamName ? sub.malayalamName : sub.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Chapter Pills */}
+          {subjectChapters.length > 0 && (
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-2 flex items-center space-x-1">
+                <Box className="w-3.5 h-3.5 text-indigo-500" />
+                <span>{language === 'ml' ? '2. പാഠം തിരഞ്ഞെടുക്കുക (3D മോഡൽ):' : '2. Select Chapter for 3D Model:'}</span>
+              </p>
+              <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                {subjectChapters.map((chap) => {
+                  const isSelected = chap.id === (activeChapter?.id || selectedChapterId) && activeZone === 'chapter3d';
+                  return (
+                    <button
+                      key={chap.id}
+                      onClick={() => handleChapterSelect(chap.id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border ${
+                        isSelected
+                          ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                          : 'bg-white text-slate-600 border-slate-200 hover:bg-indigo-50 hover:border-indigo-200'
+                      }`}
+                    >
+                      Ch {chap.chapterNumber}: {chap.title}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Zone Switcher Tabs */}
       <div className="flex items-center space-x-2 overflow-x-auto pb-1">
@@ -103,6 +258,7 @@ export default function World3DPage() {
           <ThreeCanvasFallback title="2D Interactive Lightweight Learning" />
         ) : (
           <>
+            {activeZone === 'chapter3d' && <ChapterConcept3D chapter={activeChapter} subject={activeSubject} />}
             {activeZone === 'science' && <SolarSystem3D />}
             {activeZone === 'math' && <MathBlocks3D isUKG={isUKG} />}
             {activeZone === 'english' && <AlphabetWorld3D />}
@@ -114,3 +270,10 @@ export default function World3DPage() {
   );
 }
 
+export default function World3DPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-20 font-bold text-slate-500">Loading 3D Learning World...</div>}>
+      <World3DContent />
+    </Suspense>
+  );
+}
