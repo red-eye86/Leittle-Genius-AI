@@ -18,6 +18,8 @@ import {
   Filter,
   CheckCircle2,
   PlayCircle,
+  RotateCcw,
+  Check,
 } from 'lucide-react';
 import { useApp } from '@/lib/context/AppContext';
 import { soundEffects } from '@/lib/audio/soundEffects';
@@ -44,6 +46,53 @@ function CartoonTheaterContent() {
   const [currentChapter, setCurrentChapter] = useState<TextbookChapter | null>(null);
   const [episode, setEpisode] = useState<CartoonEpisode | null>(null);
   const [loading, setLoading] = useState(true);
+  const [watchedChapterIds, setWatchedChapterIds] = useState<Set<string>>(new Set());
+
+  // Load watched chapters from localStorage when active child changes
+  useEffect(() => {
+    if (!activeChild) return;
+    try {
+      const key = `little_genius_watched_cartoons_${activeChild.id}`;
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setWatchedChapterIds(new Set(parsed));
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('Error reading watched cartoons from localStorage:', err);
+    }
+    setWatchedChapterIds(new Set());
+  }, [activeChild?.id]);
+
+  // Mark or unmark a chapter as watched
+  const markChapterWatched = (chapterId: string, watched = true) => {
+    if (!activeChild) return;
+    setWatchedChapterIds((prev) => {
+      const next = new Set(prev);
+      if (watched) {
+        next.add(chapterId);
+      } else {
+        next.delete(chapterId);
+      }
+      try {
+        const key = `little_genius_watched_cartoons_${activeChild.id}`;
+        localStorage.setItem(key, JSON.stringify(Array.from(next)));
+      } catch (err) {
+        console.error('Error saving watched cartoons:', err);
+      }
+      return next;
+    });
+  };
+
+  const toggleChapterWatched = (chapterId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    soundEffects.playPop();
+    const isCurrentlyWatched = watchedChapterIds.has(chapterId);
+    markChapterWatched(chapterId, !isCurrentlyWatched);
+  };
 
   // Load subjects, textbooks, and resolve active chapter
   useEffect(() => {
@@ -146,6 +195,14 @@ function CartoonTheaterContent() {
         </button>
 
         <div className="flex items-center space-x-2">
+          {/* Watched progress count badge */}
+          <span className="text-xs font-black px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center space-x-1.5 shadow-2xs">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>
+              {watchedChapterIds.size} / {totalEpisodesCount} {language === 'ml' ? 'കണ്ടു കഴിഞ്ഞു' : 'Watched'}
+            </span>
+          </span>
+
           <span className="text-xs font-black px-3 py-1.5 rounded-xl bg-rose-100 text-rose-800 flex items-center space-x-1.5">
             <Tv className="w-4 h-4 text-rose-600" />
             <span>{language === 'ml' ? 'കാർട്ടൂൺ തീയേറ്റർ' : 'Family Cartoon Theater'}</span>
@@ -194,8 +251,12 @@ function CartoonTheaterContent() {
             episode={episode}
             language={language}
             onLanguageChange={(newLang) => setLanguage(newLang)}
+            isWatched={currentChapter ? watchedChapterIds.has(currentChapter.id) : false}
             onComplete={() => {
               soundEffects.playLevelUp();
+              if (currentChapter) {
+                markChapterWatched(currentChapter.id, true);
+              }
             }}
           />
 
@@ -207,9 +268,42 @@ function CartoonTheaterContent() {
                 <span className="text-xs font-black text-slate-800">
                   {language === 'ml' ? currentChapter.malayalamTitle : currentChapter.title}
                 </span>
+
+                {watchedChapterIds.has(currentChapter.id) && (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center space-x-1 shadow-2xs">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>{language === 'ml' ? 'കണ്ടു കഴിഞ്ഞു ✓' : 'Watched ✓'}</span>
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center space-x-2 flex-wrap">
+                {/* Mark as Watched / Unwatched Toggle Button */}
+                <button
+                  onClick={() => toggleChapterWatched(currentChapter.id)}
+                  className={`px-3 py-1.5 rounded-xl font-black text-xs flex items-center space-x-1.5 transition border shadow-2xs ${
+                    watchedChapterIds.has(currentChapter.id)
+                      ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border-emerald-300'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
+                  }`}
+                  title={watchedChapterIds.has(currentChapter.id) ? 'Mark as unwatched' : 'Mark as watched'}
+                >
+                  <CheckCircle2
+                    className={`w-4 h-4 ${
+                      watchedChapterIds.has(currentChapter.id) ? 'text-emerald-700' : 'text-slate-400'
+                    }`}
+                  />
+                  <span>
+                    {watchedChapterIds.has(currentChapter.id)
+                      ? language === 'ml'
+                        ? 'കണ്ടു കഴിഞ്ഞു ✓'
+                        : 'Watched ✓'
+                      : language === 'ml'
+                      ? 'പൂർത്തിയായി എന്ന് രേഖപ്പെടുത്തുക'
+                      : 'Mark as Watched'}
+                  </span>
+                </button>
+
                 <button
                   onClick={() => router.push(`/child/lesson?chapterId=${currentChapter.id}`)}
                   className="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center space-x-1"
@@ -458,6 +552,7 @@ function CartoonTheaterContent() {
                   {matchingBooks.map((book) =>
                     book.chapters?.map((chap) => {
                       const isActive = currentChapter?.id === chap.id;
+                      const isWatched = watchedChapterIds.has(chap.id);
                       const presetEp = PRESET_CARTOON_EPISODES[chap.id];
                       const hasPreset = Boolean(presetEp);
                       const themeEmoji = presetEp?.themeEmoji || '🎬';
@@ -466,9 +561,11 @@ function CartoonTheaterContent() {
                         <div
                           key={chap.id}
                           onClick={() => selectChapter(chap, sub.id)}
-                          className={`p-3.5 rounded-2xl border-2 cursor-pointer transition flex items-start space-x-3 group ${
+                          className={`p-3.5 rounded-2xl border-2 cursor-pointer transition flex items-start space-x-3 group relative ${
                             isActive
                               ? 'bg-rose-50 border-rose-500 shadow-md ring-4 ring-rose-200/70 scale-[1.01]'
+                              : isWatched
+                              ? 'bg-emerald-50/50 border-emerald-300 hover:border-emerald-500 hover:bg-emerald-50/80 shadow-2xs hover:shadow-sm'
                               : 'bg-slate-50/70 border-slate-200 hover:border-indigo-400 hover:bg-white shadow-2xs hover:shadow-sm'
                           }`}
                         >
@@ -477,10 +574,12 @@ function CartoonTheaterContent() {
                             className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0 transition ${
                               isActive
                                 ? 'bg-rose-500 text-white shadow-md'
+                                : isWatched
+                                ? 'bg-emerald-600 text-white shadow-xs'
                                 : 'bg-white text-slate-700 border border-slate-200 group-hover:bg-indigo-50 group-hover:text-indigo-600'
                             }`}
                           >
-                            {isActive ? '▶' : chap.chapterNumber}
+                            {isActive ? '▶' : isWatched ? '✓' : chap.chapterNumber}
                           </div>
 
                           <div className="flex-1 min-w-0">
@@ -489,16 +588,27 @@ function CartoonTheaterContent() {
                                 Episode {chap.chapterNumber} {themeEmoji}
                               </span>
 
-                              {hasPreset && (
-                                <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-800">
-                                  Featured ⭐
-                                </span>
-                              )}
+                              <div className="flex items-center space-x-1">
+                                {isWatched ? (
+                                  <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center space-x-1 shadow-2xs">
+                                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                    <span>{language === 'ml' ? 'കണ്ടു കഴിഞ്ഞു ✓' : 'Watched ✓'}</span>
+                                  </span>
+                                ) : hasPreset ? (
+                                  <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-800">
+                                    Featured ⭐
+                                  </span>
+                                ) : null}
+                              </div>
                             </div>
 
                             <h4
                               className={`text-xs font-black truncate mt-0.5 ${
-                                isActive ? 'text-rose-900' : 'text-slate-800 group-hover:text-indigo-600'
+                                isActive
+                                  ? 'text-rose-900'
+                                  : isWatched
+                                  ? 'text-emerald-950 font-black'
+                                  : 'text-slate-800 group-hover:text-indigo-600'
                               }`}
                             >
                               {language === 'ml' ? chap.malayalamTitle : chap.title}
@@ -508,15 +618,57 @@ function CartoonTheaterContent() {
                               {language === 'ml' ? chap.malayalamSummary : chap.summary}
                             </p>
 
-                            <div className="flex items-center justify-between mt-2 pt-1 border-t border-slate-100">
-                              <span className="text-[10px] font-bold text-indigo-600 flex items-center space-x-1 group-hover:underline">
-                                <PlayCircle className="w-3 h-3 text-indigo-500" />
-                                <span>{isActive ? 'Watching Now' : 'Watch Cartoon'}</span>
-                              </span>
-
-                              {isActive && (
-                                <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                            <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100/90 gap-1">
+                              {isActive ? (
+                                <span className="text-[10px] font-black text-rose-600 flex items-center space-x-1">
+                                  <PlayCircle className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
+                                  <span>
+                                    {isWatched
+                                      ? language === 'ml'
+                                        ? 'ഇപ്പോൾ കാണുന്നു (വീണ്ടും)'
+                                        : 'Watching Now (Rewatch)'
+                                      : language === 'ml'
+                                      ? 'ഇപ്പോൾ കാണുന്നു'
+                                      : 'Watching Now'}
+                                  </span>
+                                </span>
+                              ) : isWatched ? (
+                                <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-2.5 py-1 rounded-xl flex items-center space-x-1.5 border border-emerald-300 transition group-hover:scale-105 shadow-2xs">
+                                  <RotateCcw className="w-3 h-3 text-emerald-700" />
+                                  <span>{language === 'ml' ? 'വീണ്ടും കാണുക ↺' : 'Rewatch ↺'}</span>
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-bold text-indigo-600 flex items-center space-x-1 group-hover:underline">
+                                  <PlayCircle className="w-3 h-3 text-indigo-500" />
+                                  <span>{language === 'ml' ? 'കാർട്ടൂൺ കാണുക ▶' : 'Watch Cartoon ▶'}</span>
+                                </span>
                               )}
+
+                              <div className="flex items-center space-x-1.5">
+                                {isActive && (
+                                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                                )}
+
+                                <button
+                                  onClick={(e) => toggleChapterWatched(chap.id, e)}
+                                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md flex items-center space-x-0.5 transition ${
+                                    isWatched
+                                      ? 'text-emerald-700 hover:bg-emerald-100 bg-emerald-50'
+                                      : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200/60'
+                                  }`}
+                                  title={
+                                    isWatched
+                                      ? language === 'ml'
+                                        ? 'കണ്ടിട്ടില്ല എന്ന് മാറ്റുക'
+                                        : 'Mark as uncompleted'
+                                      : language === 'ml'
+                                      ? 'കണ്ടു എന്ന് രേഖപ്പെടുത്തുക'
+                                      : 'Mark as finished'
+                                  }
+                                >
+                                  <span>{isWatched ? '✓ Done' : 'Mark'}</span>
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>

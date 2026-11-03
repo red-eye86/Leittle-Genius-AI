@@ -19,6 +19,7 @@ import {
   Mic,
   Settings2,
   Check,
+  CheckCircle2,
   X,
   Compass,
 } from 'lucide-react';
@@ -51,6 +52,8 @@ interface CartoonVideoPlayerProps {
   language: 'en' | 'ml';
   onLanguageChange?: (lang: 'en' | 'ml') => void;
   onComplete?: () => void;
+  isWatched?: boolean;
+  onToggleWatched?: () => void;
 }
 
 interface StageActor {
@@ -76,6 +79,8 @@ export function CartoonVideoPlayer({
   language = 'en',
   onLanguageChange,
   onComplete,
+  isWatched = false,
+  onToggleWatched,
 }: CartoonVideoPlayerProps) {
   const [currentSceneIdx, setCurrentSceneIdx] = useState(0);
   const [currentDialogueIdx, setCurrentDialogueIdx] = useState(0);
@@ -360,6 +365,12 @@ export function CartoonVideoPlayer({
             <span className="w-2 h-2 rounded-full bg-white inline-block"></span>
             <span>Cartoon Video</span>
           </span>
+          {isWatched && (
+            <span className="hidden sm:inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-emerald-500/90 text-white text-[11px] font-black shadow-xs border border-emerald-400">
+              <Check className="w-3.5 h-3.5 text-white" />
+              <span>{language === 'ml' ? 'കണ്ടു കഴിഞ്ഞു ✓' : 'Watched ✓'}</span>
+            </span>
+          )}
           <div className="flex flex-col min-w-0">
             <span className="text-xs sm:text-sm font-black truncate max-w-[200px] sm:max-w-md drop-shadow">
               {language === 'ml' ? episode.malayalamTitle : episode.title}
@@ -657,18 +668,25 @@ export function CartoonVideoPlayer({
             </div>
           )}
 
-          <div className="mt-4 px-4 py-2 rounded-2xl bg-amber-400 text-slate-900 font-black text-sm flex items-center space-x-2 shadow-lg">
-            <Sparkles className="w-4 h-4 text-amber-900" />
-            <span>+10 Family Learning Stars Earned! ⭐</span>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <div className="px-3.5 py-1.5 rounded-2xl bg-emerald-500 text-white font-black text-xs flex items-center space-x-1.5 shadow-md">
+              <CheckCircle2 className="w-4 h-4 text-white" />
+              <span>{language === 'ml' ? 'ഈ വീഡിയോ കണ്ടു കഴിഞ്ഞു! ✓' : 'Video Watched! ✓'}</span>
+            </div>
+
+            <div className="px-4 py-1.5 rounded-2xl bg-amber-400 text-slate-900 font-black text-xs flex items-center space-x-1.5 shadow-md">
+              <Sparkles className="w-4 h-4 text-amber-900" />
+              <span>+10 Stars Earned! ⭐</span>
+            </div>
           </div>
 
           <div className="flex items-center space-x-3 mt-6">
             <button
               onClick={restartEpisode}
-              className="px-5 py-2.5 rounded-2xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs flex items-center space-x-2 transition"
+              className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-300 hover:to-orange-300 text-slate-950 font-black text-xs flex items-center space-x-2 transition shadow-md shadow-amber-500/20"
             >
-              <RotateCcw className="w-4 h-4" />
-              <span>{language === 'ml' ? 'വീണ്ടും കാണുക' : 'Watch Again'}</span>
+              <RotateCcw className="w-4 h-4 text-slate-950" />
+              <span>{language === 'ml' ? 'വീണ്ടും കാണുക ↺' : 'Rewatch Episode ↺'}</span>
             </button>
 
             {onComplete && (
