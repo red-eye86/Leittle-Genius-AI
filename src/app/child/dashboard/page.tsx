@@ -1,5 +1,5 @@
-'use client';
 
+'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -66,11 +66,10 @@ export default function ChildDashboardPage() {
     <div className="space-y-8 pb-12 animate-fade-in">
       {/* Top Child Hero Card */}
       <section
-        className={`relative rounded-4xl p-6 sm:p-10 text-white shadow-xl overflow-hidden border-4 ${
-          isUKG
+        className={`relative rounded-4xl p-6 sm:p-10 text-white shadow-xl overflow-hidden border-4 ${isUKG
             ? 'bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 border-pink-300'
             : 'bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 border-sky-300'
-        }`}
+          }`}
       >
         <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
           <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-5">

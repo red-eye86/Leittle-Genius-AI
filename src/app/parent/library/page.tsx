@@ -25,6 +25,7 @@ export default function TextbookLibraryPage() {
   const [textbooks, setTextbooks] = useState<Textbook[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [syncMessage, setSyncMessage] = useState('');
 
   const fetchBooks = () => {
     setLoading(true);
@@ -38,6 +39,23 @@ export default function TextbookLibraryPage() {
         console.error(err);
         setLoading(false);
       });
+  };
+
+  const handleSyncIcse = async () => {
+    soundEffects.playStar();
+    setLoading(true);
+    try {
+      const res = await fetch('/api/data/textbooks', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        setSyncMessage('✅ All 9 Official ICSE E-Books (Class 4 & UKG) and 46 chapters synced subject-wise & chapter-wise!');
+        fetchBooks();
+        setTimeout(() => setSyncMessage(''), 5000);
+      }
+    } catch (e) {
+      console.error(e);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -73,14 +91,30 @@ export default function TextbookLibraryPage() {
           <span>Parent Dashboard</span>
         </button>
 
-        <button
-          onClick={() => router.push('/parent/upload')}
-          className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center space-x-1.5 shadow-sm"
-        >
-          <Upload className="w-3.5 h-3.5" />
-          <span>Upload New Book</span>
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={handleSyncIcse}
+            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center space-x-1.5 shadow-sm"
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Sync ICSE E-Books (4th & UKG)</span>
+          </button>
+
+          <button
+            onClick={() => router.push('/parent/upload')}
+            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center space-x-1.5 shadow-sm"
+          >
+            <Upload className="w-3.5 h-3.5" />
+            <span>Upload Custom PDF</span>
+          </button>
+        </div>
       </div>
+
+      {syncMessage && (
+        <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-800 text-xs sm:text-sm font-black text-center animate-fade-in">
+          {syncMessage}
+        </div>
+      )}
 
       <div className="text-center max-w-xl mx-auto space-y-2">
         <h1 className="text-3xl font-black text-slate-800 flex items-center justify-center space-x-2">

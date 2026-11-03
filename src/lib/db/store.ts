@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { DatabaseState, ChildProfile, Subject, Textbook, Lesson, Flashcard, Quiz, QuizAttempt, LearningSession, Achievement, ParentSettings } from './types';
 import { initialDatabaseState } from './seed';
+import { ICSE_EBOOK_TEXTBOOKS } from './icseSyllabus';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'database.json');
@@ -26,8 +27,25 @@ export function getDb(): DatabaseState {
   try {
     if (fs.existsSync(DB_FILE)) {
       const data = fs.readFileSync(DB_FILE, 'utf-8');
-      memoryDb = JSON.parse(data);
-      return memoryDb!;
+      const parsed: DatabaseState = JSON.parse(data);
+
+      // Ensure all 9 official ICSE E-Books (Class 4 & UKG) are synced
+      let updated = false;
+      const existingIds = new Set(parsed.textbooks.map((t) => t.id));
+      // Replace older 4 demo books with full ICSE E-books if not yet upgraded
+      if (!existingIds.has('tb-c4-sci-1')) {
+        const customUploaded = parsed.textbooks.filter(
+          (t) => !['tb-c3-sci-1', 'tb-c3-math-1', 'tb-ukg-phonics-1', 'tb-ukg-math-1'].includes(t.id)
+        );
+        parsed.textbooks = [...ICSE_EBOOK_TEXTBOOKS, ...customUploaded];
+        updated = true;
+      }
+
+      memoryDb = parsed;
+      if (updated) {
+        saveDb(memoryDb);
+      }
+      return memoryDb;
     }
   } catch (error) {
     console.error('Error reading database file, using initial state:', error);
@@ -37,6 +55,17 @@ export function getDb(): DatabaseState {
   memoryDb = JSON.parse(JSON.stringify(initialDatabaseState));
   saveDb(memoryDb!);
   return memoryDb!;
+}
+
+export function syncIcseSyllabus(): Textbook[] {
+  const db = getDb();
+  const icseIds = new Set(ICSE_EBOOK_TEXTBOOKS.map((t) => t.id));
+  const customBooks = db.textbooks.filter(
+    (t) => !icseIds.has(t.id) && !['tb-c3-sci-1', 'tb-c3-math-1'].includes(t.id)
+  );
+  db.textbooks = [...JSON.parse(JSON.stringify(ICSE_EBOOK_TEXTBOOKS)), ...customBooks];
+  saveDb(db);
+  return db.textbooks;
 }
 
 export function saveDb(state: DatabaseState): void {
