@@ -84,8 +84,60 @@ function generatePedagogicalResponse(
   language: 'en' | 'ml',
   ragContext: RetrievedContext | null
 ): { text: string } {
-  const isUKG = child.classGrade === 'UKG';
+  const isUKG = child.classGrade === 'UKG' || child.classGrade === 'LKG';
   const q = message.toLowerCase();
+
+  // Dynamic "How many X are there in Y" or division solver (e.g., "How many 5s are there in 20?")
+  const howManyMatch = q.match(/how many (\d+)s?\s+(?:are there )?in (\d+)/i);
+  if (howManyMatch) {
+    const divisor = parseInt(howManyMatch[1], 10);
+    const total = parseInt(howManyMatch[2], 10);
+    if (divisor > 0) {
+      const answer = Math.floor(total / divisor);
+      const groupsVisual = Array.from({ length: Math.min(answer, 8) })
+        .map(() => `[${'⭐'.repeat(Math.min(divisor, 6))}]`)
+        .join(' + ');
+      if (language === 'ml') {
+        return {
+          text: `മിടുക്കൻ ചോദ്യം ${child.name}! 🌟 ${total}-ൽ എത്ര ${divisor}-കൾ ഉണ്ടെന്ന് നമുക്ക് എണ്ണി നോക്കാം:\n\n${groupsVisual}\n\n${Array.from({ length: answer }, (_, i) => `${divisor} × ${i + 1} = ${divisor * (i + 1)}`).join(', ')}!\nഅതുകൊണ്ട് ${total}-ൽ കൃത്യം **${answer}** എണ്ണം ${divisor}-കൾ ഉണ്ട്! (${total} ÷ ${divisor} = ${answer}) 🎉`,
+        };
+      }
+      return {
+        text: `Awesome question, ${child.name}! 🌟 Let's count by ${divisor}s together to reach ${total}:\n\n${groupsVisual}\n\n• ${Array.from({ length: answer }, (_, i) => `${divisor} × ${i + 1} = ${divisor * (i + 1)}`).join('\n• ')}\n\nSo there are **${answer}** fives (groups of ${divisor}) in ${total}! (${total} ÷ ${divisor} = ${answer}) 🎉 Can you tell me how many ${divisor}s are in ${total + divisor}?`,
+      };
+    }
+  }
+
+  // "Why is the sky blue?"
+  if (q.includes('sky blue') || (q.includes('sky') && q.includes('blue')) || q.includes('ആകാശം നീല')) {
+    if (language === 'ml') {
+      return {
+        text: isUKG
+          ? `സൂര്യപ്രകാശത്തിൽ മഴവില്ലിലെ എല്ലാ നിറങ്ങളുമുണ്ട് 🌈! ആകാശത്തിലെ വായു നീല നിറത്തെ എല്ലായിടത്തും ചിതറിക്കുന്നു 💙. അതുകൊണ്ടാണ് ആകാശം മനോഹരമായ നീല നിറത്തിൽ കാണുന്നത്! 🌤️`
+          : `വളരെ മികച്ച ചോദ്യം ${child.name}! 🌤️ സൂര്യന്റെ വെളുത്ത പ്രകാശത്തിൽ മഴവില്ലിലെ 7 നിറങ്ങളുമുണ്ട് 🌈. പ്രകാശം ഭൂമിയുടെ അന്തരീക്ഷത്തിലൂടെ സഞ്ചരിക്കുമ്പോൾ, വായുവിലെ ചെറിയ കണികകൾ **നീല നിറത്തെ** മറ്റ് നിറങ്ങളെക്കാൾ കൂടുതൽ എല്ലാ ദിശയിലേക്കും ചിതറിക്കുന്നു (Rayleigh Scattering)! അതുകൊണ്ടാണ് നമ്മൾ മുകളിലേക്ക് നോക്കുമ്പോൾ ആകാശം നീലയായി കാണുന്നത്! 💙`,
+      };
+    }
+    return {
+      text: isUKG
+        ? `Sunlight has all the colors of the rainbow inside it! 🌈 When sunlight touches the air high up, the tiny air bubbles bounce the color BLUE all across the sky! 💙🌤️ What is your favorite color in the rainbow?`
+        : `What a brilliant science question, ${child.name}! 🌤️\n\nEven though sunlight looks white, it is actually made of all the colors of the rainbow 🌈! Blue light travels in tiny, bouncy waves. When sunlight enters Earth's atmosphere, tiny gas molecules bounce and scatter the **blue light** in every direction across the sky! 💙\n\nFun fact: At sunset, the light travels farther and scatters red and orange instead! 🌅`,
+    };
+  }
+
+  // Plants / Photosynthesis / Environmental Science
+  if (q.includes('plant') || q.includes('photosynthesis') || q.includes('leaf') || q.includes('tree') || q.includes('സസ്യ') || q.includes('മരം')) {
+    if (language === 'ml') {
+      return {
+        text: `സസ്യങ്ങൾ നമ്മുടെ ഭൂമിയുടെ ഉറ്റ ചങ്ങാതിമാരാണ് 🌱! ഇലകളിലെ 'ക്ലോറോഫിൽ' ഉപയോഗിച്ച് സൂര്യപ്രകാശം ☀️, വെള്ളം 💧, വായു എന്നിവ ചേർത്ത് സസ്യങ്ങൾ സ്വന്തമായി ആഹാരം പാകം ചെയ്യുന്നു. ഇതിനെ **പ്രകാശസംശ്ലേഷണം (Photosynthesis)** എന്ന് വിളിക്കുന്നു! പകരം അവ നമുക്ക് ശ്വസിക്കാൻ ശുദ്ധവായു (Oxygen) നൽകുന്നു! 🌳`,
+      };
+    }
+    return {
+      text:
+        mode === 'story'
+          ? `🌱 **Story Time: Chef Leafy's Sunlight Kitchen!**\nOnce upon a time, a little green leaf named Chef Leafy opened a magical kitchen inside a mango tree. Every morning, Rooty the Root sent up cool water 💧, while Sunny the Sun beamed down golden energy ☀️. Chef Leafy mixed them with air to bake sweet plant food and puffed out fresh Oxygen for all the children to breathe! 🌳✨`
+          : `Plants are amazing living chefs, ${child.name}! 🌱\n\nThey make their own food in their green leaves using a superpower called **Photosynthesis**:\n1. ☀️ **Sunlight** (energy caught by green chlorophyll)\n2. 💧 **Water** (sip-sipped from the soil by roots)\n3. 🌬️ **Carbon Dioxide** (from the air)\n\nIn return, plants give us fresh **Oxygen** to breathe! 🌳`,
+    };
+  }
 
   if (isUKG) {
     if (language === 'ml') {
@@ -117,7 +169,7 @@ function generatePedagogicalResponse(
     }
   }
 
-  // Class 3 Logic
+  // Primary School (Class 4 / Class 3) Logic
   if (language === 'ml') {
     if (q.includes('സൂര്യൻ') || q.includes('solar') || q.includes('planet') || q.includes('ഗ്രഹം')) {
       return {
@@ -126,7 +178,7 @@ function generatePedagogicalResponse(
     }
     if (q.includes('കണക്ക്') || q.includes('math') || q.includes('multiply') || q.includes('ഗുണനം')) {
       return {
-        text: `ഗുണനം എന്നാൽ തുല്യ കൂട്ടങ്ങൾ വീണ്ടും കൂട്ടുന്നതാണ്! ഉദാഹരണത്തിന്: 3 × 4 എന്നാൽ 4 ഉള്ള 3 കൂട്ടങ്ങൾ (4 + 4 + 4 = 12). 🍎🍎🍎🍎 + 🍎🍎🍎🍎 + 🍎🍎🍎🍎. ഒരു ചോദ്യം ചെയ്തു നോക്കാമോ: 2 × 5 എത്രയാണ്?`,
+        text: `ഗുണനം എന്നാൽ തുല്യ കൂട്ടങ്ങൾ വീണ്ടും കൂട്ടുന്നതാണ്! ഉദാഹരണത്തിന്: 3 × 4 എന്നാൽ 4 ഉള്ള 3 കൂട്ടങ്ങൾ (4 + 4 + 4 = 12). 🍎🍎🍎🍎 + 🍎🍎🍎🍎 + 🍎🍎🍎🍎. ഒരു ചോദ്യം ചെയ്തു നോക്കാമോ: 4 × 5 എത്രയാണ്?`,
       };
     }
     if (ragContext) {
@@ -135,7 +187,7 @@ function generatePedagogicalResponse(
       };
     }
     return {
-      text: `ഹലോ ${child.name}! ഹുട്ടി ടീച്ചർ തയ്യാറാണ് 🦉. പാഠഭാഗങ്ങളിലെ സംശയങ്ങൾ ചോദിക്കൂ, നമുക്ക് അത് കഥയായും ഉദാഹരണങ്ങളായും പഠിക്കാം! ✨`,
+      text: `ഹലോ ${child.name}! ഹുട്ടി ടീച്ചർ തയ്യാറാണ് 🦉. "ആകാശം എന്തുകൊണ്ട് നീല നിറത്തിൽ കാണുന്നു?" അല്ലെങ്കിൽ "20-ൽ എത്ര 5-കൾ ഉണ്ട്?" തുടങ്ങിയ ഏത് ചോദ്യവും ചോദിക്കൂ! ✨`,
     };
   } else {
     if (q.includes('sun') || q.includes('planet') || q.includes('solar') || q.includes('space') || q.includes('earth')) {
@@ -148,9 +200,9 @@ function generatePedagogicalResponse(
         text: `The water cycle has 3 magical steps! 💧 1. Evaporation (Sun heats water into vapor), 2. Condensation (vapor turns into fluffy clouds ☁️), 3. Precipitation (clouds let down rain 🌧️!).`,
       };
     }
-    if (q.includes('multiply') || q.includes('table') || q.includes('math')) {
+    if (q.includes('multiply') || q.includes('table') || q.includes('math') || q.includes('20')) {
       return {
-        text: `Multiplication is just repeated addition! Think of it like packing gift boxes. If you have 4 boxes with 3 pencils each, you have 3 + 3 + 3 + 3 = 12 pencils! ✏️ Shall we try 5 × 4 next?`,
+        text: `Multiplication and division are like puzzle partners! Think of packing gift boxes: if you have 20 apples and put 5 apples in each basket, you get 4 baskets (5 + 5 + 5 + 5 = 20)! 🍎 Shall we try another puzzle together?`,
       };
     }
     if (ragContext) {
@@ -159,7 +211,7 @@ function generatePedagogicalResponse(
       };
     }
     return {
-      text: `Hi ${child.name}! 🦉 I'm Hootie, your AI study buddy! What are we conquering today — Science, Math, or reading a fun chapter story?`,
+      text: `Hi ${child.name}! 🦉 I'm Hootie, your AI Voice Teacher! Try asking me: "Why is the sky blue?" or "How many 5s are there in 20?" — and listen to the explanation aloud!`,
     };
   }
 }

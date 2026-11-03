@@ -333,6 +333,114 @@ export default function ChildDashboardPage() {
         </div>
       </section>
 
+      {/* Special Recommended Power Features */}
+      <section className="space-y-4">
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-800 flex items-center space-x-2">
+          <span>✨</span>
+          <span>
+            {language === 'ml'
+              ? 'പ്രത്യേക പഠന സവിശേഷതകൾ (Special Learning Features)'
+              : 'Interactive Power Learning Zones'}
+          </span>
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* 1. AI Story Learning */}
+          <div
+            onClick={() => {
+              soundEffects.playPop();
+              router.push('/child/story');
+            }}
+            className="cursor-pointer bg-white rounded-3xl p-5 border-3 border-teal-300 hover:border-teal-500 shadow-sm card-kid-hover flex items-start space-x-4"
+          >
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 text-white flex items-center justify-center text-3xl flex-shrink-0 shadow-md">
+              🧚‍♂️
+            </div>
+            <div className="flex-1">
+              <h3 className="text-base sm:text-lg font-black text-slate-800">
+                {language === 'ml' ? 'AI കഥാ പഠനം (AI Story Learning)' : 'AI Story Learning'}
+              </h3>
+              <p className="text-xs font-bold text-slate-600 mt-1 leading-relaxed">
+                {language === 'ml'
+                  ? 'പാഠഭാഗങ്ങൾ കാർട്ടൂൺ കഥാപാത്രങ്ങളുള്ള മനോഹരമായ കഥകളാക്കി മാറ്റി പഠിക്കാം.'
+                  : 'Convert school lessons into stories. Teach plants, animals, or environmental science through a story with animated characters.'}
+              </p>
+            </div>
+          </div>
+
+          {/* 2. Writing and Drawing Practice */}
+          <div
+            onClick={() => {
+              soundEffects.playPop();
+              router.push('/child/games');
+            }}
+            className="cursor-pointer bg-white rounded-3xl p-5 border-3 border-pink-300 hover:border-pink-500 shadow-sm card-kid-hover flex items-start space-x-4"
+          >
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 text-white flex items-center justify-center text-3xl flex-shrink-0 shadow-md">
+              ✍️
+            </div>
+            <div className="flex-1">
+              <h3 className="text-base sm:text-lg font-black text-slate-800">
+                {language === 'ml'
+                  ? 'എഴുത്തും വരയും (Writing & Drawing Practice)'
+                  : 'Writing and Drawing Practice'}
+              </h3>
+              <p className="text-xs font-bold text-slate-600 mt-1 leading-relaxed">
+                {language === 'ml'
+                  ? 'വിരൽ, മൗസ് അല്ലെങ്കിൽ സ്റ്റൈലസ് ഉപയോഗിച്ച് അക്ഷരങ്ങൾ, സംഖ്യകൾ, രൂപങ്ങൾ എന്നിവ വരച്ചു പഠിക്കാം.'
+                  : 'Let the UKG & primary child trace letters, numbers, and shapes using a mouse, finger, or stylus.'}
+              </p>
+            </div>
+          </div>
+
+          {/* 3. AI Voice Teacher */}
+          <div
+            onClick={() => {
+              soundEffects.playPop();
+              router.push('/child/ai-teacher');
+            }}
+            className="cursor-pointer bg-white rounded-3xl p-5 border-3 border-emerald-300 hover:border-emerald-500 shadow-sm card-kid-hover flex items-start space-x-4"
+          >
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-500 text-white flex items-center justify-center text-3xl flex-shrink-0 shadow-md">
+              🤖
+            </div>
+            <div className="flex-1">
+              <h3 className="text-base sm:text-lg font-black text-slate-800">
+                {language === 'ml' ? 'AI വോയ്സ് ടീച്ചർ (AI Voice Teacher)' : 'AI Voice Teacher'}
+              </h3>
+              <p className="text-xs font-bold text-slate-600 mt-1 leading-relaxed">
+                {language === 'ml'
+                  ? '"ആകാശം എന്തുകൊണ്ട് നീല നിറത്തിൽ കാണുന്നു?" അല്ലെങ്കിൽ "20-ൽ എത്ര 5-കൾ ഉണ്ട്?" എന്ന് ചോദിച്ച് ലളിതമായ വിശദീകരണം കേൾക്കാം.'
+                  : 'The child can ask, "Why is the sky blue?" or "How many 5s are there in 20?" and hear a simple explanation.'}
+              </p>
+            </div>
+          </div>
+
+          {/* 4. Learning Rewards */}
+          <div
+            onClick={() => {
+              soundEffects.playPop();
+              router.push('/child/progress');
+            }}
+            className="cursor-pointer bg-white rounded-3xl p-5 border-3 border-amber-300 hover:border-amber-500 shadow-sm card-kid-hover flex items-start space-x-4"
+          >
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center text-3xl flex-shrink-0 shadow-md">
+              🎁
+            </div>
+            <div className="flex-1">
+              <h3 className="text-base sm:text-lg font-black text-slate-800">
+                {language === 'ml' ? 'പഠന സമ്മാനങ്ങൾ (Learning Rewards)' : 'Learning Rewards'}
+              </h3>
+              <p className="text-xs font-bold text-slate-600 mt-1 leading-relaxed">
+                {language === 'ml'
+                  ? 'പാഠങ്ങൾ പൂർത്തിയാക്കി നക്ഷത്രങ്ങൾ നേടാം — പുതിയ പഠന ലോകങ്ങളും കഥാപാത്രങ്ങളും കളികളും തുറക്കാം.'
+                  : 'Complete chapters and earn stars to unlock new learning worlds, characters, and educational activities.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Daily Mascot Tip Card */}
       <section className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-4xl p-6 border-3 border-amber-300 shadow-sm flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
         <MascotOwl size="md" />

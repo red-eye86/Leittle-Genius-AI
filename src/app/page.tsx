@@ -167,43 +167,55 @@ export default function LandingPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="p-6 rounded-3xl bg-sky-50 border-2 border-sky-200 space-y-3">
-            <div className="w-12 h-12 bg-sky-500 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-md">
-              🪐
+          <div
+            onClick={() => router.push('/child/story')}
+            className="cursor-pointer p-6 rounded-3xl bg-teal-50 hover:bg-teal-100/80 border-2 border-teal-200 space-y-3 transition card-kid-hover"
+          >
+            <div className="w-12 h-12 bg-teal-500 text-white rounded-2xl flex items-center justify-center font-bold text-2xl shadow-md">
+              🧚‍♂️
             </div>
-            <h4 className="text-base font-black text-slate-800">3D Learning Worlds</h4>
+            <h4 className="text-base font-black text-slate-800">AI Story Learning</h4>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Explore rotatable 3D Solar System, interactive 3D math blocks, and virtual 3D classroom.
+              Convert school lessons into stories. Teach plants, animals, or environmental science through a story with animated characters.
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl bg-purple-50 border-2 border-purple-200 space-y-3">
-            <div className="w-12 h-12 bg-purple-500 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-md">
-              🦉
+          <div
+            onClick={() => router.push('/child/games')}
+            className="cursor-pointer p-6 rounded-3xl bg-pink-50 hover:bg-pink-100/80 border-2 border-pink-200 space-y-3 transition card-kid-hover"
+          >
+            <div className="w-12 h-12 bg-pink-500 text-white rounded-2xl flex items-center justify-center font-bold text-2xl shadow-md">
+              ✍️
             </div>
-            <h4 className="text-base font-black text-slate-800">AI Teacher Hootie</h4>
+            <h4 className="text-base font-black text-slate-800">Writing & Drawing Practice</h4>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Patient tutor that explains lessons like a story, speaks with voice, and provides homework hints!
+              Let the UKG child trace letters, numbers, and shapes using a mouse, finger, or stylus with rainbow crayons.
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl bg-emerald-50 border-2 border-emerald-200 space-y-3">
-            <div className="w-12 h-12 bg-emerald-500 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-md">
-              📚
+          <div
+            onClick={() => router.push('/child/ai-teacher')}
+            className="cursor-pointer p-6 rounded-3xl bg-emerald-50 hover:bg-emerald-100/80 border-2 border-emerald-200 space-y-3 transition card-kid-hover"
+          >
+            <div className="w-12 h-12 bg-emerald-500 text-white rounded-2xl flex items-center justify-center font-bold text-2xl shadow-md">
+              🎙️
             </div>
-            <h4 className="text-base font-black text-slate-800">Textbook RAG</h4>
+            <h4 className="text-base font-black text-slate-800">AI Voice Teacher</h4>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Upload PDF school textbooks. AI breaks them into chapters, quizzes, and flashcards with citations.
+              The child can ask, &ldquo;Why is the sky blue?&rdquo; or &ldquo;How many 5s are there in 20?&rdquo; and hear a simple explanation aloud.
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl bg-amber-50 border-2 border-amber-200 space-y-3">
-            <div className="w-12 h-12 bg-amber-500 text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-md">
-              🎮
+          <div
+            onClick={() => router.push('/child/progress')}
+            className="cursor-pointer p-6 rounded-3xl bg-amber-50 hover:bg-amber-100/80 border-2 border-amber-200 space-y-3 transition card-kid-hover"
+          >
+            <div className="w-12 h-12 bg-amber-500 text-white rounded-2xl flex items-center justify-center font-bold text-2xl shadow-md">
+              🎁
             </div>
-            <h4 className="text-base font-black text-slate-800">Play & Learn Games</h4>
+            <h4 className="text-base font-black text-slate-800">Learning Rewards</h4>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Letter tracing, apple counting, speed math blitz, memory cards, and star badges.
+              Complete chapters and earn stars to unlock new learning worlds, characters, and educational activities.
             </p>
           </div>
         </div>

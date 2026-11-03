@@ -15,10 +15,10 @@ export default function GamesPage() {
   const { activeChild, language, t } = useApp();
 
   const isUKG = activeChild?.classGrade === 'UKG';
-  const [activeGame, setActiveGame] = useState<string>(isUKG ? 'tracing' : 'math_blitz');
+  const [activeGame, setActiveGame] = useState<string>('tracing');
 
   const games = [
-    { id: 'tracing', label: 'Letter Tracing ✍️', malayalamLabel: 'അക്ഷരങ്ങൾ വരയ്ക്കാം ✍️', forGrade: 'UKG' },
+    { id: 'tracing', label: 'Writing & Drawing Practice ✍️', malayalamLabel: 'എഴുത്തും വരയും ✍️', forGrade: 'All' },
     { id: 'math_blitz', label: 'Speed Math Blitz ⚡', malayalamLabel: 'കണക്ക് സ്പീഡ് ചലഞ്ച് ⚡', forGrade: 'Primary' },
     { id: 'memory', label: 'Memory Flip Quest 🃏', malayalamLabel: 'മെമ്മറി ഫ്ലിപ്പ് 🃏', forGrade: 'All' },
     { id: 'apple_count', label: 'Apple Counting 🍎', malayalamLabel: 'ആപ്പിൾ എണ്ണൽ 🍎', forGrade: 'UKG' },
