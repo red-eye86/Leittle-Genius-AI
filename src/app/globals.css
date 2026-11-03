@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Comic Sans MS", "Comic Neue", sans-serif;
+}
+
+body {
+  font-family: var(--primary-font);
+  background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 50%, #fef3c7 100%);
+  min-height: 100vh;
+  color: #1e293b;
+  overflow-x: hidden;
+}
+
+/* Kid friendly custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb {
+  background: #38bdf8;
+  border-radius: 9999px;
+  border: 2px solid #f1f5f9;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0284c7;
+}
+
+/* 3D button press effect */
+.btn-kid-3d {
+  transition: all 0.15s ease-in-out;
+  box-shadow: 0 6px 0px 0px rgba(0, 0, 0, 0.15), 0 10px 20px -2px rgba(0, 0, 0, 0.12);
+}
+.btn-kid-3d:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0px 0px rgba(0, 0, 0, 0.15), 0 4px 10px -2px rgba(0, 0, 0, 0.12);
+}
+
+/* Card 3D hover effect */
+.card-kid-hover {
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.card-kid-hover:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.15);
+}
+
+/* Card flip for flashcards */
+.perspective-1000 {
+  perspective: 1000px;
+}
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Malayalam font readability enhancement */
+.font-malayalam {
+  font-family: 'Gayathri', 'Manjari', 'Chilanka', 'Rachana', 'Noto Sans Malayalam', sans-serif;
+  line-height: 1.6;
+}
+
