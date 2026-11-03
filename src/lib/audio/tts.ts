@@ -274,11 +274,20 @@ function speakWithBrowserSynthesis(
         }
       } else {
         const charId = character || profile.id;
-        const isMalePersona = charId === 'father' || charId === 'papa_manoj';
+        const isMalePersona = charId === 'father' || charId === 'papa_manoj' || charId === 'voice_giant' || charId === 'giant';
         const isBoyPersona = charId === 'eadrick' || charId === 'kid_bright';
+        const isCreaturePersona = charId === 'voice_creature' || charId === 'creature' || charId === 'voice_bird' || charId === 'bird';
 
-        if (isMalePersona) {
-          // Select MALE voice for Papa Manoj in English
+        if (isCreaturePersona) {
+          // Cute creature/bird voice
+          const brightVoice =
+            voices.find((v) => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Zira') || v.name.includes('Female'))) ||
+            voices.find((v) => v.lang.startsWith('en'));
+          if (brightVoice) utterance.voice = brightVoice;
+          utterance.pitch = 1.6;
+          utterance.rate = 1.08;
+        } else if (isMalePersona) {
+          // Select MALE voice for Papa Manoj / Giant in English
           const maleVoice =
             voices.find(
               (v) =>
@@ -292,7 +301,7 @@ function speakWithBrowserSynthesis(
 
           if (maleVoice) {
             utterance.voice = maleVoice;
-            utterance.pitch = 0.84;
+            utterance.pitch = charId === 'voice_giant' || charId === 'giant' ? 0.65 : 0.84;
           }
         } else if (isBoyPersona) {
           // Select BOY voice for Brother Eadrick

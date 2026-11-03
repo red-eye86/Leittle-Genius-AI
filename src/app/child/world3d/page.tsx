@@ -17,7 +17,7 @@ import Classroom3D from '@/components/3d/Classroom3D';
 import ChapterConcept3D from '@/components/3d/ChapterConcept3D';
 import ThreeCanvasFallback from '@/components/3d/ThreeCanvasFallback';
 import { soundEffects } from '@/lib/audio/soundEffects';
-import { Subject, Textbook, Chapter } from '@/lib/db/types';
+import { Subject, Textbook, TextbookChapter } from '@/lib/db/types';
 
 function World3DContent() {
   const router = useRouter();
@@ -80,7 +80,7 @@ function World3DContent() {
       .catch(() => {});
   }, [activeChild, queryChapterId, querySubjectId]);
 
-  const subjectChapters: Chapter[] = textbooks
+  const subjectChapters: TextbookChapter[] = textbooks
     .filter((tb) => !selectedSubjectId || tb.subjectId === selectedSubjectId)
     .flatMap((tb) => tb.chapters || []);
 

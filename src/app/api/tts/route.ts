@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { spawn } from 'child_process';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Character voice transformation filters for FFMPEG
  * Converts upstream audio to distinct gender and age personas:
@@ -32,6 +34,26 @@ function getAudioFilterForCharacter(character: string): string {
     case 'grandma_lilly':
       // Warm, affectionate grandmother storyteller
       return 'rubberband=pitch=0.96:tempo=0.88';
+    case 'voice_creature':
+    case 'creature':
+      // High, cute animated animal / creature voice
+      return 'rubberband=pitch=1.34:tempo=1.06';
+    case 'voice_giant':
+    case 'giant':
+      // Big friendly animal (Elephant, Lion, Whale)
+      return 'rubberband=pitch=0.62:tempo=0.92,equalizer=f=160:t=q:w=1:g=5';
+    case 'voice_bird':
+    case 'bird':
+      // Chirpy, bright talking bird
+      return 'rubberband=pitch=1.42:tempo=1.10';
+    case 'voice_robot':
+    case 'robot':
+      // Fun robotic effect with flanger
+      return 'rubberband=pitch=1.02:tempo=0.98,flanger=delay=4:depth=3';
+    case 'voice_wise':
+    case 'wise':
+      // Wise storyteller / professor
+      return 'rubberband=pitch=0.82:tempo=0.90';
     default:
       return '';
   }
@@ -122,7 +144,7 @@ export async function GET(req: NextRequest) {
     const filter = getAudioFilterForCharacter(character);
     const finalAudio = filter ? await transformAudioWithFfmpeg(rawBuffer, filter) : rawBuffer;
 
-    return new NextResponse(finalAudio, {
+    return new NextResponse(new Uint8Array(finalAudio), {
       status: 200,
       headers: {
         'Content-Type': 'audio/mpeg',

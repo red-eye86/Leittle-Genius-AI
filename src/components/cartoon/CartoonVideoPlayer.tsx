@@ -20,6 +20,7 @@ import {
   Settings2,
   Check,
   X,
+  Compass,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import {
@@ -28,6 +29,8 @@ import {
   CartoonDialogue,
   FAMILY_CHARACTERS,
   CartoonCharacter,
+  GuestCharacter,
+  SceneBackdrop,
 } from '@/lib/cartoon/cartoonLessonData';
 import { soundEffects } from '@/lib/audio/soundEffects';
 import {
@@ -48,6 +51,24 @@ interface CartoonVideoPlayerProps {
   language: 'en' | 'ml';
   onLanguageChange?: (lang: 'en' | 'ml') => void;
   onComplete?: () => void;
+}
+
+interface StageActor {
+  id: string;
+  name: string;
+  malayalamName: string;
+  role: string;
+  malayalamRole: string;
+  isGuest: boolean;
+  avatarUrl?: string;
+  emoji?: string;
+  badgeColor: string;
+  borderColor: string;
+  bgGradient?: string;
+  voiceKey?: string;
+  voicePitch?: number;
+  voiceRate?: number;
+  tagline?: string;
 }
 
 export function CartoonVideoPlayer({
@@ -87,8 +108,66 @@ export function CartoonVideoPlayer({
   const currentScene: CartoonScene = episode.scenes[currentSceneIdx] || episode.scenes[0];
   const currentDialogue: CartoonDialogue =
     currentScene?.dialogues[currentDialogueIdx] || currentScene?.dialogues[0];
-  const activeSpeaker: CartoonCharacter =
-    FAMILY_CHARACTERS[currentDialogue?.speakerId] || FAMILY_CHARACTERS.faidan;
+
+  // Helper to resolve any speaker (Family or Episode Guest Character)
+  const getActor = useCallback(
+    (speakerId: string): StageActor => {
+      const fam = FAMILY_CHARACTERS[speakerId];
+      if (fam) {
+        return {
+          id: fam.id,
+          name: fam.name,
+          malayalamName: fam.malayalamName,
+          role: fam.role,
+          malayalamRole: fam.malayalamRole,
+          isGuest: false,
+          avatarUrl: fam.avatarUrl,
+          badgeColor: fam.badgeColor,
+          borderColor: fam.borderColor,
+          voicePitch: fam.voicePitch,
+          voiceRate: fam.voiceRate,
+          tagline: fam.tagline,
+        };
+      }
+      const guest = episode.cast?.find((c) => c.id === speakerId);
+      if (guest) {
+        return {
+          id: guest.id,
+          name: guest.name,
+          malayalamName: guest.malayalamName,
+          role: guest.role,
+          malayalamRole: guest.malayalamRole,
+          isGuest: true,
+          emoji: guest.emoji,
+          badgeColor: guest.badgeColor,
+          borderColor: guest.borderColor,
+          bgGradient: guest.bgGradient,
+          voiceKey: guest.voiceKey,
+          voicePitch: guest.voicePitch,
+          voiceRate: guest.voiceRate,
+          tagline: guest.tagline,
+        };
+      }
+      const fallback = FAMILY_CHARACTERS.faidan;
+      return {
+        id: fallback.id,
+        name: fallback.name,
+        malayalamName: fallback.malayalamName,
+        role: fallback.role,
+        malayalamRole: fallback.malayalamRole,
+        isGuest: false,
+        avatarUrl: fallback.avatarUrl,
+        badgeColor: fallback.badgeColor,
+        borderColor: fallback.borderColor,
+        voicePitch: fallback.voicePitch,
+        voiceRate: fallback.voiceRate,
+        tagline: fallback.tagline,
+      };
+    },
+    [episode.cast]
+  );
+
+  const activeActor: StageActor = getActor(currentDialogue?.speakerId || 'faidan');
 
   // Cleanup auto-timer
   const clearTimer = () => {
@@ -96,56 +175,6 @@ export function CartoonVideoPlayer({
       clearTimeout(autoPlayTimerRef.current);
       autoPlayTimerRef.current = null;
     }
-  };
-
-  // Speak character line using speakText (supports both crystal-clear Malayalam and English!)
-  const speakDialogue = useCallback(
-    (dialogue: CartoonDialogue, lang: 'en' | 'ml') => {
-      if (typeof window === 'undefined' || isMuted) {
-        return;
-      }
-
-      stopSpeaking();
-      const textToSpeak = lang === 'ml' ? dialogue.malayalamText : dialogue.englishText;
-      const speaker = FAMILY_CHARACTERS[dialogue.speakerId] || FAMILY_CHARACTERS.faidan;
-
-      let effectivePitch = speaker.voicePitch;
-      let effectiveRate = speaker.voiceRate;
-
-      if (selectedProfile === 'kid_sweet' && dialogue.speakerId === 'faidan') {
-        effectivePitch = 1.55;
-        effectiveRate = 0.9;
-      } else if (selectedProfile === 'grandma_lilly' && dialogue.speakerId === 'grandmother') {
-        effectivePitch = 1.15;
-        effectiveRate = 0.88;
-      }
-
-      setIsSpeaking(true);
-      speakText(
-        textToSpeak,
-        lang,
-        effectiveRate,
-        effectivePitch,
-        () => {
-          setIsSpeaking(false);
-          if (autoPlay && isPlaying) {
-            clearTimer();
-            autoPlayTimerRef.current = setTimeout(() => {
-              advanceDialogue();
-            }, 1200);
-          }
-        },
-        dialogue.speakerId
-      );
-    },
-    [isMuted, autoPlay, isPlaying, selectedProfile]
-  );
-
-  const testVoiceSample = (profId: VoiceProfileId, testLang: 'en' | 'ml' = language) => {
-    soundEffects.playPop();
-    setSelectedProfile(profId);
-    setVoiceProfile(profId);
-    testVoiceSampleAudio(profId, testLang);
   };
 
   // Advance dialogue or next scene
@@ -171,6 +200,59 @@ export function CartoonVideoPlayer({
       if (onComplete) onComplete();
     }
   }, [currentDialogueIdx, currentScene, currentSceneIdx, episode.scenes.length, onComplete]);
+
+  // Speak character line using speakText
+  const speakDialogue = useCallback(
+    (dialogue: CartoonDialogue, lang: 'en' | 'ml') => {
+      if (typeof window === 'undefined' || isMuted) {
+        return;
+      }
+
+      stopSpeaking();
+      const textToSpeak = lang === 'ml' ? dialogue.malayalamText : dialogue.englishText;
+      const actor = getActor(dialogue.speakerId);
+
+      let effectivePitch = actor.voicePitch || 1.1;
+      let effectiveRate = actor.voiceRate || 1.0;
+      let voiceKey = actor.voiceKey || dialogue.speakerId;
+
+      if (!actor.isGuest) {
+        if (selectedProfile === 'kid_sweet' && dialogue.speakerId === 'faidan') {
+          effectivePitch = 1.55;
+          effectiveRate = 0.9;
+        } else if (selectedProfile === 'grandma_lilly' && dialogue.speakerId === 'grandmother') {
+          effectivePitch = 1.15;
+          effectiveRate = 0.88;
+        }
+      }
+
+      setIsSpeaking(true);
+      speakText(
+        textToSpeak,
+        lang,
+        effectiveRate,
+        effectivePitch,
+        () => {
+          setIsSpeaking(false);
+          if (autoPlay && isPlaying) {
+            clearTimer();
+            autoPlayTimerRef.current = setTimeout(() => {
+              advanceDialogue();
+            }, 1200);
+          }
+        },
+        voiceKey
+      );
+    },
+    [isMuted, autoPlay, isPlaying, selectedProfile, getActor, advanceDialogue]
+  );
+
+  const testVoiceSample = (profId: VoiceProfileId, testLang: 'en' | 'ml' = language) => {
+    soundEffects.playPop();
+    setSelectedProfile(profId);
+    setVoiceProfile(profId);
+    testVoiceSampleAudio(profId, testLang);
+  };
 
   // Previous dialogue
   const prevDialogue = () => {
@@ -216,27 +298,45 @@ export function CartoonVideoPlayer({
   };
 
   // Stage Backdrop Colors & Decor
-  const getBackdropClass = (backdrop: string) => {
+  const getBackdropClass = (backdrop: SceneBackdrop) => {
     switch (backdrop) {
       case 'kitchen':
-        return 'from-amber-100 via-orange-100 to-yellow-200 border-amber-300';
+        return 'from-amber-100 via-orange-100 to-yellow-200 border-amber-300 text-slate-800';
       case 'garden':
-        return 'from-emerald-100 via-green-100 to-teal-200 border-emerald-300';
+        return 'from-emerald-100 via-green-100 to-teal-200 border-emerald-300 text-slate-800';
       case 'classroom':
-        return 'from-sky-100 via-indigo-100 to-blue-200 border-sky-300';
+        return 'from-sky-100 via-indigo-100 to-blue-200 border-sky-300 text-slate-800';
       case 'nature':
-        return 'from-teal-100 via-emerald-100 to-lime-200 border-teal-300';
+        return 'from-teal-100 via-emerald-100 to-lime-200 border-teal-300 text-slate-800';
       case 'park':
-        return 'from-lime-100 via-yellow-100 to-green-200 border-lime-300';
+        return 'from-lime-100 via-yellow-100 to-green-200 border-lime-300 text-slate-800';
       case 'space':
-        return 'from-indigo-950 via-purple-900 to-slate-900 text-white border-purple-500';
+        return 'from-slate-950 via-indigo-950 to-purple-950 text-white border-purple-500';
+      case 'jungle':
+        return 'from-emerald-950 via-emerald-900 to-amber-950 text-white border-emerald-500';
+      case 'ocean':
+        return 'from-sky-950 via-cyan-900 to-blue-950 text-white border-cyan-400';
+      case 'farm':
+        return 'from-amber-100 via-yellow-100 to-lime-200 border-amber-400 text-slate-800';
+      case 'city':
+        return 'from-slate-200 via-sky-100 to-indigo-200 border-indigo-400 text-slate-800';
+      case 'sky':
+        return 'from-sky-200 via-blue-100 to-indigo-100 border-sky-400 text-slate-800';
+      case 'night':
+        return 'from-slate-950 via-indigo-950 to-purple-900 text-white border-indigo-500';
+      case 'market':
+        return 'from-orange-100 via-amber-100 to-rose-100 border-orange-400 text-slate-800';
+      case 'school':
+        return 'from-blue-100 via-indigo-100 to-purple-100 border-indigo-300 text-slate-800';
+      case 'museum':
+        return 'from-stone-200 via-amber-100 to-stone-300 border-stone-400 text-slate-800';
       default:
-        return 'from-orange-50 via-amber-50 to-rose-100 border-amber-200';
+        return 'from-orange-50 via-amber-50 to-rose-100 border-amber-200 text-slate-800';
     }
   };
 
-  // Cast layout: all 5 family members displayed on stage
-  const castList: CartoonCharacter[] = [
+  // Full Stage Ensemble: Family + Episode Guest Characters
+  const familyList: CartoonCharacter[] = [
     FAMILY_CHARACTERS.grandmother,
     FAMILY_CHARACTERS.father,
     FAMILY_CHARACTERS.faidan,
@@ -244,23 +344,33 @@ export function CartoonVideoPlayer({
     FAMILY_CHARACTERS.eadrick,
   ];
 
+  const guestList: GuestCharacter[] = episode.cast || [];
+
   return (
     <div
       ref={containerRef}
       className={`relative w-full max-w-5xl mx-auto rounded-3xl overflow-hidden shadow-2xl border-4 border-indigo-400 bg-slate-950 flex flex-col ${
-        isFullscreen ? 'h-screen max-w-none rounded-none' : 'aspect-[16/10] min-h-[540px]'
+        isFullscreen ? 'h-screen max-w-none rounded-none' : 'aspect-[16/10] min-h-[560px]'
       }`}
     >
       {/* Top Header Bar inside Video Player */}
-      <div className="absolute top-0 inset-x-0 z-30 p-3 sm:p-4 bg-gradient-to-b from-black/80 via-black/40 to-transparent flex items-center justify-between text-white">
+      <div className="absolute top-0 inset-x-0 z-30 p-3 sm:p-4 bg-gradient-to-b from-black/85 via-black/45 to-transparent flex items-center justify-between text-white">
         <div className="flex items-center space-x-2">
           <span className="px-2.5 py-1 rounded-full bg-rose-600 text-[11px] font-black uppercase tracking-wider flex items-center space-x-1 animate-pulse">
             <span className="w-2 h-2 rounded-full bg-white inline-block"></span>
             <span>Cartoon Video</span>
           </span>
-          <span className="text-xs sm:text-sm font-black truncate max-w-[240px] sm:max-w-md drop-shadow">
-            {language === 'ml' ? episode.malayalamTitle : episode.title}
-          </span>
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs sm:text-sm font-black truncate max-w-[200px] sm:max-w-md drop-shadow">
+              {language === 'ml' ? episode.malayalamTitle : episode.title}
+            </span>
+            {episode.worldName && (
+              <span className="text-[10px] text-amber-300 font-bold flex items-center space-x-1">
+                <span>{episode.themeEmoji || '🎬'}</span>
+                <span>{language === 'ml' ? episode.worldName.ml : episode.worldName.en}</span>
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center space-x-2">
@@ -274,7 +384,9 @@ export function CartoonVideoPlayer({
             title="Choose Voice Style"
           >
             <Mic className="w-3.5 h-3.5" />
-            <span>{VOICE_PROFILES[selectedProfile]?.icon} {VOICE_PROFILES[selectedProfile]?.name.split(' ')[0]}</span>
+            <span className="hidden sm:inline">
+              {VOICE_PROFILES[selectedProfile]?.icon} {VOICE_PROFILES[selectedProfile]?.name.split(' ')[0]}
+            </span>
           </button>
 
           {/* Language Toggle */}
@@ -315,23 +427,37 @@ export function CartoonVideoPlayer({
       <div
         className={`relative flex-1 bg-gradient-to-b ${getBackdropClass(
           currentScene.backdrop
-        )} transition-all duration-700 p-4 sm:p-6 flex flex-col justify-between overflow-hidden pt-14`}
+        )} transition-all duration-700 p-4 sm:p-6 flex flex-col justify-between overflow-hidden pt-16`}
       >
-        {/* Floating Scene Visual Emojis in background */}
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-around opacity-25 select-none text-6xl sm:text-8xl">
-          <span>{currentScene.visualStageEmoji}</span>
-        </div>
+        {/* Floating Scene Props in Backdrop */}
+        {currentScene.props && (
+          <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
+            {currentScene.props.map((prop, idx) => (
+              <span
+                key={idx}
+                className="absolute text-3xl sm:text-5xl opacity-40 animate-pulse"
+                style={{
+                  top: `${15 + (idx * 22) % 65}%`,
+                  left: `${8 + (idx * 26) % 85}%`,
+                  animationDuration: `${3 + idx * 1.5}s`,
+                }}
+              >
+                {prop}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Scene Badge & Title */}
         <div className="relative z-10 flex items-center justify-between">
-          <div className="bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-2xl shadow-sm border border-slate-200 inline-flex items-center space-x-2">
+          <div className="bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-2xl shadow-sm border border-slate-200 inline-flex items-center space-x-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
             <span className="text-xs font-black text-slate-800">
               {language === 'ml' ? currentScene.malayalamTitle : currentScene.title}
             </span>
           </div>
 
-          <div className="text-xs font-black text-slate-600 bg-white/80 px-2.5 py-1 rounded-xl shadow-xs">
+          <div className="text-xs font-black text-slate-700 bg-white/90 px-2.5 py-1 rounded-xl shadow-xs">
             Scene {currentSceneIdx + 1} of {episode.scenes.length}
           </div>
         </div>
@@ -339,25 +465,40 @@ export function CartoonVideoPlayer({
         {/* Active Character Comic Speech Bubble */}
         <div className="relative z-20 my-auto max-w-2xl mx-auto w-full px-2">
           <div
-            className={`relative bg-white rounded-3xl p-4 sm:p-6 shadow-2xl border-4 ${activeSpeaker.borderColor} animate-bounce-slight transition-all`}
+            className={`relative bg-white rounded-3xl p-4 sm:p-6 shadow-2xl border-4 ${activeActor.borderColor} animate-bounce-slight transition-all`}
           >
             {/* Speaker Header with Avatar & Badge */}
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
               <div className="flex items-center space-x-2.5">
-                <div className="relative w-9 h-9 rounded-full overflow-hidden border-2 border-indigo-400 shadow-sm flex-shrink-0">
-                  <Image
-                    src={activeSpeaker.avatarUrl}
-                    alt={activeSpeaker.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+                {activeActor.isGuest ? (
+                  <div
+                    className={`w-10 h-10 rounded-2xl bg-gradient-to-tr ${
+                      activeActor.bgGradient || 'from-amber-400 to-orange-500'
+                    } flex items-center justify-center text-2xl shadow-md border-2 border-white flex-shrink-0 animate-bounce`}
+                  >
+                    {activeActor.emoji || '⭐'}
+                  </div>
+                ) : (
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-indigo-400 shadow-sm flex-shrink-0">
+                    <Image
+                      src={activeActor.avatarUrl || '/characters/faidan.jpg'}
+                      alt={activeActor.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
                 <div>
-                  <h4 className="text-sm font-black text-slate-800 leading-tight">
-                    {language === 'ml' ? activeSpeaker.malayalamName : activeSpeaker.name}
+                  <h4 className="text-sm font-black text-slate-800 leading-tight flex items-center space-x-1.5">
+                    <span>{language === 'ml' ? activeActor.malayalamName : activeActor.name}</span>
+                    {activeActor.isGuest && (
+                      <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-purple-100 text-purple-700">
+                        Guest Star 🌟
+                      </span>
+                    )}
                   </h4>
                   <span className="text-[10px] font-bold text-slate-500">
-                    {language === 'ml' ? activeSpeaker.malayalamRole : activeSpeaker.role}
+                    {language === 'ml' ? activeActor.malayalamRole : activeActor.role}
                   </span>
                 </div>
               </div>
@@ -390,14 +531,15 @@ export function CartoonVideoPlayer({
 
             {/* Comic Speech Pointer Tail */}
             <div
-              className={`absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-white border-b-4 border-r-4 ${activeSpeaker.borderColor} rotate-45`}
+              className={`absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-white border-b-4 border-r-4 ${activeActor.borderColor} rotate-45`}
             ></div>
           </div>
         </div>
 
-        {/* 4 Family Characters Standing On Stage */}
-        <div className="relative z-10 flex items-end justify-center gap-2 sm:gap-6 pt-4">
-          {castList.map((char) => {
+        {/* Ensemble Cast Standing On Stage (Family + Topic Guest Characters) */}
+        <div className="relative z-10 flex items-end justify-center gap-1.5 sm:gap-4 pt-4 flex-wrap max-w-4xl mx-auto">
+          {/* Family Members */}
+          {familyList.map((char) => {
             const isSpeakingNow = char.id === currentDialogue.speakerId;
             return (
               <div
@@ -414,19 +556,19 @@ export function CartoonVideoPlayer({
               >
                 {/* Character Name Pill */}
                 <div
-                  className={`text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full mb-1 shadow-md transition-all ${
+                  className={`text-[9px] sm:text-xs font-black px-2 py-0.5 rounded-full mb-1 shadow-md transition-all truncate max-w-[100px] ${
                     isSpeakingNow ? `${char.badgeColor} ring-4 ring-white` : 'bg-white/90 text-slate-700'
                   }`}
                 >
-                  {language === 'ml' ? char.malayalamName : char.name}
+                  {language === 'ml' ? char.malayalamName.split(' ')[0] : char.name.split(' ')[0]}
                 </div>
 
                 {/* 3D Character Picture Avatar Frame */}
                 <div
-                  className={`relative rounded-3xl overflow-hidden shadow-xl transition-all ${
+                  className={`relative rounded-2xl overflow-hidden shadow-xl transition-all ${
                     isSpeakingNow
-                      ? `w-20 h-28 sm:w-28 sm:h-36 ring-4 ring-amber-400 shadow-amber-300/50`
-                      : 'w-16 h-22 sm:w-22 sm:h-28 grayscale-20 border-2 border-white/60'
+                      ? 'w-16 h-22 sm:w-24 sm:h-32 ring-4 ring-amber-400 shadow-amber-300/50'
+                      : 'w-12 h-18 sm:w-18 sm:h-24 grayscale-10 border-2 border-white/70'
                   }`}
                 >
                   <Image
@@ -436,7 +578,56 @@ export function CartoonVideoPlayer({
                     className="object-cover object-top hover:scale-105 transition duration-300"
                   />
                   {isSpeakingNow && (
-                    <div className="absolute inset-0 border-2 border-amber-300 rounded-3xl pointer-events-none animate-pulse"></div>
+                    <div className="absolute inset-0 border-2 border-amber-300 rounded-2xl pointer-events-none animate-pulse"></div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Guest Cartoon Stars of This Chapter */}
+          {guestList.map((guest) => {
+            const isSpeakingNow = guest.id === currentDialogue.speakerId;
+            return (
+              <div
+                key={guest.id}
+                onClick={() => {
+                  soundEffects.playPop();
+                  speakDialogue(currentDialogue, language);
+                }}
+                className={`flex flex-col items-center cursor-pointer transition-all duration-300 ${
+                  isSpeakingNow
+                    ? 'scale-110 -translate-y-2 z-20'
+                    : 'opacity-90 hover:opacity-100 scale-95 z-10'
+                }`}
+              >
+                {/* Guest Character Name Pill */}
+                <div
+                  className={`text-[9px] sm:text-xs font-black px-2 py-0.5 rounded-full mb-1 shadow-md transition-all truncate max-w-[110px] ${
+                    isSpeakingNow
+                      ? `${guest.badgeColor} ring-4 ring-white`
+                      : 'bg-white/95 text-slate-800 border border-slate-200'
+                  }`}
+                >
+                  {language === 'ml' ? guest.malayalamName.split(' ')[0] : guest.name.split(' ')[0]}
+                </div>
+
+                {/* Animated Guest Star Emoji Card */}
+                <div
+                  className={`relative rounded-2xl flex flex-col items-center justify-center shadow-xl transition-all bg-gradient-to-tr ${
+                    guest.bgGradient
+                  } ${
+                    isSpeakingNow
+                      ? 'w-16 h-22 sm:w-24 sm:h-32 ring-4 ring-amber-400 shadow-amber-300/50 animate-bounce'
+                      : 'w-12 h-18 sm:w-18 sm:h-24 border-2 border-white/80'
+                  }`}
+                >
+                  <span className="text-3xl sm:text-5xl filter drop-shadow">{guest.emoji}</span>
+                  <span className="text-[8px] sm:text-[10px] font-black text-white/95 uppercase tracking-wider mt-1 px-1 bg-black/25 rounded-full">
+                    GUEST
+                  </span>
+                  {isSpeakingNow && (
+                    <div className="absolute inset-0 border-2 border-amber-300 rounded-2xl pointer-events-none animate-pulse"></div>
                   )}
                 </div>
               </div>
@@ -456,9 +647,15 @@ export function CartoonVideoPlayer({
           </h2>
           <p className="text-sm text-slate-200 mt-2 max-w-md">
             {language === 'ml'
-              ? 'പപ്പ മനോജും മമ്മി ടെസ്സിയും ചേട്ടൻ ഏദ്രിക്കും ഫൈദാനും ചേർന്ന് ഈ പാഠം വിജയകരമായി പഠിച്ചു കഴിഞ്ഞു!'
-              : 'Papa Manoj, Mummy Tessy, Brother Eadrick, and Little Faidan explored this lesson together!'}
+              ? 'പപ്പ മനോജും മമ്മി ടെസ്സിയും മുത്തശ്ശി ലില്ലിയും ചേട്ടൻ ഏദ്രിക്കും ഫൈദാനും കാർട്ടൂൺ കൂട്ടുകാരും ചേർന്ന് ഈ പാഠം വിജയകരമായി പഠിച്ചു!'
+              : 'Papa Manoj, Mummy Tessy, Grandma Lilly, Brother Eadrick, and Little Faidan explored this lesson together with their cartoon friends!'}
           </p>
+
+          {episode.moral && (
+            <div className="mt-3 p-3 bg-white/10 rounded-2xl border border-white/20 max-w-md text-xs text-amber-200 font-bold">
+              🌟 {language === 'ml' ? episode.moral.ml : episode.moral.en}
+            </div>
+          )}
 
           <div className="mt-4 px-4 py-2 rounded-2xl bg-amber-400 text-slate-900 font-black text-sm flex items-center space-x-2 shadow-lg">
             <Sparkles className="w-4 h-4 text-amber-900" />
@@ -521,196 +718,153 @@ export function CartoonVideoPlayer({
               soundEffects.playPop();
               const nextState = !isPlaying;
               setIsPlaying(nextState);
-              if (nextState) {
+              if (nextState && currentDialogue) {
                 speakDialogue(currentDialogue, language);
-              } else if (window.speechSynthesis) {
-                window.speechSynthesis.cancel();
+              } else {
+                stopSpeaking();
+                clearTimer();
               }
             }}
-            className="w-12 h-12 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-950 flex items-center justify-center font-black shadow-lg transition active:scale-95"
-            title={isPlaying ? 'Pause' : 'Play Video'}
+            className="px-5 py-2 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-xs flex items-center space-x-1.5 shadow-md shadow-amber-500/30 transition transform active:scale-95"
           >
-            {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
+            {isPlaying ? (
+              <>
+                <Pause className="w-4 h-4 fill-slate-950" />
+                <span>Pause</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-4 h-4 fill-slate-950" />
+                <span>Play Cartoon</span>
+              </>
+            )}
           </button>
 
           <button
-            onClick={advanceDialogue}
+            onClick={() => {
+              clearTimer();
+              advanceDialogue();
+            }}
             className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
             title="Next Line"
           >
             <SkipForward className="w-4 h-4" />
           </button>
+
+          <button
+            onClick={restartEpisode}
+            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+            title="Restart Episode"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* AutoPlay & Repeat Controls */}
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => setAutoPlay(!autoPlay)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-black flex items-center space-x-1.5 transition ${
-              autoPlay ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-800 text-slate-400'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{autoPlay ? 'Auto-Play: ON' : 'Auto-Play: OFF'}</span>
-          </button>
+        {/* Auto-Play Toggle & Key Concept Indicator */}
+        <div className="flex items-center space-x-3">
+          {currentScene.keyConceptPopup && (
+            <div className="hidden lg:flex items-center space-x-1.5 text-xs text-amber-300 bg-amber-400/10 px-3 py-1 rounded-xl border border-amber-400/20">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span className="font-bold truncate max-w-xs">
+                {language === 'ml'
+                  ? currentScene.keyConceptPopup.malayalam
+                  : currentScene.keyConceptPopup.english}
+              </span>
+            </div>
+          )}
 
-          <button
-            onClick={() => speakDialogue(currentDialogue, language)}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
-            title="Hear Voice Again"
-          >
-            <Volume2 className="w-4 h-4" />
-          </button>
+          <label className="flex items-center space-x-2 text-xs font-bold text-slate-300 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={autoPlay}
+              onChange={(e) => setAutoPlay(e.target.checked)}
+              className="rounded bg-slate-800 border-slate-700 text-amber-500 focus:ring-0"
+            />
+            <span className="text-[11px]">Auto Play</span>
+          </label>
         </div>
       </div>
 
       {/* Voice Selection Modal */}
       {isVoiceModalOpen && (
-        <div className="absolute inset-0 z-50 bg-slate-950/85 backdrop-blur-md p-4 sm:p-6 flex flex-col justify-center items-center animate-fade-in overflow-y-auto">
-          <div className="bg-white rounded-3xl p-6 max-w-xl w-full shadow-2xl border-4 border-amber-300 text-slate-800 space-y-4 max-h-[92vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border-2 border-indigo-200 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center space-x-2">
-                <span className="text-2xl">🎙️</span>
-                <div>
-                  <h3 className="text-lg font-black text-slate-800">
-                    {language === 'ml' ? 'ശബ്ദം തിരഞ്ഞെടുക്കാം (Voice Selection)' : 'Choose Your Learning Voice'}
-                  </h3>
-                  <p className="text-xs text-slate-500 font-bold">
-                    {language === 'ml'
-                      ? 'UKG പാഠങ്ങൾക്കായി മധുരമുള്ള കുട്ടിശബ്ദമോ കുടുംബാംഗങ്ങളുടെ ശബ്ദമോ തിരഞ്ഞെടുക്കൂ!'
-                      : 'Sweet kid voice for UKG, or choose your favourite family voice!'}
-                  </p>
-                </div>
+                <Mic className="w-5 h-5 text-indigo-600" />
+                <h3 className="text-base font-black text-slate-800">
+                  {language === 'ml' ? 'ശബ്ദ ശൈലി തിരഞ്ഞെടുക്കുക' : 'Choose Voice Persona'}
+                </h3>
               </div>
               <button
                 onClick={() => setIsVoiceModalOpen(false)}
-                className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition"
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Voice Profiles Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {(Object.keys(VOICE_PROFILES) as VoiceProfileId[]).map((pKey) => {
-                const prof = VOICE_PROFILES[pKey];
-                const isSelected = selectedProfile === pKey;
+            <p className="text-xs text-slate-500 mt-2">
+              {language === 'ml'
+                ? 'എല്ലാ കഥാപാത്രങ്ങൾക്കും പപ്പ, മമ്മി, മുത്തശ്ശി, കുട്ടികൾ എന്നിവരുടെ ശബ്ദ ശൈലികൾ ആസ്വദിക്കാം:'
+                : 'Select the primary voice style for reading dialogues in English & Malayalam:'}
+            </p>
+
+            {/* Voice Cards */}
+            <div className="space-y-2 mt-4 max-h-[300px] overflow-y-auto pr-1">
+              {(Object.keys(VOICE_PROFILES) as VoiceProfileId[]).map((profId) => {
+                const prof = VOICE_PROFILES[profId];
+                const isSelected = selectedProfile === profId;
                 return (
                   <div
-                    key={pKey}
-                    className={`p-3 rounded-2xl border-2 transition flex flex-col justify-between space-y-2 ${
+                    key={profId}
+                    onClick={() => testVoiceSample(profId)}
+                    className={`p-3 rounded-2xl border-2 cursor-pointer transition flex items-center justify-between ${
                       isSelected
-                        ? 'bg-amber-50/80 border-amber-500 shadow-md ring-2 ring-amber-300'
-                        : 'bg-slate-50 border-slate-200 hover:border-amber-300'
+                        ? 'border-indigo-500 bg-indigo-50/70 shadow-sm'
+                        : 'border-slate-200 hover:border-slate-300 bg-white'
                     }`}
                   >
-                    <div
-                      onClick={() => {
-                        soundEffects.playPop();
-                        setSelectedProfile(pKey);
-                        setVoiceProfile(pKey);
-                        testVoiceSample(pKey, language);
-                      }}
-                      className="cursor-pointer flex items-start space-x-3"
-                    >
-                      <span className="text-2xl p-2 rounded-xl bg-white shadow-xs shrink-0">{prof.icon}</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-xs font-black text-slate-800 truncate">{prof.name}</h4>
-                          {isSelected && <Check className="w-4 h-4 text-amber-600 flex-shrink-0" />}
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-xl shadow-xs">
+                        {prof.icon}
+                      </div>
+                      <div>
+                        <div className="flex items-center space-x-1.5">
+                          <h4 className="text-xs font-black text-slate-800">{prof.name}</h4>
+                          {isSelected && (
+                            <span className="text-[10px] font-black px-1.5 py-0.2 rounded-md bg-indigo-600 text-white">
+                              Active
+                            </span>
+                          )}
                         </div>
-                        <p className="text-[11px] font-bold text-amber-800 line-clamp-1">{prof.malayalamName}</p>
-                        <p className="text-[10px] text-slate-500 line-clamp-2 mt-0.5">
-                          {language === 'ml' ? prof.malayalamDescription : prof.description}
-                        </p>
+                        <p className="text-[10px] text-slate-500 font-medium">{prof.description}</p>
                       </div>
                     </div>
 
-                    {/* Dual Language Hear Sample Buttons */}
-                    <div className="flex items-center space-x-1.5 pt-1.5 border-t border-slate-200/60">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          testVoiceSample(pKey, 'en');
-                        }}
-                        className="flex-1 py-1 px-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-[10px] font-bold border border-slate-200 flex items-center justify-center space-x-1 transition shadow-2xs"
-                        title="Hear English voice sample"
-                      >
-                        <span>🇺🇸 English</span>
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          testVoiceSample(pKey, 'ml');
-                        }}
-                        className="flex-1 py-1 px-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200 flex items-center justify-center space-x-1 transition shadow-2xs"
-                        title="Hear Malayalam voice sample"
-                      >
-                        <span>🌴 മലയാളം</span>
-                      </button>
-                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        testVoiceSample(profId);
+                      }}
+                      className="px-2.5 py-1 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 text-[10px] font-black flex items-center space-x-1 shadow-xs transition"
+                    >
+                      <span>🔊 Listen</span>
+                    </button>
                   </div>
                 );
               })}
             </div>
 
-            {/* Browser/OS Installed Voices Dropdown */}
-            {availableVoices.length > 0 && (
-              <div className="pt-2 border-t border-slate-100">
-                <label className="text-xs font-bold text-slate-600 block mb-1">
-                  {language === 'ml' ? 'കമ്പ്യൂട്ടറിലെ പ്രത്യേക ശബ്ദം:' : 'Custom System Voice (Installed on your PC):'}
-                </label>
-                <select
-                  value={selectedVoiceUri}
-                  onChange={(e) => {
-                    const uri = e.target.value;
-                    setSelectedVoiceUriState(uri);
-                    setSelectedVoiceURI(uri);
-                    if (uri) {
-                      testVoiceSample(selectedProfile);
-                    }
-                  }}
-                  className="w-full text-xs font-bold p-2.5 rounded-xl border-2 border-slate-200 bg-white text-slate-800 focus:outline-none focus:border-amber-500"
-                >
-                  <option value="">Default Recommended Voice (Auto-tuned)</option>
-                  {availableVoices.map((v) => (
-                    <option key={v.voiceURI} value={v.voiceURI}>
-                      {v.name} ({v.lang})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Test Sample Buttons & Done */}
-            <div className="pt-2 flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => testVoiceSample(selectedProfile, 'en')}
-                  className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center space-x-1 transition"
-                  title="Test English"
-                >
-                  <Volume2 className="w-3.5 h-3.5 text-sky-600" />
-                  <span>Hear English 🇺🇸</span>
-                </button>
-                <button
-                  onClick={() => testVoiceSample(selectedProfile, 'ml')}
-                  className="px-3 py-2 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs flex items-center space-x-1 transition shadow-xs"
-                  title="Test Malayalam"
-                >
-                  <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>മലയാളം കേൾക്കാം 🌴</span>
-                </button>
-              </div>
-
+            <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-end">
               <button
                 onClick={() => {
-                  soundEffects.playStar();
+                  soundEffects.playPop();
                   setIsVoiceModalOpen(false);
                 }}
-                className="px-6 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs shadow-md transition ml-auto"
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs transition"
               >
-                Done / Save
+                {language === 'ml' ? 'ശരി' : 'Done'}
               </button>
             </div>
           </div>
@@ -719,4 +873,3 @@ export function CartoonVideoPlayer({
     </div>
   );
 }
-

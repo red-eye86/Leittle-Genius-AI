@@ -216,6 +216,46 @@ function CartoonTheaterContent() {
         </div>
       )}
 
+      {/* Episode Guest Stars & Cartoon Animals */}
+      {episode?.cast && episode.cast.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h2 className="text-xl font-black text-slate-800">
+                {language === 'ml' ? 'ഈ പാഠത്തിലെ പ്രത്യേക കാർട്ടൂൺ കഥാപാത്രങ്ങൾ' : 'This Episode’s Guest Stars & Animals'}
+              </h2>
+            </div>
+            <span className="text-xs font-bold text-slate-400">Unique to this lesson!</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {episode.cast.map((guest) => (
+              <div
+                key={guest.id}
+                className="bg-white rounded-3xl p-4 border-2 border-slate-200 hover:border-amber-400 shadow-sm transition space-y-3 flex items-center space-x-4 card-kid-hover"
+              >
+                <div
+                  className={`w-16 h-20 rounded-2xl bg-gradient-to-tr ${guest.bgGradient} flex items-center justify-center text-4xl shadow-md border-2 border-white flex-shrink-0 animate-bounce-slight`}
+                >
+                  {guest.emoji}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full ${guest.badgeColor} inline-block`}>
+                    {language === 'ml' ? guest.malayalamName : guest.name}
+                  </span>
+                  <h4 className="text-xs font-bold text-slate-700 mt-1">
+                    {language === 'ml' ? guest.malayalamRole : guest.role}
+                  </h4>
+                  <p className="text-[11px] text-slate-500 mt-1 italic leading-tight">{guest.tagline}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Meet the Family Characters Cast */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">

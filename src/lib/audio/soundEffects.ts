@@ -146,6 +146,14 @@ class SoundManager {
     osc.start(now);
     osc.stop(now + 0.1);
   }
+
+  playLevelUp(): void {
+    this.playStar();
+  }
+
+  playTada(): void {
+    this.playStar();
+  }
 }
 
 export const soundEffects = new SoundManager();
