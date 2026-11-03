@@ -9,6 +9,7 @@ import {
   HelpCircle,
   Layers,
   Box,
+  Gamepad2,
   CheckCircle,
   Volume2,
 } from 'lucide-react';
@@ -198,6 +199,17 @@ function ChaptersContent() {
                 >
                   <Box className="w-4 h-4" />
                   <span>{t('explore3d')}</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    soundEffects.playPop();
+                    router.push(`/child/games?chapterId=${chap.id}&subjectId=${subject?.id || ''}`);
+                  }}
+                  className="px-4 py-2.5 rounded-2xl bg-pink-100 hover:bg-pink-200 text-pink-800 font-black text-xs flex items-center space-x-1.5 shadow-sm btn-kid-3d"
+                >
+                  <Gamepad2 className="w-4 h-4" />
+                  <span>{t('gamesZone')}</span>
                 </button>
               </div>
             </div>

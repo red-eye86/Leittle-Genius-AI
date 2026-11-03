@@ -5,15 +5,23 @@ import confetti from 'canvas-confetti';
 import { Timer, Zap, Trophy, RefreshCw } from 'lucide-react';
 import { useApp } from '@/lib/context/AppContext';
 import { soundEffects } from '@/lib/audio/soundEffects';
+import { TextbookChapter, Subject } from '@/lib/db/types';
 
 interface MathQuestion {
   text: string;
-  options: number[];
-  answer: number;
+  options: (number | string)[];
+  answer: number | string;
 }
 
-export default function MathSpeedChallenge() {
-  const { language, speak, addStars } = useApp();
+interface MathSpeedChallengeProps {
+  chapter?: TextbookChapter | null;
+  subject?: Subject | null;
+}
+
+export default function MathSpeedChallenge({ chapter, subject }: MathSpeedChallengeProps) {
+  const { activeChild, language, speak, addStars } = useApp();
+  const isUKG = activeChild?.classGrade === 'UKG';
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30);
   const [score, setScore] = useState(0);
@@ -22,19 +30,69 @@ export default function MathSpeedChallenge() {
   const [gameOver, setGameOver] = useState(false);
 
   const generateQuestion = (): MathQuestion => {
-    // Multiplication tables (2 to 9) or addition
-    const isMultiplication = Math.random() > 0.3;
+    const chapTitle = (chapter?.title || '').toLowerCase();
+
+    // UKG Gentle Counting & Addition (1 to 10)
+    if (isUKG) {
+      const a = Math.floor(Math.random() * 5) + 1;
+      const b = Math.floor(Math.random() * 4) + 1;
+      const answer = a + b;
+      const text = `${a} 🍎 + ${b} 🍎`;
+      const wrong = new Set<number>();
+      while (wrong.size < 3) {
+        const w = Math.max(1, answer + (Math.floor(Math.random() * 5) - 2));
+        if (w !== answer) wrong.add(w);
+      }
+      return {
+        text,
+        options: [...Array.from(wrong), answer].sort(() => Math.random() - 0.5),
+        answer,
+      };
+    }
+
+    // Class 4 Fractions Chapter
+    if (chapTitle.includes('fraction') || chapTitle.includes('decimal')) {
+      const bank: MathQuestion[] = [
+        { text: '1/4 + 2/4', options: ['3/4', '1/2', '3/8', '4/4'], answer: '3/4' },
+        { text: 'Half of 20', options: [10, 5, 15, 40], answer: 10 },
+        { text: 'Quarter (1/4) of 16', options: [4, 8, 2, 12], answer: 4 },
+        { text: '0.5 as a Fraction', options: ['1/2', '1/5', '5/100', '1/4'], answer: '1/2' },
+        { text: '5/8 - 2/8', options: ['3/8', '7/8', '3/16', '1/8'], answer: '3/8' },
+      ];
+      return bank[Math.floor(Math.random() * bank.length)];
+    }
+
+    // Class 4 Place Value & Roman Numerals Chapter
+    if (chapTitle.includes('roman') || chapTitle.includes('place value')) {
+      const bank: MathQuestion[] = [
+        { text: 'Roman Numeral for 10', options: ['X', 'V', 'L', 'C'], answer: 'X' },
+        { text: 'Roman Numeral for 50', options: ['L', 'C', 'X', 'V'], answer: 'L' },
+        { text: 'Value of IX', options: [9, 11, 6, 4], answer: 9 },
+        { text: '1000 + 400 + 20 + 5', options: [1425, 1452, 1245, 4125], answer: 1425 },
+        { text: 'Value of XXIV', options: [24, 26, 14, 34], answer: 24 },
+      ];
+      return bank[Math.floor(Math.random() * bank.length)];
+    }
+
+    // Class 4 Standard Multiplication / Division / Addition Blitz
+    const mode = Math.random();
     let text = '';
     let answer = 0;
 
-    if (isMultiplication) {
-      const a = Math.floor(Math.random() * 8) + 2; // 2-9
+    if (mode < 0.5) {
+      const a = Math.floor(Math.random() * 9) + 3; // 3-11
       const b = Math.floor(Math.random() * 8) + 2; // 2-9
       text = `${a} × ${b}`;
       answer = a * b;
+    } else if (mode < 0.75) {
+      const b = Math.floor(Math.random() * 7) + 2;
+      const ans = Math.floor(Math.random() * 8) + 2;
+      const a = b * ans;
+      text = `${a} ÷ ${b}`;
+      answer = ans;
     } else {
-      const a = Math.floor(Math.random() * 40) + 10;
-      const b = Math.floor(Math.random() * 40) + 10;
+      const a = Math.floor(Math.random() * 50) + 15;
+      const b = Math.floor(Math.random() * 40) + 12;
       text = `${a} + ${b}`;
       answer = a + b;
     }
@@ -58,6 +116,11 @@ export default function MathSpeedChallenge() {
     setStreak(0);
     setCurrentQ(generateQuestion());
   };
+
+  useEffect(() => {
+    setIsPlaying(false);
+    setGameOver(false);
+  }, [chapter?.id, activeChild?.id]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -84,7 +147,7 @@ export default function MathSpeedChallenge() {
     speak(language === 'ml' ? `അതിശയകരം! നിങ്ങൾ ${score} പോയിന്റുകൾ നേടി!` : `Time is up! You scored ${score} points!`);
   };
 
-  const handleAnswer = (choice: number) => {
+  const handleAnswer = (choice: number | string) => {
     if (!currentQ) return;
     if (choice === currentQ.answer) {
       soundEffects.playCorrect();
@@ -101,11 +164,18 @@ export default function MathSpeedChallenge() {
   return (
     <div className="bg-white rounded-3xl p-6 border-4 border-blue-400 shadow-xl max-w-lg mx-auto text-center">
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <Zap className="w-6 h-6 text-amber-500 animate-bounce" />
-          <h3 className="text-xl font-black text-slate-800">
-            {language === 'ml' ? 'കണക്ക് സ്പീഡ് ചലഞ്ച് ⚡' : 'Speed Math Blitz ⚡'}
-          </h3>
+        <div className="text-left">
+          {chapter && (
+            <span className="text-[10px] font-black uppercase text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-full">
+              {subject?.icon || '⚡'} {activeChild?.classGrade} • Ch {chapter.chapterNumber}
+            </span>
+          )}
+          <div className="flex items-center space-x-2 mt-1">
+            <Zap className="w-6 h-6 text-amber-500 animate-bounce" />
+            <h3 className="text-xl font-black text-slate-800">
+              {language === 'ml' ? 'കണക്ക് സ്പീഡ് ചലഞ്ച് ⚡' : isUKG ? 'UKG Counting Blitz ⚡' : 'Class 4 Speed Math Blitz ⚡'}
+            </h3>
+          </div>
         </div>
 
         {isPlaying && (
@@ -123,7 +193,9 @@ export default function MathSpeedChallenge() {
             {language === 'ml' ? '30 സെക്കൻഡിൽ എത്ര ചോദ്യങ്ങൾ ചെയ്യാം?' : 'How many problems can you solve in 30s?'}
           </h4>
           <p className="text-xs text-slate-500 mb-6">
-            {language === 'ml' ? 'ഗുണനവും കൂട്ടലും എളുപ്പത്തിൽ പരിശീലിക്കാം' : 'Sharpen your multiplication and addition skills!'}
+            {isUKG
+              ? 'Fun picture counting and easy addition for UKG!'
+              : 'Class 4 multiplication, division, fractions, and mental math!'}
           </p>
           <button
             onClick={startGame}
@@ -137,12 +209,16 @@ export default function MathSpeedChallenge() {
       {isPlaying && currentQ && (
         <div>
           <div className="flex justify-between items-center px-4 mb-3 text-xs font-bold text-slate-500">
-            <span>Score: <strong className="text-blue-600 text-sm">{score}</strong></span>
-            <span>Streak: <strong className="text-amber-500 text-sm">{streak} 🔥</strong></span>
+            <span>
+              Score: <strong className="text-blue-600 text-sm">{score}</strong>
+            </span>
+            <span>
+              Streak: <strong className="text-amber-500 text-sm">{streak} 🔥</strong>
+            </span>
           </div>
 
           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-3xl py-8 mb-6 shadow-inner">
-            <span className="text-4xl sm:text-5xl font-black text-blue-900 tracking-wider">
+            <span className="text-3xl sm:text-4xl font-black text-blue-900 tracking-wider">
               {currentQ.text} = ?
             </span>
           </div>
@@ -185,4 +261,3 @@ export default function MathSpeedChallenge() {
     </div>
   );
 }
-

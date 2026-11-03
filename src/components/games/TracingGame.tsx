@@ -5,8 +5,9 @@ import { RefreshCw, Sparkles, Volume2, Palette, PenTool } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useApp } from '@/lib/context/AppContext';
 import { soundEffects } from '@/lib/audio/soundEffects';
+import { TextbookChapter, Subject } from '@/lib/db/types';
 
-type TraceCategory = 'letters' | 'numbers' | 'shapes' | 'freedraw';
+type TraceCategory = 'chapter_words' | 'letters' | 'numbers' | 'shapes' | 'freedraw';
 
 interface TraceItem {
   id: string;
@@ -20,7 +21,12 @@ interface TraceItem {
   shapeType?: 'circle' | 'square' | 'triangle' | 'star' | 'heart';
 }
 
-const TRACE_ITEMS: TraceItem[] = [
+interface TracingGameProps {
+  chapter?: TextbookChapter | null;
+  subject?: Subject | null;
+}
+
+const BASE_TRACE_ITEMS: TraceItem[] = [
   // Letters
   { id: 'l-a', category: 'letters', display: 'A', label: 'Letter A', malayalamLabel: 'അക്ഷരം A', guide: 'Slant down left, slant down right, cross the middle!', phonics: 'A is for Apple! Ah, Ah, Apple!', color: '#ef4444' },
   { id: 'l-b', category: 'letters', display: 'B', label: 'Letter B', malayalamLabel: 'അക്ഷരം B', guide: 'Straight line down, two big bouncy bellies!', phonics: 'B is for Ball! Buh, Buh, Ball!', color: '#3b82f6' },
@@ -29,6 +35,7 @@ const TRACE_ITEMS: TraceItem[] = [
   { id: 'l-e', category: 'letters', display: 'E', label: 'Letter E', malayalamLabel: 'അക്ഷരം E', guide: 'Line down, top hat, middle belt, bottom shoes!', phonics: 'E is for Elephant! Eh, Eh, Elephant!', color: '#8b5cf6' },
   { id: 'l-m', category: 'letters', display: 'M', label: 'Letter M', malayalamLabel: 'അക്ഷരം M', guide: 'Up the mountain, down, up again, and down!', phonics: 'M is for Mango! Mmm, Mango!', color: '#ec4899' },
   { id: 'l-mal-a', category: 'letters', display: 'അ', label: 'Malayalam അ', malayalamLabel: 'മലയാളം അ (അമ്മ)', guide: 'Curve gently around like a wave!', phonics: 'അ — അമ്മ! അണ്ണാൻ!', color: '#0ea5e9' },
+  { id: 'l-mal-aa', category: 'letters', display: 'ആ', label: 'Malayalam ആ', malayalamLabel: 'മലയാളം ആ (ആന)', guide: 'Trace Malayalam vowel ആ carefully!', phonics: 'ആ — ആന! ആമ!', color: '#10b981' },
 
   // Numbers
   { id: 'n-1', category: 'numbers', display: '1', label: 'Number 1', malayalamLabel: 'സംഖ്യ 1 (ഒന്ന്)', guide: 'Straight stick down from top to bottom: One!', phonics: 'Number One! One bright sun!', color: '#10b981' },
@@ -55,27 +62,48 @@ const CRAYON_COLORS = [
   { name: 'Gold', hex: '#eab308' },
 ];
 
-export default function TracingGame() {
+export default function TracingGame({ chapter, subject }: TracingGameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { language, speak, addStars } = useApp();
 
-  const [category, setCategory] = useState<TraceCategory>('letters');
+  const [category, setCategory] = useState<TraceCategory>('chapter_words');
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   const [brushColor, setBrushColor] = useState('#ef4444');
-  const [brushSize, setBrushSize] = useState(18);
+  const [brushSize, setBrushSize] = useState(14);
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawnPointsCount, setDrawnPointsCount] = useState(0);
   const [completed, setCompleted] = useState(false);
 
-  const filteredItems = TRACE_ITEMS.filter((item) => item.category === category);
-  const currentItem = filteredItems[selectedItemIndex] || TRACE_ITEMS[0];
+  // Build chapter-specific tracing words from chapter.keyTerms
+  const chapterTraceItems: TraceItem[] = (chapter?.keyTerms || []).map((term, idx) => {
+    const cleanWord = term.split('(')[0].trim().slice(0, 14);
+    const color = CRAYON_COLORS[idx % CRAYON_COLORS.length].hex;
+    return {
+      id: `cw-${chapter?.id}-${idx}`,
+      category: 'chapter_words',
+      display: cleanWord,
+      label: `"${cleanWord}" (${chapter?.title || 'Chapter Term'})`,
+      malayalamLabel: `"${cleanWord}" (${chapter?.malayalamTitle || ''})`,
+      guide: `Trace the key word "${cleanWord}" from Ch ${chapter?.chapterNumber}: ${chapter?.title}!`,
+      phonics: `${cleanWord}. Key term from ${chapter?.title}.`,
+      color,
+    };
+  });
+
+  const allItems = [...chapterTraceItems, ...BASE_TRACE_ITEMS];
+  const filteredItems = allItems.filter((item) => item.category === category);
+  const currentItem = filteredItems[selectedItemIndex] || allItems[0];
+
+  useEffect(() => {
+    setSelectedItemIndex(0);
+  }, [chapter?.id]);
 
   useEffect(() => {
     if (category !== 'freedraw' && currentItem) {
       setBrushColor(currentItem.color);
     }
     drawCanvasGuide();
-  }, [category, selectedItemIndex]);
+  }, [category, selectedItemIndex, chapter?.id]);
 
   const drawShapePath = (ctx: CanvasRenderingContext2D, shape: string, cx: number, cy: number) => {
     ctx.beginPath();
@@ -110,13 +138,11 @@ export default function TracingGame() {
       ctx.lineTo(cx, cy - outerRadius);
       ctx.closePath();
     } else if (shape === 'heart') {
-      const topCurveHeight = 55;
       ctx.moveTo(cx, cy - 35);
       ctx.bezierCurveTo(cx, cy - 45, cx - 90, cy - 90, cx - 90, cy - 20);
       ctx.bezierCurveTo(cx - 90, cy + 35, cx, cy + 65, cx, cy + 95);
       ctx.bezierCurveTo(cx, cy + 65, cx + 90, cy + 35, cx + 90, cy - 20);
       ctx.bezierCurveTo(cx + 90, cy - 90, cx, cy - 45, cx, cy - 35);
-      void topCurveHeight;
       ctx.closePath();
     }
   };
@@ -157,20 +183,22 @@ export default function TracingGame() {
       ctx.fillStyle = '#f8fafc';
       ctx.fill();
       ctx.strokeStyle = '#94a3b8';
-      ctx.lineWidth = 12;
+      ctx.lineWidth = 10;
       ctx.setLineDash([12, 14]);
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.stroke();
     } else if (currentItem) {
-      ctx.font = 'bold 175px "Comic Sans MS", "Comic Neue", sans-serif';
+      const len = currentItem.display.length;
+      const fontSize = len <= 2 ? 170 : len <= 5 ? 95 : len <= 8 ? 68 : 50;
+      ctx.font = `bold ${fontSize}px "Comic Sans MS", "Comic Neue", sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = '#f8fafc';
       ctx.fillText(currentItem.display, cx, cy);
       ctx.strokeStyle = '#94a3b8';
-      ctx.lineWidth = 12;
-      ctx.setLineDash([10, 14]);
+      ctx.lineWidth = len <= 2 ? 10 : 5;
+      ctx.setLineDash([8, 10]);
       ctx.strokeText(currentItem.display, cx, cy);
     }
     ctx.restore();
@@ -240,8 +268,8 @@ export default function TracingGame() {
         confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
         speak(
           language === 'ml'
-            ? `വളരെ മിടുക്കൻ! ${currentItem.malayalamLabel} മനോഹരമായി വരച്ചു!`
-            : `Awesome job tracing ${currentItem.label}! You earned 3 stars!`
+            ? `വളരെ മിടുക്കൻ! ${currentItem.malayalamLabel} മനോഹരമായി എഴുതി!`
+            : `Awesome job tracing ${currentItem.display}! You earned 3 stars!`
         );
       }
       return next;
@@ -261,9 +289,21 @@ export default function TracingGame() {
 
   return (
     <div className="bg-white rounded-4xl p-6 sm:p-8 border-4 border-pink-300 shadow-xl max-w-2xl mx-auto space-y-6">
-      {/* Top Category Tabs: Letters, Numbers, Shapes, Free Draw */}
+      {/* Chapter Badge */}
+      {chapter && (
+        <div className="text-center">
+          <span className="text-[11px] font-black uppercase px-3 py-1 rounded-full bg-pink-100 text-pink-700">
+            {subject?.icon || '✍️'} {language === 'ml' ? subject?.malayalamName : subject?.name} • Ch {chapter.chapterNumber}: {chapter.title}
+          </span>
+        </div>
+      )}
+
+      {/* Top Category Tabs */}
       <div className="flex flex-wrap items-center justify-center gap-2">
         {[
+          ...(chapterTraceItems.length > 0
+            ? [{ id: 'chapter_words', label: '📖 Chapter Words', ml: '📖 പാഠത്തിലെ വാക്കുകൾ' }]
+            : []),
           { id: 'letters', label: '🔤 Letters (A-Z / അ)', ml: '🔤 അക്ഷരങ്ങൾ' },
           { id: 'numbers', label: '🔢 Numbers (1-5)', ml: '🔢 സംഖ്യകൾ' },
           { id: 'shapes', label: '🔺 Shapes', ml: '🔺 രൂപങ്ങൾ (Shapes)' },
@@ -297,9 +337,9 @@ export default function TracingGame() {
                 soundEffects.playPop();
                 setSelectedItemIndex(idx);
               }}
-              className={`w-11 h-11 rounded-2xl font-black text-base flex items-center justify-center border-2 transition ${
+              className={`px-3.5 py-2 rounded-2xl font-black text-sm flex items-center justify-center border-2 transition ${
                 selectedItemIndex === idx
-                  ? 'bg-amber-400 text-slate-900 border-amber-500 shadow-sm scale-110'
+                  ? 'bg-amber-400 text-slate-900 border-amber-500 shadow-sm scale-105'
                   : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
               }`}
             >
@@ -312,7 +352,9 @@ export default function TracingGame() {
       {/* Header & Audio Guide */}
       <div className="flex items-center justify-between bg-pink-50/70 p-4 rounded-3xl border border-pink-200">
         <div className="flex items-center space-x-3 text-left">
-          <span className="text-3xl">{category === 'freedraw' ? '🎨' : currentItem?.display}</span>
+          <span className="text-2xl sm:text-3xl font-black text-pink-600">
+            {category === 'freedraw' ? '🎨' : currentItem?.display}
+          </span>
           <div>
             <h3 className="text-base sm:text-lg font-black text-slate-800">
               {category === 'freedraw'
@@ -334,7 +376,7 @@ export default function TracingGame() {
         {category !== 'freedraw' && currentItem && (
           <button
             onClick={() => speak(currentItem.phonics)}
-            className="p-3 bg-pink-500 hover:bg-pink-600 text-white rounded-2xl shadow-md btn-kid-3d flex items-center space-x-1.5 text-xs font-black"
+            className="p-3 bg-pink-500 hover:bg-pink-600 text-white rounded-2xl shadow-md btn-kid-3d flex items-center space-x-1.5 text-xs font-black shrink-0"
           >
             <Volume2 className="w-4 h-4" />
             <span className="hidden sm:inline">{language === 'ml' ? 'ശബ്ദം' : 'Hear Sound'}</span>
@@ -365,8 +407,8 @@ export default function TracingGame() {
           <PenTool className="w-4 h-4 text-slate-500" />
           {[
             { label: 'Fine', size: 10 },
-            { label: 'Medium', size: 18 },
-            { label: 'Jumbo', size: 26 },
+            { label: 'Medium', size: 16 },
+            { label: 'Jumbo', size: 24 },
           ].map((b) => (
             <button
               key={b.size}
@@ -386,8 +428,8 @@ export default function TracingGame() {
         <div className="relative inline-block border-4 border-dashed border-pink-300 rounded-3xl bg-white p-2 touch-none shadow-inner">
           <canvas
             ref={canvasRef}
-            width={420}
-            height={320}
+            width={460}
+            height={300}
             onMouseDown={startDraw}
             onMouseMove={draw}
             onMouseUp={stopDraw}
@@ -434,6 +476,8 @@ export default function TracingGame() {
             <span>
               {language === 'ml'
                 ? 'അടുത്തത്'
+                : category === 'chapter_words'
+                ? 'Next Chapter Word'
                 : category === 'letters'
                 ? 'Next Letter'
                 : category === 'numbers'
