@@ -1,13 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Volume2, VolumeX, Shield, Globe, Users, Sparkles, Home, BookOpen, Bot, Box, Award } from 'lucide-react';
+import {
+  Volume2,
+  VolumeX,
+  Shield,
+  Globe,
+  Home,
+  BookOpen,
+  Bot,
+  Box,
+  Award,
+  Headphones,
+  CheckCircle2,
+} from 'lucide-react';
 import { useApp } from '@/lib/context/AppContext';
 import MascotOwl from './MascotOwl';
 import ParentPinModal from './ParentPinModal';
 import KidAvatar from './KidAvatar';
+import { soundEffects } from '@/lib/audio/soundEffects';
+import { setPreferredAudioOutputDevice, getPreferredAudioOutputDevice } from '@/lib/audio/tts';
 
 export default function Navbar() {
   const router = useRouter();
@@ -20,15 +33,64 @@ export default function Navbar() {
     setLanguage,
     soundEnabled,
     setSoundEnabled,
+    speak,
     stopSpeech,
     t,
   } = useApp();
 
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isSoundMenuOpen, setIsSoundMenuOpen] = useState(false);
+  const [voiceEngine, setVoiceEngine] = useState<'system' | 'cloud'>('system');
+  const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedEngine = (localStorage.getItem('lg_voice_engine') as 'system' | 'cloud') || 'system';
+      setVoiceEngine(savedEngine);
+      setSelectedDeviceId(getPreferredAudioOutputDevice());
+    }
+  }, []);
+
+  const loadAudioDevices = async () => {
+    if (typeof navigator !== 'undefined' && navigator.mediaDevices?.enumerateDevices) {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const outputs = devices.filter((d) => d.kind === 'audiooutput');
+        setAudioDevices(outputs);
+      } catch (e) {
+        console.warn('Could not list audio devices:', e);
+      }
+    }
+  };
 
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'ml' : 'en');
+  };
+
+  const handleEngineChange = (engine: 'system' | 'cloud') => {
+    setVoiceEngine(engine);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lg_voice_engine', engine);
+    }
+    setSoundEnabled(true);
+    soundEffects.playStar();
+    speak(
+      language === 'ml'
+        ? 'ഹലോ! ശബ്ദം ഇപ്പോൾ നിങ്ങളുടെ ഹെഡ്‌സെറ്റിൽ കേൾക്കാം!'
+        : 'Hello! Voice sound is now active in your headset!'
+    );
+  };
+
+  const handleTestHeadset = () => {
+    setSoundEnabled(true);
+    soundEffects.playStar();
+    speak(
+      language === 'ml'
+        ? 'നമസ്കാരം! ഹുട്ടി ടീച്ചറുടെ ശബ്ദം നിങ്ങളുടെ ഹെഡ്‌സെറ്റിൽ വ്യക്തമായി കേൾക്കാം!'
+        : 'Hello! Hootie the Owl is speaking clearly in your headset!'
+    );
   };
 
   const isParentRoute = pathname?.startsWith('/parent');
@@ -109,13 +171,16 @@ export default function Navbar() {
             </nav>
           )}
 
-          {/* Right Controls: Child Profile, Language, Sound, Parent Gate */}
+          {/* Right Controls: Child Profile, Language, Sound & Headset Settings, Parent Gate */}
           <div className="flex items-center space-x-2 sm:space-x-3">
             {/* Child Profile Quick Switcher (when not in parent zone) */}
             {!isParentRoute && activeChild && (
               <div className="relative">
                 <button
-                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                  onClick={() => {
+                    setIsProfileDropdownOpen(!isProfileDropdownOpen);
+                    setIsSoundMenuOpen(false);
+                  }}
                   className="flex items-center space-x-2 bg-gradient-to-r from-sky-50 to-indigo-50 border-2 border-sky-300 hover:border-sky-400 px-3 py-1.5 rounded-2xl shadow-sm transition active:scale-95"
                 >
                   <KidAvatar avatar={activeChild.avatar} size="xs" />
@@ -132,7 +197,7 @@ export default function Navbar() {
                   </div>
                 </button>
 
-                {/* Dropdown to switch between Aarav & Diya */}
+                {/* Dropdown to switch between children */}
                 {isProfileDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-3xl p-3 border-2 border-sky-200 shadow-xl z-50 animate-fade-in">
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-2">
@@ -179,24 +244,143 @@ export default function Navbar() {
               <span>{language === 'en' ? 'മലയാളം' : 'English'}</span>
             </button>
 
-            {/* Sound Toggle */}
-            <button
-              onClick={() => {
-                const next = !soundEnabled;
-                setSoundEnabled(next);
-                if (!next) {
-                  stopSpeech();
-                }
-              }}
-              className="p-2 bg-slate-100 hover:bg-slate-200 rounded-2xl text-slate-700 transition"
-              title={soundEnabled ? 'Mute Sound Effects' : 'Enable Sound Effects'}
-            >
-              {soundEnabled ? (
-                <Volume2 className="w-4 h-4 text-emerald-600" />
-              ) : (
-                <VolumeX className="w-4 h-4 text-slate-400" />
+            {/* Sound & Headset Settings Popover */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  const nextOpen = !isSoundMenuOpen;
+                  setIsSoundMenuOpen(nextOpen);
+                  setIsProfileDropdownOpen(false);
+                  if (nextOpen) {
+                    loadAudioDevices();
+                  }
+                }}
+                className={`p-2 rounded-2xl transition flex items-center space-x-1 border ${
+                  soundEnabled
+                    ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'
+                    : 'bg-rose-50 hover:bg-rose-100 text-rose-600 border-rose-200'
+                }`}
+                title="Headset & Sound Settings"
+              >
+                {soundEnabled ? (
+                  <Volume2 className="w-4 h-4 text-emerald-600" />
+                ) : (
+                  <VolumeX className="w-4 h-4 text-rose-500" />
+                )}
+              </button>
+
+              {isSoundMenuOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-3xl p-4 border-2 border-emerald-200 shadow-2xl z-50 space-y-3 animate-fade-in">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <div className="flex items-center space-x-2">
+                      <Headphones className="w-4 h-4 text-emerald-600" />
+                      <span className="text-xs font-black text-slate-800">
+                        Headset & Sound Settings
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setIsSoundMenuOpen(false)}
+                      className="text-xs font-bold text-slate-400 hover:text-slate-600"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Test Headset Button */}
+                  <button
+                    onClick={handleTestHeadset}
+                    className="w-full py-2.5 px-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs flex items-center justify-center space-x-2 shadow-md transition"
+                  >
+                    <Volume2 className="w-4 h-4" />
+                    <span>Test Headset Sound Now</span>
+                  </button>
+
+                  {/* Voice Engine Mode */}
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                      Voice Output Mode
+                    </p>
+                    <button
+                      onClick={() => handleEngineChange('system')}
+                      className={`w-full p-2.5 rounded-2xl text-left text-xs border transition flex items-center justify-between ${
+                        voiceEngine === 'system'
+                          ? 'bg-sky-50 border-sky-400 text-sky-900 font-black'
+                          : 'bg-slate-50 border-slate-200 text-slate-600 font-bold hover:bg-slate-100'
+                      }`}
+                    >
+                      <div>
+                        <p>🎧 Windows Headset Voice (Default)</p>
+                        <p className="text-[10px] font-medium text-slate-500">
+                          Direct OS speech to your connected headset
+                        </p>
+                      </div>
+                      {voiceEngine === 'system' && <CheckCircle2 className="w-4 h-4 text-sky-600 shrink-0" />}
+                    </button>
+
+                    <button
+                      onClick={() => handleEngineChange('cloud')}
+                      className={`w-full p-2.5 rounded-2xl text-left text-xs border transition flex items-center justify-between ${
+                        voiceEngine === 'cloud'
+                          ? 'bg-sky-50 border-sky-400 text-sky-900 font-black'
+                          : 'bg-slate-50 border-slate-200 text-slate-600 font-bold hover:bg-slate-100'
+                      }`}
+                    >
+                      <div>
+                        <p>☁️ Cloud AI Voice Stream</p>
+                        <p className="text-[10px] font-medium text-slate-500">
+                          Uses browser media audio stream
+                        </p>
+                      </div>
+                      {voiceEngine === 'cloud' && <CheckCircle2 className="w-4 h-4 text-sky-600 shrink-0" />}
+                    </button>
+                  </div>
+
+                  {/* Audio Output Device Selector (if available) */}
+                  {audioDevices.length > 1 && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                        Select Headset / Speaker
+                      </p>
+                      <select
+                        value={selectedDeviceId}
+                        onChange={(e) => {
+                          setSelectedDeviceId(e.target.value);
+                          setPreferredAudioOutputDevice(e.target.value);
+                        }}
+                        className="w-full text-xs font-bold p-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700"
+                      >
+                        <option value="">System Default Headset / Speaker</option>
+                        {audioDevices.map((d, i) => (
+                          <option key={d.deviceId || i} value={d.deviceId}>
+                            {d.label || `Audio Output ${i + 1}`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Mute / Unmute Switch */}
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-600">App Sound Effects</span>
+                    <button
+                      onClick={() => {
+                        const next = !soundEnabled;
+                        setSoundEnabled(next);
+                        if (!next) stopSpeech();
+                        else soundEffects.playPop();
+                      }}
+                      className={`px-3 py-1 rounded-xl text-xs font-black transition ${
+                        soundEnabled
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-rose-100 text-rose-700'
+                      }`}
+                    >
+                      {soundEnabled ? 'ON 🔊' : 'MUTED 🔇'}
+                    </button>
+                  </div>
+                </div>
               )}
-            </button>
+            </div>
 
             {/* Parent Zone Access Button */}
             {!isParentRoute ? (
@@ -228,4 +412,3 @@ export default function Navbar() {
     </>
   );
 }
-

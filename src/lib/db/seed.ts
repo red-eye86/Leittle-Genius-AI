@@ -85,14 +85,14 @@ export const initialDatabaseState: DatabaseState = {
     {
       id: 'sub-c3-social',
       childId: 'child-1',
-      name: 'Social Studies',
-      malayalamName: 'സാമൂഹ്യപാഠം',
+      name: 'Social Science',
+      malayalamName: 'സാമൂഹ്യശാസ്ത്രം (Social Science)',
       icon: '🌍',
       color: '#f97316',
       bgGradient: 'from-orange-400 to-rose-500',
       classGrade: 'Class 4',
-      description: 'Our Earth, states of India, our community helpers',
-      malayalamDescription: 'നമ്മുടെ ഭൂമി, ഇന്ത്യയിലെ സംസ്ഥാനങ്ങൾ, സഹായികൾ',
+      description: 'New Trends in Social Studies (Evergreen Publications) — History, Civics & Geography',
+      malayalamDescription: 'ന്യൂ ട്രെൻഡ്സ് ഇൻ സോഷ്യൽ സ്റ്റഡീസ് (Evergreen) — ചരിത്രം, പൗരധർമ്മം, ഭൂമിശാസ്ത്രം',
     },
 
     // --- Diya (UKG) Subjects ---

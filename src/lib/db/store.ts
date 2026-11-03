@@ -29,15 +29,32 @@ export function getDb(): DatabaseState {
       const data = fs.readFileSync(DB_FILE, 'utf-8');
       const parsed: DatabaseState = JSON.parse(data);
 
-      // Ensure all 9 official ICSE E-Books (Class 4 & UKG) are synced
+      // Ensure all 9 official ICSE E-Books (Class 4 & UKG) are synced and up-to-date
       let updated = false;
-      const existingIds = new Set(parsed.textbooks.map((t) => t.id));
-      // Replace older 4 demo books with full ICSE E-books if not yet upgraded
-      if (!existingIds.has('tb-c4-sci-1')) {
+      const existingMap = new Map(parsed.textbooks.map((t) => [t.id, t]));
+      const needsSync = ICSE_EBOOK_TEXTBOOKS.some((icseBook) => {
+        const existing = existingMap.get(icseBook.id);
+        return !existing || existing.title !== icseBook.title || existing.chapters.length !== icseBook.chapters.length;
+      });
+
+      if (needsSync) {
+        const icseIds = new Set(ICSE_EBOOK_TEXTBOOKS.map((t) => t.id));
         const customUploaded = parsed.textbooks.filter(
-          (t) => !['tb-c3-sci-1', 'tb-c3-math-1', 'tb-ukg-phonics-1', 'tb-ukg-math-1'].includes(t.id)
+          (t) => !icseIds.has(t.id) && !['tb-c3-sci-1', 'tb-c3-math-1', 'tb-ukg-phonics-1', 'tb-ukg-math-1'].includes(t.id)
         );
-        parsed.textbooks = [...ICSE_EBOOK_TEXTBOOKS, ...customUploaded];
+        parsed.textbooks = [...JSON.parse(JSON.stringify(ICSE_EBOOK_TEXTBOOKS)), ...customUploaded];
+        // Clear old cached flashcards for updated Social Science chapters so they regenerate cleanly
+        parsed.flashcards = (parsed.flashcards || []).filter((f) => !f.chapterId.startsWith('chap-c4-soc-'));
+        updated = true;
+      }
+
+      // Ensure Social Science subject metadata reflects Evergreen Publications
+      const socSub = parsed.subjects?.find((s) => s.id === 'sub-c3-social');
+      if (socSub && socSub.name !== 'Social Science') {
+        socSub.name = 'Social Science';
+        socSub.malayalamName = 'സാമൂഹ്യശാസ്ത്രം (Social Science)';
+        socSub.description = 'New Trends in Social Studies (Evergreen Publications) — History, Civics & Geography';
+        socSub.malayalamDescription = 'ന്യൂ ട്രെൻഡ്സ് ഇൻ സോഷ്യൽ സ്റ്റഡീസ് (Evergreen) — ചരിത്രം, പൗരധർമ്മം, ഭൂമിശാസ്ത്രം';
         updated = true;
       }
 
@@ -64,6 +81,16 @@ export function syncIcseSyllabus(): Textbook[] {
     (t) => !icseIds.has(t.id) && !['tb-c3-sci-1', 'tb-c3-math-1'].includes(t.id)
   );
   db.textbooks = [...JSON.parse(JSON.stringify(ICSE_EBOOK_TEXTBOOKS)), ...customBooks];
+  db.flashcards = (db.flashcards || []).filter((f) => !f.chapterId.startsWith('chap-c4-soc-'));
+  db.lessons = (db.lessons || []).filter((l) => !l.chapterId.startsWith('chap-c4-soc-'));
+  db.quizzes = (db.quizzes || []).filter((q) => !q.chapterId.startsWith('chap-c4-soc-'));
+  const socSub = db.subjects?.find((s) => s.id === 'sub-c3-social');
+  if (socSub) {
+    socSub.name = 'Social Science';
+    socSub.malayalamName = 'സാമൂഹ്യശാസ്ത്രം (Social Science)';
+    socSub.description = 'New Trends in Social Studies (Evergreen Publications) — History, Civics & Geography';
+    socSub.malayalamDescription = 'ന്യൂ ട്രെൻഡ്സ് ഇൻ സോഷ്യൽ സ്റ്റഡീസ് (Evergreen) — ചരിത്രം, പൗരധർമ്മം, ഭൂമിശാസ്ത്രം';
+  }
   saveDb(db);
   return db.textbooks;
 }

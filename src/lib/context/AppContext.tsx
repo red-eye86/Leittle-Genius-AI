@@ -81,6 +81,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   const speak = (text: string, onEnd?: () => void) => {
+    if (!soundEnabled) {
+      setSoundEnabledState(true);
+      soundEffects.enabled = true;
+      localStorage.setItem('lg_sound', 'true');
+    }
     setIsSpeaking(true);
     speakText(text, language, activeChild?.classGrade === 'UKG' ? 0.9 : 1.0, 1.1, () => {
       setIsSpeaking(false);

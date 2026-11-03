@@ -140,11 +140,10 @@ function LessonContent() {
                     handleReadSection();
                   }
                 }}
-                className={`p-3 sm:px-5 sm:py-3 rounded-2xl font-black text-xs sm:text-sm flex items-center space-x-2 shadow-lg transition btn-kid-3d ${
-                  isSpeaking
+                className={`p-3 sm:px-5 sm:py-3 rounded-2xl font-black text-xs sm:text-sm flex items-center space-x-2 shadow-lg transition btn-kid-3d ${isSpeaking
                     ? 'bg-amber-400 text-slate-900 animate-pulse'
                     : 'bg-white text-indigo-700 hover:bg-sky-50'
-                }`}
+                  }`}
               >
                 {isSpeaking ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
                 <span className="hidden sm:inline">
@@ -153,8 +152,8 @@ function LessonContent() {
                       ? 'നിർത്തുക'
                       : 'Stop Speaking'
                     : language === 'ml'
-                    ? 'ശബ്ദം കേൾക്കാം'
-                    : 'Listen to Hootie'}
+                      ? 'ശബ്ദം കേൾക്കാം'
+                      : 'Listen to Hootie'}
                 </span>
               </button>
             </div>
@@ -167,11 +166,10 @@ function LessonContent() {
                 soundEffects.playPop();
                 setActiveTab('teach');
               }}
-              className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm whitespace-nowrap transition flex items-center space-x-1.5 ${
-                activeTab === 'teach'
+              className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm whitespace-nowrap transition flex items-center space-x-1.5 ${activeTab === 'teach'
                   ? 'bg-sky-500 text-white shadow-md'
                   : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
-              }`}
+                }`}
             >
               <span>📖</span>
               <span>{t('teachMe')}</span>
@@ -182,11 +180,10 @@ function LessonContent() {
                 soundEffects.playPop();
                 setActiveTab('story');
               }}
-              className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm whitespace-nowrap transition flex items-center space-x-1.5 ${
-                activeTab === 'story'
+              className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm whitespace-nowrap transition flex items-center space-x-1.5 ${activeTab === 'story'
                   ? 'bg-purple-500 text-white shadow-md'
                   : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
-              }`}
+                }`}
             >
               <span>🐾</span>
               <span>{t('storyMode')}</span>
@@ -197,11 +194,10 @@ function LessonContent() {
                 soundEffects.playPop();
                 setActiveTab('visual');
               }}
-              className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm whitespace-nowrap transition flex items-center space-x-1.5 ${
-                activeTab === 'visual'
+              className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm whitespace-nowrap transition flex items-center space-x-1.5 ${activeTab === 'visual'
                   ? 'bg-emerald-500 text-white shadow-md'
                   : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
-              }`}
+                }`}
             >
               <span>🎨</span>
               <span>{t('picturesMode')}</span>
@@ -212,11 +208,10 @@ function LessonContent() {
                 soundEffects.playPop();
                 setActiveTab('activity');
               }}
-              className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm whitespace-nowrap transition flex items-center space-x-1.5 ${
-                activeTab === 'activity'
+              className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm whitespace-nowrap transition flex items-center space-x-1.5 ${activeTab === 'activity'
                   ? 'bg-amber-500 text-white shadow-md'
                   : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
-              }`}
+                }`}
             >
               <span>🎮</span>
               <span>{t('gameMode')}</span>
@@ -272,8 +267,8 @@ function LessonContent() {
                     ? 'പാഠം പൂർത്തിയാക്കി! അടുത്തത് എന്താണ്?'
                     : 'Lesson Completed! Where next?'
                   : language === 'ml'
-                  ? 'ഈ പാഠം പഠിച്ചു കഴിഞ്ഞോ?'
-                  : 'Ready to finish this lesson?'}
+                    ? 'ഈ പാഠം പഠിച്ചു കഴിഞ്ഞോ?'
+                    : 'Ready to finish this lesson?'}
               </p>
               <p className="text-xs text-slate-500">
                 Test your understanding in the Quiz Arena or practice flashcards!

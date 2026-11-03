@@ -8,7 +8,7 @@ import { TextbookChapter, Subject } from '@/lib/db/types';
 import { soundEffects } from '@/lib/audio/soundEffects';
 
 interface ChapterConcept3DProps {
-  chapter: TextbookChapter;
+  chapter?: TextbookChapter | null;
   subject?: Subject | null;
 }
 
@@ -23,10 +23,11 @@ const NODE_COLORS = [
 
 export default function ChapterConcept3D({ chapter, subject }: ChapterConcept3DProps) {
   const mountRef = useRef<HTMLDivElement>(null);
-  const { language, speak, stopSpeech } = useApp();
+  const { language, speak } = useApp();
 
-  const topics = chapter.topics && chapter.topics.length > 0 ? chapter.topics : [chapter.title];
-  const keyTerms = chapter.keyTerms || [];
+  const topics = chapter?.topics && chapter.topics.length > 0 ? chapter.topics : [chapter?.title || 'Interactive 3D Concept'];
+  const keyTerms = chapter?.keyTerms || [];
+  const chapterId = chapter?.id || 'loading';
 
   const [selectedTopicIndex, setSelectedTopicIndex] = useState(0);
   const selectedIndexRef = useRef(0);
@@ -34,7 +35,7 @@ export default function ChapterConcept3D({ chapter, subject }: ChapterConcept3DP
   useEffect(() => {
     setSelectedTopicIndex(0);
     selectedIndexRef.current = 0;
-  }, [chapter.id]);
+  }, [chapterId]);
 
   useEffect(() => {
     selectedIndexRef.current = selectedTopicIndex;
@@ -244,7 +245,15 @@ export default function ChapterConcept3D({ chapter, subject }: ChapterConcept3DP
       window.removeEventListener('resize', handleResize);
       renderer.dispose();
     };
-  }, [chapter.id, topics.length]);
+  }, [chapterId, topics.length]);
+
+  if (!chapter) {
+    return (
+      <div className="bg-slate-900 rounded-4xl p-12 border-4 border-sky-400 shadow-2xl text-white text-center font-bold">
+        Loading 3D Chapter Model...
+      </div>
+    );
+  }
 
   const currentTopic = topics[selectedTopicIndex] || chapter.title;
 
@@ -376,3 +385,4 @@ export default function ChapterConcept3D({ chapter, subject }: ChapterConcept3DP
     </div>
   );
 }
+
