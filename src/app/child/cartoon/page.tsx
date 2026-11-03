@@ -15,6 +15,9 @@ import {
   Layers,
   HelpCircle,
   Box,
+  Filter,
+  CheckCircle2,
+  PlayCircle,
 } from 'lucide-react';
 import { useApp } from '@/lib/context/AppContext';
 import { soundEffects } from '@/lib/audio/soundEffects';
@@ -25,7 +28,7 @@ import {
   FAMILY_CHARACTERS,
   PRESET_CARTOON_EPISODES,
 } from '@/lib/cartoon/cartoonLessonData';
-import { Textbook, TextbookChapter } from '@/lib/db/types';
+import { Subject, Textbook, TextbookChapter } from '@/lib/db/types';
 
 function CartoonTheaterContent() {
   const router = useRouter();
@@ -35,34 +38,43 @@ function CartoonTheaterContent() {
 
   const { activeChild, language, setLanguage } = useApp();
 
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [textbooks, setTextbooks] = useState<Textbook[]>([]);
+  const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<string>('all');
   const [currentChapter, setCurrentChapter] = useState<TextbookChapter | null>(null);
   const [episode, setEpisode] = useState<CartoonEpisode | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Load textbooks and resolve current chapter
+  // Load subjects, textbooks, and resolve active chapter
   useEffect(() => {
     if (!activeChild) return;
 
-    fetch(`/api/data/textbooks?childId=${activeChild.id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        const books = (data.textbooks || []) as Textbook[];
+    Promise.all([
+      fetch(`/api/data/subjects?childId=${activeChild.id}`).then((res) => res.json()),
+      fetch(`/api/data/textbooks?childId=${activeChild.id}`).then((res) => res.json()),
+    ])
+      .then(([subData, tbData]) => {
+        const subs = (subData.subjects || []) as Subject[];
+        const books = (tbData.textbooks || []) as Textbook[];
+        setSubjects(subs);
         setTextbooks(books);
 
-        // Find chapter
+        // Find chapter from query param
         let foundChapter: TextbookChapter | null = null;
+        let foundSubjectId = 'all';
+
         if (chapterIdParam) {
           for (const b of books) {
             const chap = b.chapters?.find((c) => c.id === chapterIdParam);
             if (chap) {
               foundChapter = chap;
+              foundSubjectId = b.subjectId;
               break;
             }
           }
         }
 
-        // Default to first chapter of first book (or KG2 GA Chapter 1 for UKG)
+        // Default fallback if no param or chapter not found
         if (!foundChapter && books.length > 0) {
           const defaultBook =
             books.find((b) => b.subjectId === subjectIdParam) ||
@@ -70,6 +82,7 @@ function CartoonTheaterContent() {
             books[0];
           if (defaultBook?.chapters?.length) {
             foundChapter = defaultBook.chapters[0];
+            foundSubjectId = defaultBook.subjectId;
           }
         }
 
@@ -83,23 +96,42 @@ function CartoonTheaterContent() {
           );
           setEpisode(ep);
         }
+
+        if (subjectIdParam) {
+          setSelectedSubjectFilter(subjectIdParam);
+        }
+
         setLoading(false);
       })
       .catch((err) => {
-        console.error(err);
+        console.error('Error loading cartoon catalog:', err);
         setLoading(false);
       });
   }, [activeChild, chapterIdParam, subjectIdParam]);
 
-  const selectChapter = (chap: TextbookChapter) => {
+  const selectChapter = (chap: TextbookChapter, subjectId?: string) => {
     soundEffects.playPop();
     setCurrentChapter(chap);
     const ep = getOrCreateCartoonEpisode(chap.id, chap.title, chap.summary, chap.keyTerms);
     setEpisode(ep);
-    router.replace(`/child/cartoon?chapterId=${chap.id}`);
+    router.replace(`/child/cartoon?chapterId=${chap.id}${subjectId ? `&subjectId=${subjectId}` : ''}`);
+
+    // Scroll smoothly to video player
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   if (!activeChild) return null;
+
+  // Calculate total episodes count
+  const totalEpisodesCount = textbooks.reduce((acc, b) => acc + (b.chapters?.length || 0), 0);
+
+  // Filter books by subject filter
+  const visibleSubjects = subjects.filter((sub) => {
+    if (selectedSubjectFilter === 'all') return true;
+    return sub.id === selectedSubjectFilter;
+  });
 
   return (
     <div className="space-y-6 pb-16 animate-fade-in max-w-6xl mx-auto">
@@ -126,17 +158,17 @@ function CartoonTheaterContent() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="max-w-xl">
             <span className="text-[11px] font-black uppercase tracking-wider bg-white/20 px-3 py-1 rounded-full inline-block backdrop-blur-md">
-              🎬 {activeChild.name}’s Learning Cinema
+              🎬 {activeChild.name}’s Animated Cinema
             </span>
             <h1 className="text-2xl sm:text-4xl font-black mt-2 leading-tight">
               {language === 'ml'
-                ? 'കുടുംബത്തോടൊപ്പം കാർട്ടൂൺ പാഠങ്ങൾ കാണാം!'
-                : 'Watch & Learn with Cartoon Family Stories!'}
+                ? 'വിഷയാടിസ്ഥാനത്തിൽ കാർട്ടൂൺ പാഠങ്ങൾ കാണാം!'
+                : 'Subject-Wise Cartoon Animated Episodes!'}
             </h1>
             <p className="text-xs sm:text-sm text-purple-100 mt-2 font-medium">
               {language === 'ml'
-                ? 'പപ്പ മനോജും മമ്മി ടെസ്സിയും ചേട്ടൻ ഏദ്രിക്കും ഫൈദാനും ചേർന്ന് എല്ലാ പാഠങ്ങളും കഥയിലൂടെ പറഞ്ഞുതരുന്നു!'
-                : 'Starring Papa Manoj, Mummy Tessy, Big Brother Eadrick, and Little Faidan! Every school lesson comes alive in animated family adventures!'}
+                ? 'ഓരോ വിഷയത്തിലെയും എല്ലാ പാഠങ്ങളും പ്രത്യേകം കാറ്റഗറിയായി ക്രമീകരിച്ചിരിക്കുന്നു. കാണാൻ ആഗ്രഹിക്കുന്ന വിഷയം തിരഞ്ഞെടുക്കൂ!'
+                : 'Every lesson from your school syllabus arranged cleanly by subject! Click any subject category below to watch its episodes.'}
             </p>
           </div>
 
@@ -292,63 +324,209 @@ function CartoonTheaterContent() {
         </div>
       </div>
 
-      {/* Episode Selector / Browse All Chapters */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Film className="w-5 h-5 text-rose-600" />
-            <h2 className="text-xl font-black text-slate-800">
-              {language === 'ml' ? 'മറ്റ് കാർട്ടൂൺ എപ്പിസോഡുകൾ' : 'Explore All Cartoon Episodes'}
-            </h2>
+      {/* =========================================================================
+          SUBJECT / CATEGORY WISE EPISODES CATALOG
+          Organized cleanly by Subject with filter pills for easy navigation!
+      ========================================================================= */}
+      <div className="space-y-6 pt-4 border-t-2 border-slate-200">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-9 h-9 rounded-2xl bg-rose-500 text-white flex items-center justify-center text-lg shadow-sm">
+              🎬
+            </div>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-800">
+                {language === 'ml' ? 'വിഷയാടിസ്ഥാനത്തിൽ കാർട്ടൂൺ എപ്പിസോഡുകൾ' : 'Subject-Wise Cartoon Episodes'}
+              </h2>
+              <p className="text-xs text-slate-500 font-medium">
+                {language === 'ml'
+                  ? `${totalEpisodesCount} എപ്പിസോഡുകൾ വിഷയം തിരിച്ച് ക്രമീകരിച്ചിരിക്കുന്നു`
+                  : `${totalEpisodesCount} total episodes neatly organized by school subject`}
+              </p>
+            </div>
           </div>
-          <span className="text-xs font-bold text-slate-400">Pick any chapter to watch!</span>
+
+          <div className="flex items-center space-x-1.5 text-xs font-black text-slate-500 bg-white px-3 py-1.5 rounded-2xl border border-slate-200 shadow-2xs">
+            <Filter className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Select Category:</span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {textbooks.map((book) =>
-            book.chapters?.map((chap) => {
-              const isActive = currentChapter?.id === chap.id;
-              const hasPreset = Boolean(PRESET_CARTOON_EPISODES[chap.id]);
-              return (
-                <div
-                  key={chap.id}
-                  onClick={() => selectChapter(chap)}
-                  className={`p-4 rounded-3xl border-3 cursor-pointer transition flex items-start space-x-3 ${
-                    isActive
-                      ? 'bg-rose-50 border-rose-500 shadow-md ring-2 ring-rose-200'
-                      : 'bg-white border-slate-200 hover:border-indigo-300 shadow-sm'
+        {/* Subject Category Filter Tabs / Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          <button
+            onClick={() => {
+              soundEffects.playPop();
+              setSelectedSubjectFilter('all');
+            }}
+            className={`px-4 py-2 rounded-2xl text-xs font-black transition flex items-center space-x-2 flex-shrink-0 shadow-xs ${
+              selectedSubjectFilter === 'all'
+                ? 'bg-rose-600 text-white shadow-rose-200'
+                : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-rose-300'
+            }`}
+          >
+            <span>🎬</span>
+            <span>{language === 'ml' ? 'എല്ലാ വിഷയങ്ങളും' : 'All Subjects'}</span>
+            <span
+              className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                selectedSubjectFilter === 'all' ? 'bg-white/25 text-white' : 'bg-slate-100 text-slate-600'
+              }`}
+            >
+              {totalEpisodesCount}
+            </span>
+          </button>
+
+          {subjects.map((sub) => {
+            const subBooks = textbooks.filter((b) => b.subjectId === sub.id);
+            const count = subBooks.reduce((acc, b) => acc + (b.chapters?.length || 0), 0);
+            if (count === 0) return null;
+
+            const isSelected = selectedSubjectFilter === sub.id;
+
+            return (
+              <button
+                key={sub.id}
+                onClick={() => {
+                  soundEffects.playPop();
+                  setSelectedSubjectFilter(sub.id);
+                }}
+                className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center space-x-2 flex-shrink-0 shadow-xs ${
+                  isSelected
+                    ? 'bg-indigo-600 text-white shadow-indigo-200'
+                    : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-indigo-300'
+                }`}
+              >
+                <span>{sub.icon}</span>
+                <span className="truncate max-w-[150px]">
+                  {language === 'ml' ? sub.malayalamName.split(' ')[0] : sub.name.split('(')[0].trim()}
+                </span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
+                    isSelected ? 'bg-white/25 text-white' : 'bg-slate-100 text-slate-600'
                   }`}
                 >
-                  <div
-                    className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm flex-shrink-0 shadow-inner ${
-                      isActive ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-700'
-                    }`}
-                  >
-                    {chap.chapterNumber}
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Category Sections: One prominent section per Subject */}
+        <div className="space-y-8">
+          {visibleSubjects.map((sub) => {
+            const matchingBooks = textbooks.filter((b) => b.subjectId === sub.id);
+            const allChaps = matchingBooks.flatMap((b) => b.chapters || []);
+            if (allChaps.length === 0) return null;
+
+            const bookTitle = matchingBooks[0]?.title || sub.name;
+
+            return (
+              <div
+                key={sub.id}
+                className="bg-white rounded-3xl p-5 sm:p-6 border-3 border-slate-200 shadow-sm space-y-4 hover:border-indigo-300 transition"
+              >
+                {/* Subject Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                  <div className="flex items-center space-x-3">
+                    <div
+                      className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${
+                        sub.bgGradient || 'from-indigo-500 to-purple-600'
+                      } text-white flex items-center justify-center text-2xl shadow-sm flex-shrink-0`}
+                    >
+                      {sub.icon}
+                    </div>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-black text-slate-800 leading-tight">
+                        {language === 'ml' ? sub.malayalamName : sub.name}
+                      </h3>
+                      <p className="text-[11px] text-purple-600 font-bold truncate max-w-sm sm:max-w-md">
+                        📖 {bookTitle}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-1.5">
-                      <span className="text-[10px] font-bold text-purple-600 uppercase tracking-wider truncate">
-                        {book.title.split(':')[0]}
-                      </span>
-                      {hasPreset && (
-                        <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-800">
-                          Featured
-                        </span>
-                      )}
-                    </div>
-                    <h4 className="text-xs font-black text-slate-800 truncate mt-0.5">
-                      {language === 'ml' ? chap.malayalamTitle : chap.title}
-                    </h4>
-                    <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
-                      {language === 'ml' ? chap.malayalamSummary : chap.summary}
-                    </p>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-[11px] font-black px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                      {allChaps.length} {language === 'ml' ? 'കാർട്ടൂൺ എപ്പിസോഡുകൾ' : 'Episodes'}
+                    </span>
                   </div>
                 </div>
-              );
-            })
-          )}
+
+                {/* Grid of Chapter Episodes under this Subject */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                  {matchingBooks.map((book) =>
+                    book.chapters?.map((chap) => {
+                      const isActive = currentChapter?.id === chap.id;
+                      const presetEp = PRESET_CARTOON_EPISODES[chap.id];
+                      const hasPreset = Boolean(presetEp);
+                      const themeEmoji = presetEp?.themeEmoji || '🎬';
+
+                      return (
+                        <div
+                          key={chap.id}
+                          onClick={() => selectChapter(chap, sub.id)}
+                          className={`p-3.5 rounded-2xl border-2 cursor-pointer transition flex items-start space-x-3 group ${
+                            isActive
+                              ? 'bg-rose-50 border-rose-500 shadow-md ring-4 ring-rose-200/70 scale-[1.01]'
+                              : 'bg-slate-50/70 border-slate-200 hover:border-indigo-400 hover:bg-white shadow-2xs hover:shadow-sm'
+                          }`}
+                        >
+                          {/* Chapter Number Badge */}
+                          <div
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0 transition ${
+                              isActive
+                                ? 'bg-rose-500 text-white shadow-md'
+                                : 'bg-white text-slate-700 border border-slate-200 group-hover:bg-indigo-50 group-hover:text-indigo-600'
+                            }`}
+                          >
+                            {isActive ? '▶' : chap.chapterNumber}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">
+                                Episode {chap.chapterNumber} {themeEmoji}
+                              </span>
+
+                              {hasPreset && (
+                                <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-800">
+                                  Featured ⭐
+                                </span>
+                              )}
+                            </div>
+
+                            <h4
+                              className={`text-xs font-black truncate mt-0.5 ${
+                                isActive ? 'text-rose-900' : 'text-slate-800 group-hover:text-indigo-600'
+                              }`}
+                            >
+                              {language === 'ml' ? chap.malayalamTitle : chap.title}
+                            </h4>
+
+                            <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5 leading-snug">
+                              {language === 'ml' ? chap.malayalamSummary : chap.summary}
+                            </p>
+
+                            <div className="flex items-center justify-between mt-2 pt-1 border-t border-slate-100">
+                              <span className="text-[10px] font-bold text-indigo-600 flex items-center space-x-1 group-hover:underline">
+                                <PlayCircle className="w-3 h-3 text-indigo-500" />
+                                <span>{isActive ? 'Watching Now' : 'Watch Cartoon'}</span>
+                              </span>
+
+                              {isActive && (
+                                <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -362,4 +540,3 @@ export default function CartoonPage() {
     </Suspense>
   );
 }
-
