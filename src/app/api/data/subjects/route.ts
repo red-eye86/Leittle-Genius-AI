@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       icon: body.icon || '📖',
       color: body.color || '#3b82f6',
       bgGradient: body.bgGradient || 'from-blue-400 to-indigo-500',
-      classGrade: body.classGrade || 'Class 3',
+      classGrade: body.classGrade || 'Class 4',
       description: body.description || '',
       malayalamDescription: body.malayalamDescription || '',
     };

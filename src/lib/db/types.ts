@@ -1,4 +1,4 @@
-export type ClassGrade = 'UKG' | 'Class 3';
+export type ClassGrade = 'LKG' | 'UKG' | 'Class 1' | 'Class 2' | 'Class 3' | 'Class 4' | 'Class 5';
 export type Language = 'en' | 'ml';
 export type LLMProvider = 'smart_built_in' | 'gemini' | 'openai' | 'anthropic';
 

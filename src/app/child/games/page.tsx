@@ -19,7 +19,7 @@ export default function GamesPage() {
 
   const games = [
     { id: 'tracing', label: 'Letter Tracing ✍️', malayalamLabel: 'അക്ഷരങ്ങൾ വരയ്ക്കാം ✍️', forGrade: 'UKG' },
-    { id: 'math_blitz', label: 'Speed Math Blitz ⚡', malayalamLabel: 'കണക്ക് സ്പീഡ് ചലഞ്ച് ⚡', forGrade: 'Class 3' },
+    { id: 'math_blitz', label: 'Speed Math Blitz ⚡', malayalamLabel: 'കണക്ക് സ്പീഡ് ചലഞ്ച് ⚡', forGrade: 'Primary' },
     { id: 'memory', label: 'Memory Flip Quest 🃏', malayalamLabel: 'മെമ്മറി ഫ്ലിപ്പ് 🃏', forGrade: 'All' },
     { id: 'apple_count', label: 'Apple Counting 🍎', malayalamLabel: 'ആപ്പിൾ എണ്ണൽ 🍎', forGrade: 'UKG' },
   ];

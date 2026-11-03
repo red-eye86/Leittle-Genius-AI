@@ -107,7 +107,7 @@ export default function ChildDashboardPage() {
                 </button>
               </div>
               <p className="text-sm font-bold text-white/90 mt-1">
-                {isUKG ? t('ukgBadge') : t('class3Badge')}
+                {activeChild.classGrade} • {isUKG ? (language === 'ml' ? 'ആനന്ദപൂർണ്ണമായ തുടക്കം' : 'Joyful Steps') : (language === 'ml' ? 'പ്രൈമറി എക്സ്പ്ലോറർ' : 'Primary Explorer')} ({language === 'ml' ? 'വയസ്സ്' : 'Age'} {activeChild.age})
               </p>
               <div className="flex items-center justify-center sm:justify-start space-x-3 mt-3">
                 <span className="bg-amber-400 text-slate-900 font-black text-xs px-3 py-1 rounded-xl flex items-center space-x-1 shadow-sm">

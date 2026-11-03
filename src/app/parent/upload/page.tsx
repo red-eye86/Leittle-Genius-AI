@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '@/lib/context/AppContext';
 import { soundEffects } from '@/lib/audio/soundEffects';
-import { Subject, Textbook } from '@/lib/db/types';
+import { Subject, Textbook, ClassGrade } from '@/lib/db/types';
 
 export default function TextbookUploadPage() {
   const router = useRouter();
@@ -23,7 +23,7 @@ export default function TextbookUploadPage() {
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [title, setTitle] = useState('');
   const [academicYear, setAcademicYear] = useState('2026-2027');
-  const [classGrade, setClassGrade] = useState<'Class 3' | 'UKG'>('Class 3');
+  const [classGrade, setClassGrade] = useState<ClassGrade>('Class 4');
   const [file, setFile] = useState<File | null>(null);
   const [ocrEnabled, setOcrEnabled] = useState(true);
 

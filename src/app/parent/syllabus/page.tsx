@@ -78,7 +78,7 @@ export default function SyllabusManagementPage() {
         malayalamName: newSubMalayalam || newSubName,
         icon: newSubIcon,
         description: newSubDesc,
-        classGrade: currentChild?.classGrade || 'Class 3',
+        classGrade: currentChild?.classGrade || 'Class 4',
       }),
     });
 

@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     const subjectId = (formData.get('subjectId') as string) || '';
     const title = (formData.get('title') as string) || file?.name || 'Uploaded Textbook';
     const academicYear = (formData.get('academicYear') as string) || '2026-2027';
-    const classGrade = ((formData.get('classGrade') as string) || 'Class 3') as ClassGrade;
+    const classGrade = ((formData.get('classGrade') as string) || 'Class 4') as ClassGrade;
 
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });

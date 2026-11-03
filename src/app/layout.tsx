@@ -5,7 +5,7 @@ import Navbar from '@/components/ui/Navbar';
 
 export const metadata: Metadata = {
   title: 'Little Genius AI — Learn, Play, Explore, Grow',
-  description: 'Personalized AI Learning Application for Kids (Class 3 & UKG) grounded in actual school textbooks and curriculum.',
+  description: 'Personalized AI Learning Application for Kids (Class 4 & UKG) grounded in actual school textbooks and curriculum.',
 };
 
 export default function RootLayout({

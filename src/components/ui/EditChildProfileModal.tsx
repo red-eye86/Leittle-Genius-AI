@@ -255,8 +255,13 @@ export default function EditChildProfileModal({
                 onChange={(e) => setClassGrade(e.target.value as ClassGrade)}
                 className="w-full p-3.5 bg-slate-50 border-2 border-slate-200 rounded-2xl font-bold text-sm text-slate-800 outline-none focus:border-indigo-500"
               >
+                <option value="LKG">LKG (Kindergarten)</option>
                 <option value="UKG">UKG (Kindergarten)</option>
+                <option value="Class 1">Class 1 (Primary)</option>
+                <option value="Class 2">Class 2 (Primary)</option>
                 <option value="Class 3">Class 3 (Primary)</option>
+                <option value="Class 4">Class 4 (Primary 4th Standard)</option>
+                <option value="Class 5">Class 5 (Primary 5th Standard)</option>
               </select>
             </div>
           </div>
