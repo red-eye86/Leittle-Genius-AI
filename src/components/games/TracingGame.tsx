@@ -500,21 +500,6 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
   const stopDraw = () => {
     isDrawingRef.current = false;
     lastPointRef.current = null;
-
-    if (category === 'freedraw') return;
-
-    // Check completion ONLY when user finishes a stroke (lifts finger)
-    const totalLength = strokeLengthRef.current;
-    const spanX = maxXRef.current - minXRef.current;
-    const isWord = category === 'chapter_words';
-    const charCount = currentItem?.display?.length || 1;
-
-    const requiredLength = isWord ? Math.max(280, charCount * 55) : category === 'shapes' ? 240 : 160;
-    const requiredSpan = isWord ? Math.max(100, charCount * 25) : 45;
-
-    if (!completed && totalLength >= requiredLength && spanX >= requiredSpan) {
-      triggerCompletion();
-    }
   };
 
   const triggerCompletion = () => {
@@ -943,10 +928,10 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
         {category !== 'freedraw' && !completed && (
           <button
             onClick={triggerCompletion}
-            className="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-xs sm:text-sm flex items-center space-x-1.5 shadow-md transition"
+            className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-300 hover:to-orange-300 text-slate-950 font-black text-xs sm:text-sm flex items-center space-x-2 shadow-lg transition scale-105 active:scale-95"
           >
-            <Sparkles className="w-4 h-4 text-amber-800" />
-            <span>{language === 'ml' ? 'പൂർത്തിയായി! ⭐' : 'Done Tracing! ⭐'}</span>
+            <Sparkles className="w-4 h-4 text-amber-900" />
+            <span>{language === 'ml' ? 'ഞാൻ എഴുതിക്കഴിഞ്ഞു! ⭐' : 'Done Tracing! (I Finished) ⭐'}</span>
           </button>
         )}
 
