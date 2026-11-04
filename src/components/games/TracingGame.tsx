@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
-import { RefreshCw, Sparkles, Volume2, Palette, PenTool } from 'lucide-react';
+import { RefreshCw, Sparkles, Volume2, Palette, PenTool, CheckCircle2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useApp } from '@/lib/context/AppContext';
 import { soundEffects } from '@/lib/audio/soundEffects';
@@ -71,8 +71,15 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
   const [brushColor, setBrushColor] = useState('#ef4444');
   const [brushSize, setBrushSize] = useState(14);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [drawnPointsCount, setDrawnPointsCount] = useState(0);
   const [completed, setCompleted] = useState(false);
+
+  // Path metrics tracking to avoid premature completion
+  const lastPointRef = useRef<{ x: number; y: number } | null>(null);
+  const strokeLengthRef = useRef<number>(0);
+  const minXRef = useRef<number>(9999);
+  const maxXRef = useRef<number>(0);
+  const minYRef = useRef<number>(9999);
+  const maxYRef = useRef<number>(0);
 
   // Build chapter-specific tracing words from chapter.keyTerms
   const chapterTraceItems: TraceItem[] = (chapter?.keyTerms || []).map((term, idx) => {
@@ -155,7 +162,7 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw notebook grid lines subtly
+    // Draw notebook guidelines
     ctx.save();
     ctx.strokeStyle = '#f1f5f9';
     ctx.lineWidth = 1;
@@ -168,9 +175,16 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
     }
     ctx.restore();
 
+    // Reset metric tracking
+    lastPointRef.current = null;
+    strokeLengthRef.current = 0;
+    minXRef.current = 9999;
+    maxXRef.current = 0;
+    minYRef.current = 9999;
+    maxYRef.current = 0;
+    setCompleted(false);
+
     if (category === 'freedraw') {
-      setDrawnPointsCount(0);
-      setCompleted(false);
       return;
     }
 
@@ -202,9 +216,6 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
       ctx.strokeText(currentItem.display, cx, cy);
     }
     ctx.restore();
-
-    setDrawnPointsCount(0);
-    setCompleted(false);
   };
 
   const getCoordinates = (
@@ -239,6 +250,12 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
     if (!ctx) return;
 
     const { x, y } = getCoordinates(e);
+    lastPointRef.current = { x, y };
+    minXRef.current = Math.min(minXRef.current, x);
+    maxXRef.current = Math.max(maxXRef.current, x);
+    minYRef.current = Math.min(minYRef.current, y);
+    maxYRef.current = Math.max(maxYRef.current, y);
+
     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.setLineDash([]);
@@ -259,25 +276,51 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
     ctx.lineTo(x, y);
     ctx.stroke();
 
-    setDrawnPointsCount((prev) => {
-      const next = prev + 1;
-      if (category !== 'freedraw' && next >= 42 && !completed) {
-        setCompleted(true);
-        soundEffects.playCorrect();
-        addStars(3);
-        confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
-        speak(
-          language === 'ml'
-            ? `വളരെ മിടുക്കൻ! ${currentItem.malayalamLabel} മനോഹരമായി എഴുതി!`
-            : `Awesome job tracing ${currentItem.display}! You earned 3 stars!`
-        );
-      }
-      return next;
-    });
+    if (lastPointRef.current) {
+      const dist = Math.hypot(x - lastPointRef.current.x, y - lastPointRef.current.y);
+      strokeLengthRef.current += dist;
+    }
+    lastPointRef.current = { x, y };
+
+    minXRef.current = Math.min(minXRef.current, x);
+    maxXRef.current = Math.max(maxXRef.current, x);
+    minYRef.current = Math.min(minYRef.current, y);
+    maxYRef.current = Math.max(maxYRef.current, y);
+  };
+
+  const triggerCompletion = () => {
+    if (completed) return;
+    setCompleted(true);
+    soundEffects.playCorrect();
+    addStars(3);
+    confetti({ particleCount: 55, spread: 65, origin: { y: 0.65 } });
+    speak(
+      language === 'ml'
+        ? `വളരെ മിടുക്കൻ! ${currentItem.malayalamLabel} മനോഹരമായി എഴുതി!`
+        : `Awesome job tracing ${currentItem.display}! You earned 3 stars!`
+    );
   };
 
   const stopDraw = () => {
     setIsDrawing(false);
+    lastPointRef.current = null;
+
+    if (category === 'freedraw') return;
+
+    // Check completion ONLY when user finishes a stroke (lifts pen/finger)
+    // and has covered substantial length and span across the word
+    const totalLength = strokeLengthRef.current;
+    const spanX = maxXRef.current - minXRef.current;
+    const isWord = category === 'chapter_words';
+    const charCount = currentItem?.display?.length || 1;
+
+    // Generous thresholds so child can comfortably draw without false triggers
+    const requiredLength = isWord ? Math.max(260, charCount * 55) : category === 'shapes' ? 240 : 150;
+    const requiredSpan = isWord ? Math.max(90, charCount * 25) : 40;
+
+    if (!completed && totalLength >= requiredLength && spanX >= requiredSpan) {
+      triggerCompletion();
+    }
   };
 
   const handleNextItem = () => {
@@ -288,7 +331,7 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
   };
 
   return (
-    <div className="bg-white rounded-4xl p-6 sm:p-8 border-4 border-pink-300 shadow-xl max-w-2xl mx-auto space-y-6">
+    <div className="bg-white rounded-4xl p-5 sm:p-7 border-4 border-pink-300 shadow-xl max-w-2xl mx-auto space-y-5">
       {/* Chapter Badge */}
       {chapter && (
         <div className="text-center">
@@ -316,7 +359,7 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
               setCategory(tab.id as TraceCategory);
               setSelectedItemIndex(0);
             }}
-            className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition ${
+            className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-black transition ${
               category === tab.id
                 ? 'bg-pink-500 text-white shadow-md scale-105'
                 : 'bg-pink-50 text-pink-700 hover:bg-pink-100 border border-pink-200'
@@ -327,7 +370,7 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
         ))}
       </div>
 
-      {/* Item Quick Picker Pills (when not in freedraw) */}
+      {/* Item Quick Picker Pills */}
       {category !== 'freedraw' && (
         <div className="flex items-center justify-center flex-wrap gap-2">
           {filteredItems.map((item, idx) => (
@@ -337,7 +380,7 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
                 soundEffects.playPop();
                 setSelectedItemIndex(idx);
               }}
-              className={`px-3.5 py-2 rounded-2xl font-black text-sm flex items-center justify-center border-2 transition ${
+              className={`px-3.5 py-1.5 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center border-2 transition ${
                 selectedItemIndex === idx
                   ? 'bg-amber-400 text-slate-900 border-amber-500 shadow-sm scale-105'
                   : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
@@ -350,13 +393,13 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
       )}
 
       {/* Header & Audio Guide */}
-      <div className="flex items-center justify-between bg-pink-50/70 p-4 rounded-3xl border border-pink-200">
+      <div className="flex items-center justify-between bg-pink-50/70 p-3.5 sm:p-4 rounded-3xl border border-pink-200">
         <div className="flex items-center space-x-3 text-left">
           <span className="text-2xl sm:text-3xl font-black text-pink-600">
             {category === 'freedraw' ? '🎨' : currentItem?.display}
           </span>
           <div>
-            <h3 className="text-base sm:text-lg font-black text-slate-800">
+            <h3 className="text-sm sm:text-base font-black text-slate-800">
               {category === 'freedraw'
                 ? language === 'ml'
                   ? 'സ്വതന്ത്രമായി ചിത്രം വരയ്ക്കാം (Mouse / Finger / Stylus)'
@@ -365,7 +408,7 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
                 ? currentItem?.malayalamLabel
                 : `Trace ${currentItem?.label}`}
             </h3>
-            <p className="text-xs text-pink-600 font-bold">
+            <p className="text-[11px] sm:text-xs text-pink-600 font-bold">
               {category === 'freedraw'
                 ? 'Pick any crayon color below and draw your masterpiece!'
                 : currentItem?.guide}
@@ -376,7 +419,7 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
         {category !== 'freedraw' && currentItem && (
           <button
             onClick={() => speak(currentItem.phonics)}
-            className="p-3 bg-pink-500 hover:bg-pink-600 text-white rounded-2xl shadow-md btn-kid-3d flex items-center space-x-1.5 text-xs font-black shrink-0"
+            className="p-2.5 sm:p-3 bg-pink-500 hover:bg-pink-600 text-white rounded-2xl shadow-md btn-kid-3d flex items-center space-x-1.5 text-xs font-black shrink-0"
           >
             <Volume2 className="w-4 h-4" />
             <span className="hidden sm:inline">{language === 'ml' ? 'ശബ്ദം' : 'Hear Sound'}</span>
@@ -385,7 +428,7 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
       </div>
 
       {/* Crayon Colors & Brush Thickness */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
         <div className="flex items-center space-x-2">
           <Palette className="w-4 h-4 text-slate-500" />
           <div className="flex items-center space-x-1.5">
@@ -393,7 +436,7 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
               <button
                 key={col.hex}
                 onClick={() => setBrushColor(col.hex)}
-                className={`w-7 h-7 rounded-full border-2 transition transform ${
+                className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 transition transform ${
                   brushColor === col.hex ? 'scale-125 border-slate-900 shadow-md' : 'border-white'
                 }`}
                 style={{ backgroundColor: col.hex }}
@@ -424,60 +467,80 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
       </div>
 
       {/* Interactive Drawing Canvas */}
-      <div className="relative flex justify-center">
-        <div className="relative inline-block border-4 border-dashed border-pink-300 rounded-3xl bg-white p-2 touch-none shadow-inner">
-          <canvas
-            ref={canvasRef}
-            width={460}
-            height={300}
-            onMouseDown={startDraw}
-            onMouseMove={draw}
-            onMouseUp={stopDraw}
-            onMouseLeave={stopDraw}
-            onTouchStart={startDraw}
-            onTouchMove={draw}
-            onTouchEnd={stopDraw}
-            className="rounded-2xl cursor-crosshair bg-white max-w-full h-auto"
-          />
-
-          {completed && category !== 'freedraw' && (
-            <div className="absolute inset-0 bg-white/85 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center animate-fade-in p-6">
-              <Sparkles className="w-14 h-14 text-amber-400 animate-spin mb-2" />
-              <h4 className="text-2xl font-black text-pink-600">
-                {language === 'ml' ? 'മിടുക്കൻ! വളരെ മനോഹരം!' : 'Super Tracing Champion!'}
-              </h4>
-              <p className="text-sm font-black text-amber-600 mt-1">+3 Stars Earned ⭐⭐⭐</p>
-              <button
-                onClick={handleNextItem}
-                className="mt-4 px-6 py-2.5 rounded-2xl bg-pink-500 hover:bg-pink-600 text-white font-black text-xs shadow-lg btn-kid-3d"
-              >
-                {language === 'ml' ? 'അടുത്തത് വരയ്ക്കാം 👉' : 'Trace Next 👉'}
-              </button>
-            </div>
-          )}
+      <div className="space-y-3">
+        <div className="relative flex justify-center">
+          <div className="relative inline-block border-4 border-dashed border-pink-300 rounded-3xl bg-white p-2 touch-none shadow-inner">
+            <canvas
+              ref={canvasRef}
+              width={480}
+              height={300}
+              onMouseDown={startDraw}
+              onMouseMove={draw}
+              onMouseUp={stopDraw}
+              onMouseLeave={stopDraw}
+              onTouchStart={startDraw}
+              onTouchMove={draw}
+              onTouchEnd={stopDraw}
+              className="rounded-2xl cursor-crosshair bg-white max-w-full h-auto"
+            />
+          </div>
         </div>
+
+        {/* Celebratory Banner - Keeps canvas fully accessible without blocking */}
+        {completed && category !== 'freedraw' && (
+          <div className="bg-gradient-to-r from-amber-400 via-pink-500 to-rose-500 text-white p-3.5 rounded-2xl shadow-lg flex items-center justify-between gap-3 animate-fade-in">
+            <div className="flex items-center space-x-2.5">
+              <Sparkles className="w-6 h-6 text-yellow-200 shrink-0 animate-spin" />
+              <div>
+                <h4 className="text-xs sm:text-sm font-black">
+                  {language === 'ml' ? 'വളരെ മിടുക്കൻ! മനോഹരമായി വരച്ചു!' : 'Super Tracing Champion! ⭐⭐⭐'}
+                </h4>
+                <p className="text-[11px] text-pink-100 font-bold">
+                  {language === 'ml' ? '+3 സ്റ്റാറുകൾ ലഭിച്ചു! തുടർന്നും വരയ്ക്കാം.' : '+3 Stars Earned! Keep drawing or tap Next.'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleNextItem}
+              className="px-4 py-2 rounded-xl bg-white text-pink-600 hover:bg-pink-50 font-black text-xs shadow-md shrink-0 flex items-center space-x-1"
+            >
+              <span>{language === 'ml' ? 'അടുത്തത്' : 'Trace Next'}</span>
+              <span>👉</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Bottom Action Controls */}
-      <div className="flex items-center justify-center space-x-4">
+      <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
         <button
           onClick={drawCanvasGuide}
-          className="px-5 py-3 rounded-2xl border-2 border-slate-300 text-slate-700 font-black text-xs flex items-center space-x-1.5 hover:bg-slate-50"
+          className="px-4 py-2.5 rounded-2xl border-2 border-slate-300 text-slate-700 font-black text-xs flex items-center space-x-1.5 hover:bg-slate-50 transition"
         >
           <RefreshCw className="w-4 h-4" />
-          <span>{language === 'ml' ? 'മായ്ച്ച് വീണ്ടും വരയ്ക്കാം' : 'Clear Canvas'}</span>
+          <span>{language === 'ml' ? 'മായ്ക്കുക' : 'Clear Canvas'}</span>
         </button>
+
+        {category !== 'freedraw' && !completed && (
+          <button
+            onClick={triggerCompletion}
+            className="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-xs sm:text-sm flex items-center space-x-1.5 shadow-md transition"
+          >
+            <Sparkles className="w-4 h-4 text-amber-800" />
+            <span>{language === 'ml' ? 'പൂർത്തിയായി! ⭐' : 'Done Tracing! ⭐'}</span>
+          </button>
+        )}
 
         {category !== 'freedraw' && (
           <button
             onClick={handleNextItem}
-            className="px-6 py-3 rounded-2xl bg-pink-500 hover:bg-pink-600 text-white font-black text-xs sm:text-sm flex items-center space-x-2 shadow-lg btn-kid-3d"
+            className="px-5 py-2.5 rounded-2xl bg-pink-500 hover:bg-pink-600 text-white font-black text-xs sm:text-sm flex items-center space-x-1.5 shadow-lg transition btn-kid-3d"
           >
             <span>
               {language === 'ml'
                 ? 'അടുത്തത്'
                 : category === 'chapter_words'
-                ? 'Next Chapter Word'
+                ? 'Next Word'
                 : category === 'letters'
                 ? 'Next Letter'
                 : category === 'numbers'
