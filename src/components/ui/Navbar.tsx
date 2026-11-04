@@ -99,8 +99,8 @@ export default function Navbar() {
     soundEffects.playStar();
     speak(
       language === 'ml'
-        ? 'നമസ്കാരം! ഹുട്ടി ടീച്ചറുടെ ശബ്ദം നിങ്ങളുടെ ഹെഡ്‌സെറ്റിൽ വ്യക്തമായി കേൾക്കാം!'
-        : 'Hello! Hootie the Owl is speaking clearly in your headset!'
+        ? 'നമസ്കാരം! ചിക്കുവിന്റെ ശബ്ദം നിങ്ങളുടെ ഹെഡ്‌സെറ്റിൽ വ്യക്തമായി കേൾക്കാം! 🐶'
+        : 'Hello! Chikoo your AI pet buddy is speaking clearly in your headset! 🐶'
     );
   };
 

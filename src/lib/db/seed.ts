@@ -253,7 +253,7 @@ export const initialDatabaseState: DatabaseState = {
           type: 'explanation',
           title: 'Letter A makes the /æ/ Sound! 👄',
           malayalamTitle: 'A യുടെ ശബ്ദം /ആ/ ആണ്! 👄',
-          content: 'Open your mouth like you are taking a crunchy bite of a juicy red apple: "Ah, Ah, Apple!" Can you say it with Hootie?',
+          content: 'Open your mouth like you are taking a crunchy bite of a juicy red apple: "Ah, Ah, Apple!" Can you say it with Chikoo? 🐾',
           malayalamContent: 'മധുരമുള്ള ചുവന്ന ആപ്പിൾ കടിച്ചു തിന്നുന്നത് പോലെ വായ തുറന്നു പറയൂ: "ആ... ആ... ആപ്പിൾ!"',
           visualEmoji: '🍎',
         },

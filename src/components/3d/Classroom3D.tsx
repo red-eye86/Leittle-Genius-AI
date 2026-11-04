@@ -57,54 +57,80 @@ export default function Classroom3D() {
     desk.position.set(0, 0.8, 0);
     scene.add(desk);
 
-    // Mascot Teacher "Hootie" Avatar Body (Soft cute owl shape on desk)
-    const owlGroup = new THREE.Group();
+    // Mascot AI Pet Dog "Chikoo" Avatar Body (Fluffy white puppy on desk with tech headset)
+    const chikooGroup = new THREE.Group();
 
-    // Body
-    const bodyGeo = new THREE.SphereGeometry(0.7, 24, 24);
-    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x6366f1, roughness: 0.4 });
+    // Body (Fluffy white)
+    const bodyGeo = new THREE.SphereGeometry(0.72, 24, 24);
+    const bodyMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.8 });
     const body = new THREE.Mesh(bodyGeo, bodyMat);
     body.position.y = 1.8;
-    owlGroup.add(body);
+    chikooGroup.add(body);
+
+    // Cute Floppy Dog Ears (Left & Right)
+    const earGeo = new THREE.ConeGeometry(0.24, 0.55, 16);
+    const earMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 });
+
+    const earLeft = new THREE.Mesh(earGeo, earMat);
+    earLeft.position.set(-0.55, 2.3, 0.1);
+    earLeft.rotation.z = Math.PI / 4;
+    earLeft.rotation.x = -Math.PI / 12;
+    chikooGroup.add(earLeft);
+
+    const earRight = new THREE.Mesh(earGeo, earMat);
+    earRight.position.set(0.55, 2.3, 0.1);
+    earRight.rotation.z = -Math.PI / 4;
+    earRight.rotation.x = -Math.PI / 12;
+    chikooGroup.add(earRight);
 
     // Eyes
-    const eyeGeo = new THREE.SphereGeometry(0.2, 16, 16);
+    const eyeGeo = new THREE.SphereGeometry(0.18, 16, 16);
     const eyeWhiteMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const eyeLeft = new THREE.Mesh(eyeGeo, eyeWhiteMat);
-    eyeLeft.position.set(-0.25, 2.0, 0.6);
-    owlGroup.add(eyeLeft);
+    eyeLeft.position.set(-0.25, 1.95, 0.6);
+    chikooGroup.add(eyeLeft);
 
     const eyeRight = new THREE.Mesh(eyeGeo, eyeWhiteMat);
-    eyeRight.position.set(0.25, 2.0, 0.6);
-    owlGroup.add(eyeRight);
+    eyeRight.position.set(0.25, 1.95, 0.6);
+    chikooGroup.add(eyeRight);
 
     // Pupils
     const pupilGeo = new THREE.SphereGeometry(0.09, 16, 16);
     const pupilMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
     const pLeft = new THREE.Mesh(pupilGeo, pupilMat);
-    pLeft.position.set(-0.25, 2.0, 0.75);
-    owlGroup.add(pLeft);
+    pLeft.position.set(-0.25, 1.95, 0.74);
+    chikooGroup.add(pLeft);
 
     const pRight = new THREE.Mesh(pupilGeo, pupilMat);
-    pRight.position.set(0.25, 2.0, 0.75);
-    owlGroup.add(pRight);
+    pRight.position.set(0.25, 1.95, 0.74);
+    chikooGroup.add(pRight);
 
-    // Cute beak
-    const beakGeo = new THREE.ConeGeometry(0.12, 0.25, 8);
-    const beakMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
-    const beak = new THREE.Mesh(beakGeo, beakMat);
-    beak.rotation.x = Math.PI / 2;
-    beak.position.set(0, 1.85, 0.75);
-    owlGroup.add(beak);
+    // Cute Puppy Nose
+    const noseGeo = new THREE.SphereGeometry(0.12, 16, 16);
+    const noseMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.2 });
+    const nose = new THREE.Mesh(noseGeo, noseMat);
+    nose.position.set(0, 1.82, 0.75);
+    chikooGroup.add(nose);
 
-    // Graduation Cap
-    const capGeo = new THREE.BoxGeometry(0.9, 0.08, 0.9);
-    const capMat = new THREE.MeshStandardMaterial({ color: 0x0f172a });
-    const cap = new THREE.Mesh(capGeo, capMat);
-    cap.position.set(0, 2.55, 0);
-    owlGroup.add(cap);
+    // Blue Tech Headset (Like Chikoo wears in his picture!)
+    const headsetGeo = new THREE.TorusGeometry(0.68, 0.05, 16, 32, Math.PI);
+    const headsetMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.6, roughness: 0.3 });
+    const headset = new THREE.Mesh(headsetGeo, headsetMat);
+    headset.position.set(0, 1.95, 0.1);
+    headset.rotation.z = Math.PI;
+    headset.rotation.x = Math.PI / 8;
+    chikooGroup.add(headset);
 
-    scene.add(owlGroup);
+    // Mic arm
+    const micGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.45);
+    const micMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8 });
+    const mic = new THREE.Mesh(micGeo, micMat);
+    mic.position.set(0.48, 1.75, 0.45);
+    mic.rotation.z = Math.PI / 3;
+    mic.rotation.y = Math.PI / 4;
+    chikooGroup.add(mic);
+
+    scene.add(chikooGroup);
 
     // Floating colorful books
     const bookColors = [0xef4444, 0x3b82f6, 0x10b981];
@@ -122,9 +148,9 @@ export default function Classroom3D() {
     let animId: number;
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      // Gentle owl bobbing & nodding
-      owlGroup.position.y = Math.sin(Date.now() * 0.003) * 0.12;
-      owlGroup.rotation.y = Math.sin(Date.now() * 0.0015) * 0.2;
+      // Gentle Chikoo bobbing & nodding
+      chikooGroup.position.y = Math.sin(Date.now() * 0.003) * 0.12;
+      chikooGroup.rotation.y = Math.sin(Date.now() * 0.0015) * 0.2;
 
       // Floating books
       floatingBooks.forEach((book, idx) => {
@@ -153,7 +179,7 @@ export default function Classroom3D() {
       {/* Classroom blackboard text banner overlay */}
       <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-emerald-950/90 text-emerald-100 px-6 py-2.5 rounded-2xl border-2 border-emerald-400/50 shadow-xl text-center pointer-events-none">
         <p className="text-xs text-emerald-300 font-semibold tracking-wider uppercase">
-          {language === 'ml' ? 'ഹുട്ടി ടീച്ചറുടെ ക്ലാസ്സ്‌റൂം' : "Hootie's Virtual Classroom"}
+          {language === 'ml' ? 'ചിക്കുവിന്റെ 3D ക്ലാസ്സ്‌റൂം 🐾' : "Chikoo's 3D AI Classroom 🐾"}
         </p>
         <h4 className="text-base sm:text-lg font-black text-white flex items-center justify-center space-x-2">
           <span>{activeChild?.name ? `${activeChild.name}'s Desk` : 'Classroom'}</span>
@@ -164,10 +190,10 @@ export default function Classroom3D() {
       {/* Bottom badge */}
       <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3 rounded-2xl border-2 border-amber-300 shadow-lg flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <span className="text-2xl">🦉</span>
+          <span className="text-2xl">🐶</span>
           <div>
             <p className="text-xs font-bold text-amber-800">
-              {language === 'ml' ? 'ടീച്ചർ ഹുട്ടി നിങ്ങളെ സഹായിക്കാൻ ഇവിടെയുണ്ട്' : 'Teacher Hootie is ready to teach!'}
+              {language === 'ml' ? 'നിങ്ങളുടെ സ്വന്തം ചിക്കു സഹായിക്കാൻ ഇവിടെയുണ്ട്!' : 'Chikoo is ready to learn with you! 🐶'}
             </p>
             <p className="text-xs text-slate-500">
               {language === 'ml' ? 'സംശയങ്ങൾ ചോദിക്കൂ, ഒരുമിച്ച് പഠിക്കാം!' : 'Click any subject or chapter to begin your lesson!'}

@@ -184,19 +184,19 @@ export const PRESET_CARTOON_EPISODES: Record<string, CartoonEpisode> = {
         tagline: 'Warm out of Mummy’s oven, ready to test your nose and tongue!',
       },
       {
-        id: 'prof_hootie',
-        name: 'Professor Hootie the Wise Owl',
-        malayalamName: 'ഹുട്ടി ബുദ്ധിമാൻ മൂങ്ങ',
-        role: 'Sense Detective & Guide',
-        malayalamRole: 'ഇന്ദ്രിയ ഗവേഷക മൂങ്ങ',
-        emoji: '🦉',
-        voiceKey: 'voice_wise',
-        voicePitch: 0.85,
-        voiceRate: 0.95,
-        bgGradient: 'from-purple-500 to-indigo-600',
-        badgeColor: 'bg-purple-600 text-white',
-        borderColor: 'border-purple-400',
-        tagline: 'Hoo-hoo! I inspect everything with super sharp eyes and ears!',
+        id: 'chikoo_the_pet',
+        name: 'Chikoo the AI Pet Buddy',
+        malayalamName: 'ചിക്കു AI കൂട്ടുകാരൻ 🐾',
+        role: 'Family Pet & Sense Detective',
+        malayalamRole: 'കുടുംബത്തിന്റെ സ്വന്തം ചിക്കു',
+        emoji: '🐶',
+        voiceKey: 'voice_cheerful',
+        voicePitch: 1.15,
+        voiceRate: 1.0,
+        bgGradient: 'from-amber-400 to-sky-600',
+        badgeColor: 'bg-amber-600 text-white',
+        borderColor: 'border-amber-400',
+        tagline: 'Woof woof! I inspect everything with super sharp nose and ears! 🐾',
       },
     ],
     scenes: [
@@ -244,18 +244,18 @@ export const PRESET_CARTOON_EPISODES: Record<string, CartoonEpisode> = {
       },
       {
         sceneNumber: 2,
-        title: 'Papa Manoj & Professor Hootie Reveal the 5 Senses',
-        malayalamTitle: 'പപ്പ മനോജും ഹുട്ടിയും 5 ഇന്ദ്രിയങ്ങളെ പറഞ്ഞുതരുന്നു',
+        title: 'Papa Manoj & Chikoo Reveal the 5 Senses',
+        malayalamTitle: 'പപ്പ മനോജും ചിക്കുവും 5 ഇന്ദ്രിയങ്ങളെ പറഞ്ഞുതരുന്നു 🐾',
         backdrop: 'living_room',
         visualStageEmoji: '👀👂👃👅🖐️',
         props: ['👀', '👂', '👅', '🖐️'],
         dialogues: [
           {
-            speakerId: 'prof_hootie',
-            englishText: 'Hoo-hoo! Children, did you notice? Your body just used all five of your superhero sense organs!',
-            malayalamText: 'ഹൂ-ഹൂ! കുട്ടികളേ, നിങ്ങൾ ശ്രദ്ധിച്ചോ? നിങ്ങളുടെ ശരീരത്തിലെ 5 സൂപ്പർ ഹീറോ പഞ്ചേന്ദ്രിയങ്ങളും ഇപ്പോൾ പ്രവർത്തിച്ചു!',
+            speakerId: 'chikoo_the_pet',
+            englishText: 'Woof woof! Children, did you notice? Your body just used all five of your superhero sense organs!',
+            malayalamText: 'വൂഫ് വൂഫ്! കുട്ടികളേ, നിങ്ങൾ ശ്രദ്ധിച്ചോ? നിങ്ങളുടെ ശരീരത്തിലെ 5 സൂപ്പർ ഹീറോ പഞ്ചേന്ദ്രിയങ്ങളും ഇപ്പോൾ പ്രവർത്തിച്ചു! 🐾',
             emotion: 'explaining',
-            actionPrompt: 'Professor Hootie flaps his feathered wings and adjusts his glasses.',
+            actionPrompt: 'Chikoo wags his fluffy tail and adjusts his cute blue tech headset.',
           },
           {
             speakerId: 'father',
@@ -1853,23 +1853,23 @@ export function getOrCreateCartoonEpisode(
     category = 'general_learning';
     backdrop = 'school';
     bannerGradient = 'from-violet-600 via-indigo-600 to-pink-600';
-    themeEmoji = '⭐🦉';
+    themeEmoji = '⭐🐶';
     worldName = { en: 'The Discovery Castle', ml: 'അറിവിന്റെ വിസ്മയ കൊട്ടാരം' };
     props = ['📚', '⭐', '💡', '🏆'];
     guest1 = {
-      id: 'hootie_the_owl',
-      name: 'Professor Hootie the AI Owl',
-      malayalamName: 'പ്രൊഫസർ ഹൂട്ടി ബുദ്ധിമാൻ മൂങ്ങ',
-      role: 'Genius Academy Mentor',
-      malayalamRole: 'അറിവ് പകർന്നു തരുന്ന ബുദ്ധിമാനായ മൂങ്ങ',
-      emoji: '🦉',
-      voiceKey: 'voice_wise',
-      voicePitch: 0.85,
-      voiceRate: 0.95,
-      bgGradient: 'from-purple-500 to-indigo-700',
-      badgeColor: 'bg-purple-600 text-white',
-      borderColor: 'border-purple-400',
-      tagline: 'Hoo-hoo! Let us unlock the wonder hidden inside today’s lesson!',
+      id: 'chikoo_the_ai_pet',
+      name: 'Chikoo the AI Pet Buddy',
+      malayalamName: 'ചിക്കു പ്രിയപ്പെട്ട AI കൂട്ടുകാരൻ 🐾',
+      role: 'Family Pet & AI Mentor',
+      malayalamRole: 'കുടുംബത്തിന്റെ സ്വന്തം വളർത്തുനായയും AI കൂട്ടുകാരനും',
+      emoji: '🐶',
+      voiceKey: 'voice_cheerful',
+      voicePitch: 1.15,
+      voiceRate: 1.0,
+      bgGradient: 'from-sky-500 to-indigo-700',
+      badgeColor: 'bg-sky-600 text-white',
+      borderColor: 'border-sky-400',
+      tagline: 'Woof woof! Let us unlock the wonder hidden inside today’s lesson! 🐾',
     };
     guest2 = {
       id: 'sparky_curious',

@@ -43,8 +43,8 @@ export default function LandingPage() {
 
             <p className="text-sm sm:text-base text-slate-100 max-w-lg leading-relaxed">
               {language === 'ml'
-                ? 'നിങ്ങളുടെ കുട്ടികളുടെ സ്കൂൾ പാഠപുസ്തകങ്ങൾ അപ്‌ലോഡ് ചെയ്യുക. AI ഹുട്ടി ടീച്ചർ 3D ലോകങ്ങളിലൂടെയും ഗെയിമുകളിലൂടെയും സന്തോഷത്തോടെ പഠിപ്പിക്കും!'
-                : 'Upload real school textbooks and worksheets. Our friendly 3D AI Teacher transforms lessons into interactive 3D worlds, joyful games, and fun quizzes!'}
+                ? 'നിങ്ങളുടെ കുട്ടികളുടെ സ്കൂൾ പാഠപുസ്തകങ്ങൾ അപ്‌ലോഡ് ചെയ്യുക. പ്രിയപ്പെട്ട ചിക്കു AI കൂട്ടുകാരൻ 3D ലോകങ്ങളിലൂടെയും ഗെയിമുകളിലൂടെയും സന്തോഷത്തോടെ പഠിപ്പിക്കും!'
+                : 'Upload real school textbooks and worksheets. Our friendly AI pet buddy Chikoo transforms lessons into interactive 3D worlds, joyful games, and fun quizzes!'}
             </p>
 
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
@@ -63,8 +63,8 @@ export default function LandingPage() {
             <div className="relative p-6 bg-white/10 backdrop-blur-xl rounded-4xl border-2 border-white/30 shadow-2xl animate-float">
               <MascotOwl size="xl" />
               <div className="mt-4 bg-white text-slate-800 px-4 py-2 rounded-2xl shadow-md text-center">
-                <p className="text-xs font-black text-indigo-600 uppercase">Meet Hootie 🦉</p>
-                <p className="text-xs font-bold text-slate-600">Your AI Study Buddy!</p>
+                <p className="text-xs font-black text-indigo-600 uppercase">Meet Chikoo 🐶🐾</p>
+                <p className="text-xs font-bold text-slate-600">Your AI Pet & Study Buddy!</p>
               </div>
             </div>
           </div>

@@ -27,7 +27,7 @@ A modern, full-stack, 3D-powered educational application built for children aged
 - **3D Science World**: Rotatable, zoomable 3D Solar System with the Sun and 8 planets. Click any planet to pause its orbit and hear bilingual scientific facts.
 - **3D Mathematics World**: Interactive 3D blocks and apples where kids tap and drag objects into baskets to solve addition problems and count out loud.
 - **3D Phonics & Alphabet World**: Floating 3D letter podiums that bounce, play phonics sounds, and show corresponding real-world objects.
-- **3D Virtual Classroom**: Classroom scene with interactive blackboard, floating books, and animated teacher mascot owl Hootie.
+- **3D Virtual Classroom**: Classroom scene with interactive blackboard, floating books, and animated teacher mascot Chikoo.
 - **2D Lightweight Canvas Fallback**: Toggleable at any time for battery saving and low-end hardware.
 
 ### 5. Interactive Educational Games
@@ -36,7 +36,7 @@ A modern, full-stack, 3D-powered educational application built for children aged
 - **Memory Card Flip Quest**: Curriculum emoji card matching game with score tracking.
 - **Apple Counting Game**: Interactive fruit counting with Web Audio chimes.
 
-### 6. AI Teacher Mascot — Hootie 🦉
+### 6. AI Teacher Mascot — Chikoo 🐶🐾
 - Multi-mode teaching:
   1. *Explain My Lesson*
   2. *Teach Me Like a Story*
@@ -138,7 +138,7 @@ Little Genius AI/
 │   │   │   ├── subjects/      # Subject browser with textbook links
 │   │   │   ├── chapters/      # Chapter list and lesson shortcuts
 │   │   │   ├── lesson/        # Multi-mode lesson viewer with audio narration
-│   │   │   ├── ai-teacher/    # Conversational chat with Hootie the Owl
+│   │   │   ├── ai-teacher/    # Conversational chat with Chikoo the AI Buddy
 │   │   │   ├── world3d/       # 3D Learning Worlds (Solar System, Math, A-Z, Classroom)
 │   │   │   ├── flashcards/    # Spaced repetition flashcards with flip animation
 │   │   │   ├── games/         # Educational games (Tracing, Math Blitz, Memory)

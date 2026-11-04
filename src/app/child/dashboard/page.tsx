@@ -169,7 +169,7 @@ export default function ChildDashboardPage() {
                 {t('aiTeacher')}
               </h3>
               <p className="text-[11px] text-emerald-100 font-bold mt-1">
-                {language === 'ml' ? 'സംശയം ചോദിക്കാം' : 'Ask Hootie'}
+                {language === 'ml' ? 'സംശയം ചോദിക്കാം 🐾' : 'Ask Chikoo 🐾'}
               </p>
             </div>
           </div>
@@ -499,8 +499,9 @@ export default function ChildDashboardPage() {
       <section className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-4xl p-6 border-3 border-amber-300 shadow-sm flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
         <MascotOwl size="md" />
         <div className="text-center sm:text-left flex-1">
-          <p className="text-xs font-black text-amber-700 uppercase tracking-wider">
-            {language === 'ml' ? 'ഹുട്ടി ടീച്ചറുടെ കൊച്ചു നിർദ്ദേശം' : "Teacher Hootie's Daily Tip"}
+          <p className="text-xs font-black text-amber-700 uppercase tracking-wider flex items-center space-x-1.5 justify-center sm:justify-start">
+            <span>🐾</span>
+            <span>{language === 'ml' ? 'ചിക്കുവിന്റെ കൊച്ചു നിർദ്ദേശം' : "Chikoo's Daily AI Tip"}</span>
           </p>
           <p className="text-sm sm:text-base font-bold text-slate-800 mt-1">
             {isUKG
@@ -519,7 +520,7 @@ export default function ChildDashboardPage() {
           }}
           className="bg-amber-400 hover:bg-amber-500 text-slate-900 font-black text-xs px-4 py-2.5 rounded-2xl shadow-sm whitespace-nowrap btn-kid-3d"
         >
-          {language === 'ml' ? 'ഹുട്ടിയോട് സംസാരിക്കാം 💬' : 'Chat with Hootie 💬'}
+          {language === 'ml' ? 'ചിക്കുവിനോട് സംസാരിക്കാം 💬' : 'Chat with Chikoo 💬'}
         </button>
       </section>
 

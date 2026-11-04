@@ -21,7 +21,8 @@ export async function generateAIChatResponse(
   const isUKG = child.classGrade === 'UKG';
 
   // Build System Prompt
-  const systemPrompt = `You are Hootie (ഹുട്ടി), a warm, joyful, super-encouraging 3D AI Teacher Owl for a child named ${child.name}.
+  const systemPrompt = `You are Chikoo (ചിക്കു), the family's beloved pet dog who is also a warm, joyful, super-smart AI Voice Teacher for a child named ${child.name}.
+You wear a high-tech headset and glowing tech collar, ready to explore every lesson, guide homework, and explain school topics playfully and clearly.
 Target Age: ${child.age} years old (${child.classGrade}).
 Current Language Preference: ${language === 'ml' ? 'Malayalam' : 'English'}.
 Teaching Mode: ${mode}.
@@ -151,7 +152,7 @@ function generatePedagogicalResponse(
         return { text: 'നമുക്ക് ഒന്നിച്ചു എണ്ണാം! 1, 2, 3, 4, 5! 🖐️ നിങ്ങൾ എത്ര വിരലുകൾ കാണിക്കുന്നു?' };
       }
       return {
-        text: `നമസ്കാരം ${child.name}! ഹുട്ടി ടീച്ചർ ഇവിടെയുണ്ട്. നമുക്ക് ഇന്ന് പാട്ട് പാടി പുതിയ അക്ഷരങ്ങൾ പഠിക്കാം! 🌟`,
+        text: `നമസ്കാരം ${child.name}! നിന്റെ സ്വന്തം ചിക്കു കൂടെയുണ്ട് 🐾 നമുക്ക് ഇന്ന് പാട്ട് പാടി പുതിയ അക്ഷരങ്ങൾ പഠിക്കാം! 🌟`,
       };
     } else {
       if (q.includes('apple') || q.includes('letter a') || q.includes('a')) {
@@ -164,7 +165,7 @@ function generatePedagogicalResponse(
         return { text: 'Let us count shiny stars together! ⭐ One... ⭐⭐ Two... ⭐⭐⭐ Three! You are super smart!' };
       }
       return {
-        text: `Hello ${child.name}! 🦉 Hootie is so happy to learn with you! Shall we play with phonics or count apples today? 🎈`,
+        text: `Hello ${child.name}! 🐶 Chikoo is so happy to learn with you! Shall we play with phonics or count apples today? 🐾🎈`,
       };
     }
   }
@@ -187,7 +188,7 @@ function generatePedagogicalResponse(
       };
     }
     return {
-      text: `ഹലോ ${child.name}! ഹുട്ടി ടീച്ചർ തയ്യാറാണ് 🦉. "ആകാശം എന്തുകൊണ്ട് നീല നിറത്തിൽ കാണുന്നു?" അല്ലെങ്കിൽ "20-ൽ എത്ര 5-കൾ ഉണ്ട്?" തുടങ്ങിയ ഏത് ചോദ്യവും ചോദിക്കൂ! ✨`,
+      text: `ഹലോ ${child.name}! ചിക്കു ഇവിടെ തയ്യാറാണ് 🐶🐾. "ആകാശം എന്തുകൊണ്ട് നീല നിറത്തിൽ കാണുന്നു?" അല്ലെങ്കിൽ "20-ൽ എത്ര 5-കൾ ഉണ്ട്?" തുടങ്ങിയ ഏത് ചോദ്യവും ചോദിക്കൂ! ✨`,
     };
   } else {
     if (q.includes('sun') || q.includes('planet') || q.includes('solar') || q.includes('space') || q.includes('earth')) {
@@ -211,7 +212,7 @@ function generatePedagogicalResponse(
       };
     }
     return {
-      text: `Hi ${child.name}! 🦉 I'm Hootie, your AI Voice Teacher! Try asking me: "Why is the sky blue?" or "How many 5s are there in 20?" — and listen to the explanation aloud!`,
+      text: `Hi ${child.name}! 🐾 I'm Chikoo, your AI Voice Pet Buddy! 🐶 Try asking me: "Why is the sky blue?" or "How many 5s are there in 20?" — and listen to the explanation aloud!`,
     };
   }
 }

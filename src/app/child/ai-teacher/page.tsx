@@ -9,7 +9,7 @@ import { soundEffects } from '@/lib/audio/soundEffects';
 
 interface Message {
   id: string;
-  sender: 'user' | 'hootie';
+  sender: 'user' | 'chikoo';
   text: string;
   source?: { book: string; chapter: string } | null;
 }
@@ -76,14 +76,14 @@ export default function AITeacherPage() {
     if (!activeChild) return;
     const welcomeMsg: Message = {
       id: 'welcome-1',
-      sender: 'hootie',
+      sender: 'chikoo',
       text: isUKG
         ? language === 'ml'
-          ? `ഹലോ ${activeChild.name}! ഞാൻ നിന്റെ AI വോയ്സ് ടീച്ചർ ഹുട്ടിയാണ്! 🦉 മൈക്കിൽ തൊട്ട് എന്നോട് സംസാരിക്കാം, അല്ലെങ്കിൽ താഴെയുള്ള ചോദ്യങ്ങളിൽ തൊട്ട് ഉത്തരം കേൾക്കാം! 🎈`
-          : `Hello ${activeChild.name}! 🦉 I'm your AI Voice Teacher Hootie! You can ask me "Why is the sky blue?" or play with phonics and hear me explain aloud! 🎈`
+          ? `ഹലോ ${activeChild.name}! 🐾 ഞാൻ നിന്റെ സ്വന്തം AI വോയ്സ് കൂട്ടുകാരൻ ചിക്കു (Chikoo) ആണ്! 🐶 മൈക്കിൽ തൊട്ട് എന്നോട് സംസാരിക്കാം, അല്ലെങ്കിൽ താഴെയുള്ള ചോദ്യങ്ങളിൽ തൊട്ട് ഉത്തരം കേൾക്കാം! 🎈`
+          : `Hello ${activeChild.name}! 🐾 I'm your AI Voice Pet Buddy Chikoo! 🐶 You can ask me "Why is the sky blue?" or play with phonics and hear me explain aloud! 🎈`
         : language === 'ml'
-        ? `നമസ്കാരം ${activeChild.name}! ഞാൻ നിന്റെ AI വോയ്സ് ടീച്ചർ ഹുട്ടിയാണ്! 🦉 "ആകാശം എന്തുകൊണ്ട് നീല നിറത്തിൽ കാണുന്നു?" അല്ലെങ്കിൽ "20-ൽ എത്ര 5-കൾ ഉണ്ട്?" എന്ന് ചോദിച്ചു നോക്കൂ — ഞാൻ ശബ്ദത്തോടെ ലളിതമായി പറഞ്ഞുതരാം! ✨`
-        : `Hi ${activeChild.name}! 🚀 I'm your AI Voice Teacher Hootie! Ask me "Why is the sky blue?" or "How many 5s are there in 20?" and hear a simple, fun voice explanation!`,
+        ? `നമസ്കാരം ${activeChild.name}! 🐾 ഞാൻ നിന്റെ സ്വന്തം AI വോയ്സ് കൂട്ടുകാരൻ ചിക്കു (Chikoo) ആണ്! 🐶 "ആകാശം എന്തുകൊണ്ട് നീല നിറത്തിൽ കാണുന്നു?" അല്ലെങ്കിൽ "20-ൽ എത്ര 5-കൾ ഉണ്ട്?" എന്ന് ചോദിച്ചു നോക്കൂ — ഞാൻ ശബ്ദത്തോടെ ലളിതമായി പറഞ്ഞുതരാം! ✨`
+        : `Hi ${activeChild.name}! 🚀 I'm your AI Voice Pet Buddy Chikoo! 🐶 Ask me "Why is the sky blue?" or "How many 5s are there in 20?" and hear a simple, fun voice explanation!`,
     };
     setMessages([welcomeMsg]);
   }, [activeChild, language, isUKG]);
@@ -127,8 +127,8 @@ export default function AITeacherPage() {
       if (data.reply) {
         soundEffects.playStar();
         const botMsg: Message = {
-          id: `h-${Date.now()}`,
-          sender: 'hootie',
+          id: `c-${Date.now()}`,
+          sender: 'chikoo',
           text: data.reply,
           source: data.sourceContext,
         };
@@ -214,8 +214,8 @@ export default function AITeacherPage() {
             <Sparkles className="w-4 h-4 text-amber-500" />
             <span>
               {language === 'ml'
-                ? 'ഒരു ചോദ്യത്തിൽ തൊട്ടുനോക്കൂ — ഹുട്ടി ശബ്ദത്തോടെ ഉത്തരം പറയും:'
-                : 'Tap a question to hear Hootie explain aloud:'}
+                ? 'ഒരു ചോദ്യത്തിൽ തൊട്ടുനോക്കൂ — ചിക്കു ശബ്ദത്തോടെ ഉത്തരം പറയും:'
+                : 'Tap a question to hear Chikoo explain aloud:'}
             </span>
           </p>
         </div>
@@ -260,15 +260,15 @@ export default function AITeacherPage() {
       {/* Chat Messages Log */}
       <div className="bg-white rounded-4xl p-6 border-4 border-slate-200 shadow-sm min-h-[380px] max-h-[520px] overflow-y-auto space-y-4">
         {messages.map((msg) => {
-          const isHootie = msg.sender === 'hootie';
+          const isChikoo = msg.sender === 'chikoo';
           return (
             <div
               key={msg.id}
               className={`flex items-start space-x-3 ${
-                isHootie ? 'justify-start' : 'justify-end flex-row-reverse space-x-reverse'
+                isChikoo ? 'justify-start' : 'justify-end flex-row-reverse space-x-reverse'
               }`}
             >
-              {isHootie ? (
+              {isChikoo ? (
                 <div className="w-10 h-10 flex-shrink-0">
                   <MascotOwl size="sm" />
                 </div>
@@ -280,7 +280,7 @@ export default function AITeacherPage() {
 
               <div
                 className={`max-w-[85%] sm:max-w-[75%] rounded-3xl p-4 sm:p-5 shadow-sm space-y-2 ${
-                  isHootie
+                  isChikoo
                     ? 'bg-emerald-50 border-2 border-emerald-200 text-slate-800'
                     : 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white'
                 }`}
@@ -289,7 +289,7 @@ export default function AITeacherPage() {
                   {msg.text}
                 </div>
 
-                {isHootie && (
+                {isChikoo && (
                   <div className="flex items-center justify-between pt-2 border-t border-emerald-200/60 text-xs">
                     <button
                       onClick={() => speak(msg.text)}
@@ -316,7 +316,7 @@ export default function AITeacherPage() {
           <div className="flex items-center space-x-3">
             <MascotOwl size="sm" speaking />
             <div className="bg-emerald-50 border-2 border-emerald-200 px-4 py-3 rounded-2xl text-xs font-bold text-emerald-800 animate-pulse">
-              Hootie is preparing your voice explanation... 🦉🔊
+              Chikoo is preparing your voice explanation... 🐶🔊
             </div>
           </div>
         )}

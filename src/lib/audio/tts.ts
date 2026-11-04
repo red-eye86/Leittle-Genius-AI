@@ -92,16 +92,16 @@ export const VOICE_PROFILES: Record<VoiceProfileId, VoiceProfileConfig> = {
   },
   natural: {
     id: 'natural',
-    name: 'Hootie Owl Teacher',
-    malayalamName: 'ഹുട്ടി ടീച്ചർ',
-    description: 'Balanced friendly school teacher voice',
-    malayalamDescription: 'സ്കൂളിലെ നല്ല ടീച്ചറുടെ വ്യക്തമായ ശബ്ദം',
-    icon: '🦉',
+    name: 'Chikoo AI Buddy',
+    malayalamName: 'ചിക്കു AI കൂട്ടുകാരൻ',
+    description: 'Joyful, warm & smart family pet AI voice teacher',
+    malayalamDescription: 'കുടുംബത്തിന്റെ പ്രിയപ്പെട്ട ചിക്കുവിന്റെ സ്നേഹമുള്ള ശബ്ദം',
+    icon: '🐶',
     pitch: 1.05,
     rate: 0.95,
     malayalamRate: 0.98,
-    malayalamSample: 'നമസ്കാരം കൂട്ടുകാരേ! ഇന്നത്തെ മലയാളം പാഠം ശ്രദ്ധിച്ചു കേൾക്കൂ!',
-    englishSample: "Welcome Little Geniuses! Listen carefully to today's lesson.",
+    malayalamSample: 'നമസ്കാരം കൂട്ടുകാരേ! നിങ്ങളുടെ സ്വന്തം ചിക്കു കൂടെയുണ്ട്, ശ്രദ്ധിച്ചു കേൾക്കൂ! 🐾',
+    englishSample: "Welcome Little Geniuses! Your AI pet buddy Chikoo is ready to learn with you! 🐾",
   },
 };
 

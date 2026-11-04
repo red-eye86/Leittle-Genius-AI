@@ -51,8 +51,8 @@ const REWARD_CATALOG: RewardItem[] = [
     category: 'worlds',
     title: '3D Virtual Classroom & Lab',
     malayalamTitle: '3D വെർച്വൽ ക്ലാസ്സ്മുറി',
-    description: 'Enter Hootie’s 3D classroom with interactive blackboard & blocks!',
-    malayalamDescription: 'ഹുട്ടിയുടെ 3D ക്ലാസ്സ്മുറിയിൽ പ്രവേശിക്കാം!',
+    description: 'Enter Chikoo’s 3D classroom with interactive blackboard & blocks!',
+    malayalamDescription: 'ചിക്കുവിന്റെ 3D ക്ലാസ്സ്മുറിയിൽ പ്രവേശിക്കാം! 🐾',
     emoji: '🏫',
     requiredStars: 20,
     actionHref: '/child/world3d',
@@ -82,15 +82,15 @@ const REWARD_CATALOG: RewardItem[] = [
 
   // Unlockable Characters
   {
-    id: 'rw-char-owl',
+    id: 'rw-char-chikoo',
     category: 'characters',
-    title: 'Professor Hootie the Owl',
-    malayalamTitle: 'പ്രൊഫസർ ഹുട്ടി മൂങ്ങ',
-    description: 'Your wise and patient AI Teacher companion!',
-    malayalamDescription: 'നിങ്ങളുടെ പ്രിയപ്പെട്ട ഹുട്ടി ടീച്ചർ!',
-    emoji: '🦉',
+    title: 'Chikoo the AI Pet Buddy',
+    malayalamTitle: 'ചിക്കു - സ്നേഹമുള്ള AI കൂട്ടുകാരൻ',
+    description: 'Your loyal family pet dog and joyful AI assistant!',
+    malayalamDescription: 'നിങ്ങളുടെ സ്വന്തം വളർത്തുനായയും പ്രിയപ്പെട്ട AI കൂട്ടുകാരനും! 🐾',
+    emoji: '🐶',
     requiredStars: 0,
-    avatarEmoji: '🦉',
+    avatarEmoji: '🐶',
   },
   {
     id: 'rw-char-robot',

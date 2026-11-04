@@ -108,7 +108,7 @@ function LessonContent() {
         <div className="bg-white rounded-4xl p-16 text-center border-4 border-sky-200 shadow-sm">
           <MascotOwl size="lg" speaking />
           <p className="text-xl font-black text-slate-700 mt-4">
-            {language === 'ml' ? 'ഹുട്ടി ടീച്ചർ പാഠം തയ്യാറാക്കുന്നു...' : 'Teacher Hootie is preparing your lesson...'}
+            {language === 'ml' ? 'ചിക്കു പാഠം തയ്യാറാക്കുന്നു... 🐶' : 'Chikoo is preparing your lesson... 🐶'}
           </p>
         </div>
       ) : !lesson ? (
@@ -152,8 +152,8 @@ function LessonContent() {
                       ? 'നിർത്തുക'
                       : 'Stop Speaking'
                     : language === 'ml'
-                      ? 'ശബ്ദം കേൾക്കാം'
-                      : 'Listen to Hootie'}
+                      ? 'ചിക്കുവിന്റെ ശബ്ദം കേൾക്കാം 🔊'
+                      : 'Listen to Chikoo 🔊'}
                 </span>
               </button>
             </div>

@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
         title: isUKG ? 'Look at the Pictures! 🎨' : 'Visual Concept Breakdown 🔍',
         malayalamTitle: 'ചിത്രങ്ങളിലൂടെയുള്ള വിശദീകരണം 🎨',
         content: isUKG
-          ? `Look carefully at the shapes, colors, and friends! Repeat each sound out loud with Hootie!`
+          ? `Look carefully at the shapes, colors, and friends! Repeat each sound out loud with Chikoo!`
           : `Key topics covered:\n${(targetChapter?.topics || ['Foundational concept', 'Practical examples', 'Key exercises']).map((t: string) => `• ${t}`).join('\n')}`,
         malayalamContent: isUKG
           ? `ചിത്രങ്ങളിലേക്ക് നോക്കൂ! ഓരോ വാക്കും ഉറക്കെ പറഞ്ഞു നോക്കൂ!`
