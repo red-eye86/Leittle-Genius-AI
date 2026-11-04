@@ -52,15 +52,15 @@ function CartoonTheaterContent() {
   const [expandedSubjects, setExpandedSubjects] = useState<Record<string, boolean>>({});
 
   const isSubjectExpanded = (subId: string) => {
-    // If explicitly set, use that; otherwise default to true (expanded)
-    return expandedSubjects[subId] !== false;
+    // Hidden / collapsed by default. Only expanded when explicitly toggled or chosen via filter
+    return expandedSubjects[subId] === true;
   };
 
   const toggleSubjectExpanded = (subId: string) => {
     soundEffects.playPop();
     setExpandedSubjects((prev) => ({
       ...prev,
-      [subId]: prev[subId] === false ? true : false,
+      [subId]: !prev[subId],
     }));
   };
 
@@ -151,7 +151,7 @@ function CartoonTheaterContent() {
           }
         }
 
-        const learnerId: 'eadrick' | 'faidan' = activeChild.id === 'child-2' ? 'faidan' : 'eadrick';
+        const learnerId: 'eadrick' | 'faidan' = activeChild.id === 'child-2' || activeChild.classGrade === 'UKG' ? 'faidan' : 'eadrick';
 
         if (foundChapter) {
           setCurrentChapter(foundChapter);
@@ -163,6 +163,9 @@ function CartoonTheaterContent() {
             learnerId
           );
           setEpisode(ep);
+        } else {
+          setCurrentChapter(null);
+          setEpisode(null);
         }
 
         if (subjectIdParam) {
@@ -410,6 +413,26 @@ function CartoonTheaterContent() {
             </div>
           )}
         </div>
+      ) : !loading && !currentChapter ? (
+        <div className="bg-white rounded-4xl p-12 text-center border-2 border-indigo-200 space-y-4">
+          <div className="text-5xl">🎬</div>
+          <h3 className="text-xl font-black text-slate-800">
+            {language === 'ml'
+              ? `${activeChild.classGrade} സിലബസിനായി കാർട്ടൂൺ എപ്പിസോഡുകൾ ലഭ്യമല്ല`
+              : `No cartoon episodes yet for ${activeChild.classGrade}`}
+          </h3>
+          <p className="text-sm text-slate-500 max-w-md mx-auto">
+            {language === 'ml'
+              ? 'പാരന്റ് സോണിൽ നിന്ന് പുതിയ പാഠപുസ്തകങ്ങൾ അപ്‌ലോഡ് ചെയ്യുമ്പോൾ കാർട്ടൂൺ എപ്പിസോഡുകൾ യാന്ത്രികമായി തയ്യാറാക്കപ്പെടും.'
+              : 'Upload textbooks under this class/grade in the Parent Zone to unlock cartoon episodes!'}
+          </p>
+          <button
+            onClick={() => router.push('/parent/syllabus')}
+            className="px-6 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition"
+          >
+            Upload School Textbooks
+          </button>
+        </div>
       ) : (
         <div className="bg-white rounded-3xl p-12 text-center border-2 border-slate-200">
           <p className="text-base font-bold text-slate-600">Loading cartoon episode...</p>
@@ -610,13 +633,28 @@ function CartoonTheaterContent() {
 
         {/* Category Sections: One prominent section per Subject */}
         <div className="space-y-8">
-          {visibleSubjects.map((sub) => {
-            const matchingBooks = textbooks.filter((b) => b.subjectId === sub.id);
-            const allChaps = matchingBooks.flatMap((b) => b.chapters || []);
-            if (allChaps.length === 0) return null;
+          {totalEpisodesCount === 0 ? (
+            <div className="bg-white rounded-3xl p-8 border-2 border-indigo-100 text-center space-y-3">
+              <p className="text-sm font-bold text-slate-600">
+                {language === 'ml'
+                  ? `${activeChild.classGrade} സിലബസിനായി കാർട്ടൂൺ എപ്പിസോഡുകൾ ലഭ്യമാക്കിയിട്ടില്ല.`
+                  : `No cartoon episodes catalog found for ${activeChild.classGrade}.`}
+              </p>
+              <button
+                onClick={() => router.push('/parent/syllabus')}
+                className="px-5 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition"
+              >
+                Upload School Textbooks
+              </button>
+            </div>
+          ) : (
+            visibleSubjects.map((sub) => {
+              const matchingBooks = textbooks.filter((b) => b.subjectId === sub.id);
+              const allChaps = matchingBooks.flatMap((b) => b.chapters || []);
+              if (allChaps.length === 0) return null;
 
-            const bookTitle = matchingBooks[0]?.title || sub.name;
-            const isExpanded = isSubjectExpanded(sub.id);
+              const bookTitle = matchingBooks[0]?.title || sub.name;
+              const isExpanded = isSubjectExpanded(sub.id);
 
             return (
               <div
@@ -663,7 +701,7 @@ function CartoonTheaterContent() {
                       }`}
                       title={isExpanded ? 'Collapse chapters' : 'Expand chapters'}
                     >
-                      <span className="text-[11px] hidden sm:inline">
+                      <span className="text-[11px] font-bold">
                         {isExpanded
                           ? language === 'ml'
                             ? 'ചാപ്റ്ററുകൾ ചുരുക്കുക'
@@ -828,7 +866,8 @@ function CartoonTheaterContent() {
                 )}
               </div>
             );
-          })}
+          })
+          )}
         </div>
       </div>
     </div>

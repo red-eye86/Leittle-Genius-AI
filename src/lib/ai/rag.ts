@@ -16,7 +16,10 @@ export function retrieveCurriculumContext(
   query?: string
 ): RetrievedContext | null {
   const db = getDb();
-  const textbooks = db.textbooks.filter((b) => b.childId === childId);
+  const child = db.children.find((c) => c.id === childId);
+  const textbooks = child
+    ? db.textbooks.filter((b) => b.classGrade === child.classGrade)
+    : db.textbooks.filter((b) => b.childId === childId);
 
   // 1. Direct chapter match
   if (chapterId) {

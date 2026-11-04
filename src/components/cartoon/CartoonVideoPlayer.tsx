@@ -398,7 +398,7 @@ export function CartoonVideoPlayer({
     <div
       ref={containerRef}
       className={`relative w-full max-w-5xl mx-auto rounded-3xl overflow-hidden shadow-2xl border-4 border-indigo-400 bg-slate-950 flex flex-col ${
-        isFullscreen ? 'h-screen max-w-none rounded-none' : 'aspect-[16/10] min-h-[560px]'
+        isFullscreen ? 'h-screen max-w-none rounded-none' : 'aspect-auto sm:aspect-[16/10] min-h-[620px] sm:min-h-[660px]'
       }`}
     >
       {/* Top Header Bar inside Video Player */}
@@ -517,23 +517,23 @@ export function CartoonVideoPlayer({
         </div>
 
         {/* Active Character Comic Speech Bubble */}
-        <div className="relative z-20 my-auto max-w-2xl mx-auto w-full px-2">
+        <div className="relative z-20 my-auto max-w-2xl mx-auto w-full px-2 py-1">
           <div
-            className={`relative bg-white rounded-3xl p-4 sm:p-6 shadow-2xl border-4 ${activeActor.borderColor} animate-bounce-slight transition-all`}
+            className={`relative bg-white rounded-3xl p-3.5 sm:p-5 shadow-2xl border-4 ${activeActor.borderColor} animate-bounce-slight transition-all mb-3`}
           >
             {/* Speaker Header with Avatar & Badge */}
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
               <div className="flex items-center space-x-2.5">
                 {activeActor.isGuest ? (
                   <div
-                    className={`w-10 h-10 rounded-2xl bg-gradient-to-tr ${
+                    className={`w-9 h-9 rounded-2xl bg-gradient-to-tr ${
                       activeActor.bgGradient || 'from-amber-400 to-orange-500'
-                    } flex items-center justify-center text-2xl shadow-md border-2 border-white flex-shrink-0 animate-bounce`}
+                    } flex items-center justify-center text-xl shadow-md border-2 border-white flex-shrink-0 animate-bounce`}
                   >
                     {activeActor.emoji || '⭐'}
                   </div>
                 ) : (
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-indigo-400 shadow-sm flex-shrink-0">
+                  <div className="relative w-9 h-9 rounded-full overflow-hidden border-2 border-indigo-400 shadow-sm flex-shrink-0">
                     <Image
                       src={activeActor.avatarUrl || '/characters/faidan.jpg'}
                       alt={activeActor.name}
@@ -543,7 +543,7 @@ export function CartoonVideoPlayer({
                   </div>
                 )}
                 <div>
-                  <h4 className="text-sm font-black text-slate-800 leading-tight flex items-center space-x-1.5">
+                  <h4 className="text-xs sm:text-sm font-black text-slate-800 leading-tight flex items-center space-x-1.5">
                     <span>{language === 'ml' ? activeActor.malayalamName : activeActor.name}</span>
                     {activeActor.isGuest && (
                       <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-purple-100 text-purple-700">
@@ -565,12 +565,12 @@ export function CartoonVideoPlayer({
             </div>
 
             {/* Speech Text */}
-            <div className="space-y-1.5">
-              <p className="text-base sm:text-xl font-black text-slate-800 leading-snug">
+            <div className="space-y-1">
+              <p className="text-sm sm:text-lg font-black text-slate-800 leading-snug">
                 {language === 'ml' ? currentDialogue.malayalamText : currentDialogue.englishText}
               </p>
               {language !== 'ml' && (
-                <p className="text-xs sm:text-sm font-bold text-slate-500 italic">
+                <p className="text-xs font-bold text-slate-500 italic line-clamp-2">
                   {currentDialogue.malayalamText}
                 </p>
               )}
@@ -578,20 +578,20 @@ export function CartoonVideoPlayer({
 
             {/* Action Prompt Clue */}
             {currentDialogue.actionPrompt && (
-              <p className="mt-3 text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg inline-block">
+              <p className="mt-2 text-[10px] sm:text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-lg inline-block">
                 🎬 {currentDialogue.actionPrompt}
               </p>
             )}
 
             {/* Comic Speech Pointer Tail */}
             <div
-              className={`absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-white border-b-4 border-r-4 ${activeActor.borderColor} rotate-45`}
+              className={`absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-5 h-5 bg-white border-b-4 border-r-4 ${activeActor.borderColor} rotate-45`}
             ></div>
           </div>
         </div>
 
         {/* Ensemble Cast Standing On Stage (Family + Topic Guest Characters) */}
-        <div className="relative z-10 flex items-end justify-center gap-1.5 sm:gap-4 pt-4 flex-wrap max-w-4xl mx-auto">
+        <div className="relative z-10 shrink-0 flex items-end justify-center gap-1.5 sm:gap-3 pt-2 pb-1 flex-wrap max-w-4xl mx-auto mt-auto">
           {/* Family Members */}
           {familyList.map((char) => {
             const isSpeakingNow = char.id === currentDialogue.speakerId;
@@ -606,7 +606,7 @@ export function CartoonVideoPlayer({
                 }}
                 className={`flex flex-col items-center cursor-pointer transition-all duration-300 ${
                   isSpeakingNow
-                    ? 'scale-110 -translate-y-2 z-20'
+                    ? 'scale-105 -translate-y-1 z-20'
                     : isPrimaryLearner
                     ? 'scale-100 z-15'
                     : 'opacity-85 hover:opacity-100 scale-95 z-10'
@@ -630,10 +630,10 @@ export function CartoonVideoPlayer({
                 <div
                   className={`relative rounded-2xl overflow-hidden shadow-xl transition-all ${
                     isSpeakingNow
-                      ? 'w-16 h-22 sm:w-24 sm:h-32 ring-4 ring-amber-400 shadow-amber-300/50'
+                      ? 'w-14 h-20 sm:w-22 sm:h-28 ring-4 ring-amber-400 shadow-amber-300/50'
                       : isPrimaryLearner
-                      ? 'w-14 h-20 sm:w-20 sm:h-26 ring-3 ring-amber-400 border-2 border-white'
-                      : 'w-12 h-18 sm:w-18 sm:h-24 grayscale-10 border-2 border-white/70'
+                      ? 'w-12 h-18 sm:w-18 sm:h-24 ring-3 ring-amber-400 border-2 border-white'
+                      : 'w-10 h-16 sm:w-16 sm:h-22 grayscale-10 border-2 border-white/70'
                   }`}
                 >
                   <Image
@@ -662,7 +662,7 @@ export function CartoonVideoPlayer({
                 }}
                 className={`flex flex-col items-center cursor-pointer transition-all duration-300 ${
                   isSpeakingNow
-                    ? 'scale-110 -translate-y-2 z-20'
+                    ? 'scale-105 -translate-y-1 z-20'
                     : 'opacity-90 hover:opacity-100 scale-95 z-10'
                 }`}
               >
@@ -683,12 +683,12 @@ export function CartoonVideoPlayer({
                     guest.bgGradient
                   } ${
                     isSpeakingNow
-                      ? 'w-16 h-22 sm:w-24 sm:h-32 ring-4 ring-amber-400 shadow-amber-300/50 animate-bounce'
-                      : 'w-12 h-18 sm:w-18 sm:h-24 border-2 border-white/80'
+                      ? 'w-14 h-20 sm:w-22 sm:h-28 ring-4 ring-amber-400 shadow-amber-300/50'
+                      : 'w-10 h-16 sm:w-16 sm:h-22 border-2 border-white/80'
                   }`}
                 >
-                  <span className="text-3xl sm:text-5xl filter drop-shadow">{guest.emoji}</span>
-                  <span className="text-[8px] sm:text-[10px] font-black text-white/95 uppercase tracking-wider mt-1 px-1 bg-black/25 rounded-full">
+                  <span className="text-3xl sm:text-4xl filter drop-shadow">{guest.emoji}</span>
+                  <span className="text-[8px] sm:text-[9px] font-black text-white/95 uppercase tracking-wider mt-1 px-1 bg-black/25 rounded-full">
                     GUEST
                   </span>
                   {isSpeakingNow && (

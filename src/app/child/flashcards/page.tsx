@@ -264,8 +264,24 @@ function FlashcardsContent() {
           Generating Chapter Flashcards... ✨
         </div>
       ) : cards.length === 0 ? (
-        <div className="bg-white rounded-4xl p-12 border-4 border-slate-200 text-center space-y-4">
-          <p className="text-lg font-bold text-slate-600">No flashcards found for this chapter.</p>
+        <div className="bg-white rounded-4xl p-12 border-2 border-purple-200 text-center space-y-4">
+          <div className="text-5xl">🎴</div>
+          <h3 className="text-xl font-black text-slate-800">
+            {language === 'ml'
+              ? `${activeChild?.classGrade} സിലബസിനായി ഫ്ലാഷ് കാർഡുകൾ ലഭ്യമല്ല`
+              : `No flashcards found for ${activeChild?.classGrade}`}
+          </h3>
+          <p className="text-sm text-slate-500 max-w-md mx-auto">
+            {language === 'ml'
+              ? 'പാരന്റ് സോണിൽ നിന്ന് നിങ്ങളുടെ സ്കൂൾ പാഠപുസ്തകങ്ങൾ അപ്‌ലോഡ് ചെയ്യുമ്പോൾ ഫ്ലാഷ് കാർഡുകൾ ഇവിടെ ലഭ്യമാകും.'
+              : 'Upload school textbooks under this class/grade in the Parent Zone to generate smart flashcards!'}
+          </p>
+          <button
+            onClick={() => router.push('/parent/syllabus')}
+            className="px-6 py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-md transition"
+          >
+            Upload School Textbooks
+          </button>
         </div>
       ) : (
         <div className="max-w-2xl mx-auto space-y-6 text-center">

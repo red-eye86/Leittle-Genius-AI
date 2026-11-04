@@ -201,7 +201,8 @@ export default function Navbar() {
                     setIsProfileDropdownOpen(!isProfileDropdownOpen);
                     setIsSoundMenuOpen(false);
                   }}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-sky-50 to-indigo-50 border-2 border-sky-300 hover:border-sky-400 px-3 py-1.5 rounded-2xl shadow-sm transition active:scale-95"
+                  className="flex items-center space-x-2 bg-gradient-to-r from-white to-slate-50 border-2 px-3 py-1.5 rounded-2xl shadow-sm transition active:scale-95"
+                  style={{ borderColor: activeChild.themeColor || '#38bdf8' }}
                 >
                   <KidAvatar avatar={activeChild.avatar} size="xs" />
                   <div className="text-left hidden xs:block">

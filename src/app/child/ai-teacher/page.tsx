@@ -38,14 +38,24 @@ export default function AITeacherPage() {
           emoji: '🍎',
         },
         {
+          en: 'How do plants grow?',
+          ml: 'ചെടികൾ എങ്ങനെയാണ് വളരുന്നത്?',
+          emoji: '🌱',
+        },
+        {
           en: 'Can we count 1 to 5 together?',
           ml: 'നമുക്ക് 1 മുതൽ 5 വരെ എണ്ണാമോ?',
           emoji: '🖐️',
         },
         {
-          en: 'How do plants grow?',
-          ml: 'ചെടികൾ എങ്ങനെയാണ് വളരുന്നത്?',
-          emoji: '🌱',
+          en: 'Why do puppies wag their tails?',
+          ml: 'നായക്കുട്ടികൾ എന്തുകൊണ്ടാണ് വാലാട്ടുന്നത്?',
+          emoji: '🐶',
+        },
+        {
+          en: 'Tell me a bedtime story about Chikoo!',
+          ml: 'ചിക്കുവിനെക്കുറിച്ച് ഒരു കൊച്ചു കഥ പറയൂ!',
+          emoji: '🐾',
         },
       ]
     : [
@@ -56,8 +66,7 @@ export default function AITeacherPage() {
         },
         {
           en: 'How many 5s are there in 20?',
-          ml: 'How many 5s are there in 20?',
-          displayMl: '20-ൽ എത്ര 5-കൾ ഉണ്ട്? (How many 5s in 20?)',
+          ml: '20-ൽ എത്ര 5-കൾ ഉണ്ട്? (How many 5s in 20?)',
           emoji: '🔢',
         },
         {
@@ -66,9 +75,29 @@ export default function AITeacherPage() {
           emoji: '🌱',
         },
         {
-          en: 'Explain the Water Cycle like a story!',
-          ml: 'ജലചക്രത്തെക്കുറിച്ച് പറഞ്ഞു തരാമോ?',
-          emoji: '💧',
+          en: 'Why do stars twinkle at night?',
+          ml: 'രാത്രിയിൽ നക്ഷത്രങ്ങൾ മിന്നിത്തിളങ്ങുന്നത് എന്തുകൊണ്ട്?',
+          emoji: '✨',
+        },
+        {
+          en: 'How do airplanes stay in the air?',
+          ml: 'വിമാനങ്ങൾ എങ്ങനെയാണ് ആകാശത്ത് പറക്കുന്നത്?',
+          emoji: '✈️',
+        },
+        {
+          en: 'What is the biggest animal in the world?',
+          ml: 'ലോകത്തിലെ ഏറ്റവും വലിയ മൃഗം ഏതാണ്?',
+          emoji: '🐋',
+        },
+        {
+          en: 'Why is ocean water salty?',
+          ml: 'കടൽവെള്ളത്തിന് ഉപ്പുരസം ഉള്ളത് എന്തുകൊണ്ട്?',
+          emoji: '🌊',
+        },
+        {
+          en: 'Tell me a fun math riddle!',
+          ml: 'എനിക്കൊരു രസകരമായ കടങ്കഥ പറഞ്ഞുതരാമോ?',
+          emoji: '🧩',
         },
       ];
 
@@ -166,15 +195,15 @@ export default function AITeacherPage() {
           </div>
           <div>
             <span className="text-xs font-black uppercase tracking-wider text-emerald-100 bg-white/20 px-3 py-1 rounded-full">
-              🎙️ Interactive AI Voice Teacher
+              🎙️ Interactive AI Voice Teacher • Google Gemini
             </span>
             <h1 className="text-2xl sm:text-3xl font-black mt-1">
               {t('aiTeacher')}
             </h1>
             <p className="text-xs sm:text-sm text-emerald-50 mt-0.5">
               {language === 'ml'
-                ? 'ചോദ്യങ്ങൾ ചോദിക്കൂ, ലളിതമായ വിശദീകരണം ശബ്ദത്തോടെ കേൾക്കൂ!'
-                : 'Ask questions by voice or tap below to hear simple spoken explanations!'}
+                ? 'സിലബസ് പാഠങ്ങളും പൊതുവിജ്ഞാനവും ചോദിക്കൂ — ചിക്കു ശബ്ദത്തോടെ പറഞ്ഞുതരും!'
+                : 'Ask any syllabus question or out-of-syllabus general knowledge — Chikoo speaks the answer!'}
             </p>
           </div>
         </div>
@@ -290,21 +319,44 @@ export default function AITeacherPage() {
                 </div>
 
                 {isChikoo && (
-                  <div className="flex items-center justify-between pt-2 border-t border-emerald-200/60 text-xs">
+                  <div className="flex items-center justify-between pt-2 border-t border-emerald-200/60 text-xs gap-2 flex-wrap">
                     <button
-                      onClick={() => speak(msg.text)}
-                      className="px-3 py-1 rounded-xl bg-emerald-200/70 hover:bg-emerald-300 text-emerald-900 font-black flex items-center space-x-1 transition"
+                      onClick={() => {
+                        if (isSpeaking) {
+                          stopSpeaking();
+                        } else {
+                          speak(msg.text);
+                        }
+                      }}
+                      className={`px-3 py-1 rounded-xl font-black flex items-center space-x-1.5 transition ${
+                        isSpeaking
+                          ? 'bg-amber-300 text-slate-900 animate-pulse'
+                          : 'bg-emerald-200/70 hover:bg-emerald-300 text-emerald-900'
+                      }`}
                     >
-                      <Volume2 className="w-3.5 h-3.5" />
-                      <span>{language === 'ml' ? 'വീണ്ടും കേൾക്കാം 🔊' : 'Hear Explanation Aloud 🔊'}</span>
+                      {isSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                      <span>
+                        {isSpeaking
+                          ? language === 'ml'
+                            ? 'ശബ്ദം നിർത്തുക 🔇'
+                            : 'Stop Speaking 🔇'
+                          : language === 'ml'
+                          ? 'വീണ്ടും കേൾക്കാം 🔊'
+                          : 'Hear Explanation Aloud 🔊'}
+                      </span>
                     </button>
 
-                    {msg.source && (
-                      <span className="text-[10px] text-slate-400 font-bold flex items-center space-x-1">
-                        <BookOpen className="w-3 h-3 text-emerald-500" />
-                        <span className="truncate max-w-[150px]">{msg.source.book}</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                        ✨ Gemini AI
                       </span>
-                    )}
+                      {msg.source && (
+                        <span className="text-[10px] text-slate-400 font-bold flex items-center space-x-1">
+                          <BookOpen className="w-3 h-3 text-emerald-500" />
+                          <span className="truncate max-w-[150px]">{msg.source.book}</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

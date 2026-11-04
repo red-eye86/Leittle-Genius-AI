@@ -4,7 +4,8 @@ import { getTextbooks, deleteTextbook, syncIcseSyllabus } from '@/lib/db/store';
 export async function GET(req: NextRequest) {
   const childId = req.nextUrl.searchParams.get('childId') || undefined;
   const subjectId = req.nextUrl.searchParams.get('subjectId') || undefined;
-  const textbooks = getTextbooks(childId, subjectId);
+  const classGrade = req.nextUrl.searchParams.get('classGrade') || undefined;
+  const textbooks = getTextbooks(childId, subjectId, classGrade);
   return NextResponse.json({ textbooks });
 }
 

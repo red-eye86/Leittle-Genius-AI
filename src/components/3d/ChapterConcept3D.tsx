@@ -404,19 +404,564 @@ function buildCenterpiece3DModel(modelType: TopicDetail['modelType']): THREE.Gro
       break;
     }
 
-    case 'food_plate': {
-      // 3D Balanced Diet Plate with 5 Nutrient Groups
-      const plate = new THREE.Mesh(new THREE.CylinderGeometry(2.1, 1.8, 0.22, 32), stdMat(0xf8fafc, 0.2));
-      plate.position.y = -0.5;
-      const rice = new THREE.Mesh(new THREE.SphereGeometry(0.65, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2), stdMat(0xfef9c3));
-      rice.position.set(-0.7, -0.4, -0.5);
-      const veggies = new THREE.Mesh(new THREE.DodecahedronGeometry(0.55, 1), stdMat(0x16a34a));
-      veggies.position.set(0.75, -0.1, -0.5);
-      const apple = new THREE.Mesh(new THREE.SphereGeometry(0.48, 20, 20), stdMat(0xef4444));
-      apple.position.set(-0.6, -0.05, 0.65);
-      const protein = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.45, 0.65), stdMat(0xd97706));
-      protein.position.set(0.65, -0.15, 0.65);
-      group.add(plate, rice, veggies, apple, protein);
+    case 'carbs_energy': {
+      // 3D Cutting board with crusty bread loaf, rice bowl, baked potato & butter slab
+      const board = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.22, 2.6), stdMat(0x92400e, 0.6));
+      board.position.y = -0.9;
+      // Golden Loaf of Bread
+      const loaf = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.65, 1.8, 16), stdMat(0xd97706, 0.4));
+      loaf.rotation.z = Math.PI / 2;
+      loaf.position.set(-0.7, -0.4, -0.2);
+      // White Rice Bowl
+      const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.45, 0.55, 20), stdMat(0xf8fafc, 0.2));
+      bowl.position.set(0.9, -0.6, -0.3);
+      const rice = new THREE.Mesh(new THREE.SphereGeometry(0.6, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), stdMat(0xfef9c3));
+      rice.position.set(0.9, -0.35, -0.3);
+      // Baked Potato
+      const potato = new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 16), stdMat(0xa16207, 0.7));
+      potato.scale.set(1.3, 0.85, 0.85);
+      potato.position.set(-0.6, -0.6, 0.75);
+      // Butter Slab
+      const butter = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.35, 0.5), stdMat(0xfacc15, 0.2));
+      butter.position.set(0.7, -0.65, 0.75);
+      group.add(board, loaf, bowl, rice, potato, butter);
+      break;
+    }
+
+    case 'proteins_body': {
+      // 3D Milk Carton with Straw, Fresh Egg in Cup, Shimmering Fish & Pulses Bowl
+      const milkBody = new THREE.Mesh(new THREE.BoxGeometry(0.85, 1.6, 0.85), stdMat(0xf8fafc, 0.3));
+      milkBody.position.set(-1.1, -0.2, -0.2);
+      const milkTop = new THREE.Mesh(new THREE.ConeGeometry(0.6, 0.45, 4), stdMat(0x0284c7, 0.3));
+      milkTop.position.set(-1.1, 0.8, -0.2);
+      milkTop.rotation.y = Math.PI / 4;
+      // Egg in wooden cup
+      const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.25, 0.5, 16), stdMat(0x92400e));
+      cup.position.set(-0.1, -0.75, 0.5);
+      const egg = new THREE.Mesh(new THREE.SphereGeometry(0.34, 16, 16), stdMat(0xfef08a, 0.3));
+      egg.scale.set(1, 1.35, 1);
+      egg.position.set(-0.1, -0.4, 0.5);
+      // 3D Silver Fish
+      const fishBody = new THREE.Mesh(new THREE.ConeGeometry(0.45, 1.6, 16), stdMat(0x38bdf8, 0.2, 0.8));
+      fishBody.rotation.z = Math.PI / 2;
+      fishBody.position.set(0.9, -0.2, -0.3);
+      const tail = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.45, 3), stdMat(0x0284c7, 0.2, 0.8));
+      tail.rotation.z = -Math.PI / 2;
+      tail.position.set(0.05, -0.2, -0.3);
+      // Pulses Bowl
+      const dalBowl = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.4, 0.45, 16), stdMat(0xc2410c));
+      dalBowl.position.set(0.9, -0.7, 0.5);
+      const dalMound = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), stdMat(0xf59e0b));
+      dalMound.position.set(0.9, -0.5, 0.5);
+      group.add(milkBody, milkTop, cup, egg, fishBody, tail, dalBowl, dalMound);
+      break;
+    }
+
+    case 'vitamins_protect': {
+      // 3D Crunchy Red Apple, Citrus Orange with slice, Pointed Carrot & Fresh Green Broccoli
+      const apple = new THREE.Mesh(new THREE.SphereGeometry(0.62, 24, 24), stdMat(0xef4444, 0.25, 0.1));
+      apple.position.set(-0.85, -0.3, -0.2);
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.35, 8), stdMat(0x78350f));
+      stem.position.set(-0.85, 0.4, -0.2);
+      const leaf = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.05, 0.14), stdMat(0x22c55e));
+      leaf.position.set(-0.76, 0.45, -0.2);
+      // Citrus Orange
+      const orange = new THREE.Mesh(new THREE.SphereGeometry(0.58, 20, 20), stdMat(0xf97316, 0.4));
+      orange.position.set(0.85, -0.35, -0.2);
+      // Carrot
+      const carrot = new THREE.Mesh(new THREE.ConeGeometry(0.3, 1.4, 16), stdMat(0xea580c, 0.4));
+      carrot.rotation.z = 0.5;
+      carrot.position.set(-0.4, -0.5, 0.7);
+      const greens = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.5, 8), stdMat(0x15803d));
+      greens.rotation.z = 0.5;
+      greens.position.set(-0.7, 0.1, 0.7);
+      // Fresh Broccoli
+      const brocStem = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.28, 0.65, 12), stdMat(0x86efac));
+      brocStem.position.set(0.65, -0.65, 0.7);
+      const brocHead = new THREE.Mesh(new THREE.DodecahedronGeometry(0.52, 1), stdMat(0x166534, 0.8));
+      brocHead.position.set(0.65, -0.15, 0.7);
+      group.add(apple, stem, leaf, orange, carrot, greens, brocStem, brocHead);
+      break;
+    }
+
+    case 'food_pyramid': {
+      // 4-Tier 3D Food Pyramid with Glowing Layers and Top Golden Star
+      const pGrains = new THREE.Mesh(new THREE.CylinderGeometry(2.1, 2.7, 0.65, 4), stdMat(0xf59e0b, 0.3));
+      pGrains.position.y = -1.0;
+      const pVeggies = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 2.05, 0.65, 4), stdMat(0x10b981, 0.3));
+      pVeggies.position.y = -0.35;
+      const pDairy = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1.45, 0.65, 4), stdMat(0x3b82f6, 0.3));
+      pDairy.position.y = 0.3;
+      const pFats = new THREE.Mesh(new THREE.ConeGeometry(0.85, 0.75, 4), stdMat(0xec4899, 0.3));
+      pFats.position.y = 0.98;
+      const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.28, 0), stdMat(0xfacc15, 0.1, 0.8));
+      star.position.y = 1.6;
+      group.add(pGrains, pVeggies, pDairy, pFats, star);
+      break;
+    }
+
+    case 'food_preservation': {
+      // 3D Refrigerator unit with Ice Cubes, Sun Drying Rack & Ceramic Pickle Jar
+      const fridge = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.5, 1.1), stdMat(0xe0f2fe, 0.2, 0.5));
+      fridge.position.set(-1.0, 0, -0.2);
+      const fridgeDoor = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.0, 0.95), stdMat(0x38bdf8, 0.4));
+      fridgeDoor.position.set(-0.25, 0.45, -0.2);
+      // Ice Cubes
+      const ice1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), stdMat(0x7dd3fc, 0.1));
+      ice1.position.set(-0.8, 0.3, 0.5);
+      const ice2 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.25), stdMat(0x7dd3fc, 0.1));
+      ice2.position.set(-0.55, 0.25, 0.65);
+      // Kerala Traditional Ceramic Pickle Jar (ഭരണി)
+      const jarBody = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.55, 0.85, 20), stdMat(0xf8fafc, 0.3));
+      jarBody.position.set(0.95, -0.5, 0.3);
+      const jarNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.32, 0.22, 16), stdMat(0x78350f));
+      jarNeck.position.set(0.95, 0.05, 0.3);
+      const jarCloth = new THREE.Mesh(new THREE.SphereGeometry(0.38, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), stdMat(0xdc2626));
+      jarCloth.position.set(0.95, 0.16, 0.3);
+      group.add(fridge, fridgeDoor, ice1, ice2, jarBody, jarNeck, jarCloth);
+      break;
+    }
+
+    case 'tooth_jaw': {
+      // 3D Dental Arch / Jaw Curve with Incisors, Canines, Premolars & Molars
+      const gum = new THREE.Mesh(new THREE.TorusGeometry(1.9, 0.38, 16, 32, Math.PI), stdMat(0xf472b6, 0.5));
+      gum.rotation.x = Math.PI / 2;
+      gum.position.y = -0.5;
+      group.add(gum);
+      for (let i = 0; i < 8; i++) {
+        const a = (i / 7) * Math.PI;
+        const tx = Math.cos(a) * 1.9;
+        const tz = Math.sin(a) * 1.9;
+        const isMolar = i === 0 || i === 7;
+        const isCanine = i === 2 || i === 5;
+        const geo = isMolar
+          ? new THREE.BoxGeometry(0.45, 0.6, 0.45)
+          : isCanine
+          ? new THREE.ConeGeometry(0.25, 0.75, 12)
+          : new THREE.BoxGeometry(0.35, 0.65, 0.22);
+        const toothMesh = new THREE.Mesh(geo, stdMat(0xf8fafc, 0.2, 0.3));
+        toothMesh.position.set(tx, -0.05, tz);
+        group.add(toothMesh);
+      }
+      break;
+    }
+
+    case 'tooth_cross_section': {
+      // Split Molar Tooth Cross-Section: White Enamel, Yellow Dentine, Red Pulp with Nerves
+      const halfCrown = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.85, 1.2, 24, 1, false, 0, Math.PI), stdMat(0xf8fafc, 0.2));
+      halfCrown.position.y = 0.4;
+      const dentine = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.62, 1.1, 20, 1, false, 0, Math.PI), stdMat(0xfef08a, 0.3));
+      dentine.position.y = 0.35;
+      const pulp = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.15, 0.95, 16, 1, false, 0, Math.PI), stdMat(0xef4444, 0.3));
+      pulp.position.y = 0.25;
+      const rootL = new THREE.Mesh(new THREE.ConeGeometry(0.28, 1.4, 16), stdMat(0xf8fafc, 0.3));
+      rootL.position.set(-0.45, -0.85, 0);
+      const rootR = new THREE.Mesh(new THREE.ConeGeometry(0.28, 1.4, 16), stdMat(0xf8fafc, 0.3));
+      rootR.position.set(0.45, -0.85, 0);
+      group.add(halfCrown, dentine, pulp, rootL, rootR);
+      break;
+    }
+
+    case 'digestive_system': {
+      // 3D Human Digestive System Journey (Stomach, Liver, Intestines)
+      const stomach = new THREE.Mesh(new THREE.SphereGeometry(0.75, 20, 20), stdMat(0xf43f5e, 0.3));
+      stomach.scale.set(1.4, 0.85, 0.9);
+      stomach.position.set(-0.35, 0.4, 0);
+      const liver = new THREE.Mesh(new THREE.ConeGeometry(0.85, 1.1, 16), stdMat(0x881337, 0.4));
+      liver.rotation.z = -1.2;
+      liver.position.set(0.85, 0.5, 0);
+      const intestineTorus = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.25, 16, 32), stdMat(0xf59e0b, 0.5));
+      intestineTorus.position.set(0, -0.65, 0);
+      const foodPebble = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), stdMat(0x22c55e, 0.2, 0.8));
+      foodPebble.position.set(-0.35, 0.4, 0.85);
+      group.add(stomach, liver, intestineTorus, foodPebble);
+      break;
+    }
+
+    case 'leaf_photosynthesis': {
+      // 3D Green Leaf with Veins, Chloroplasts, Sunlight Rays & Oxygen Bubbles
+      const leafPlate = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.08, 1.9), stdMat(0x16a34a, 0.3));
+      leafPlate.rotation.x = 0.35;
+      const stemRib = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 3.2, 12), stdMat(0x15803d));
+      stemRib.rotation.z = Math.PI / 2;
+      stemRib.rotation.y = 0.35;
+      stemRib.position.y = 0.05;
+      // Sunlight Rays from above
+      const sunRay = new THREE.Mesh(new THREE.ConeGeometry(0.35, 1.8, 12), stdMat(0xfacc15, 0.2, 0.6));
+      sunRay.rotation.x = Math.PI;
+      sunRay.position.set(0.8, 1.4, -0.5);
+      // Floating Oxygen (O2) bubbles
+      const bubble1 = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), stdMat(0x38bdf8, 0.1, 0.9));
+      bubble1.position.set(-0.8, 0.9, 0.4);
+      const bubble2 = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 16), stdMat(0x38bdf8, 0.1, 0.9));
+      bubble2.position.set(0.2, 1.2, 0.6);
+      group.add(leafPlate, stemRib, sunRay, bubble1, bubble2);
+      break;
+    }
+
+    case 'plant_cactus': {
+      // 3D Desert Cactus on Sand Dune Base
+      const sand = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.4, 0.3, 32), stdMat(0xd97706, 0.7));
+      sand.position.y = -1.1;
+      const stemC = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 2.2, 16), stdMat(0x15803d, 0.4));
+      stemC.position.y = 0;
+      const armL = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.22, 12, 16, Math.PI / 2), stdMat(0x15803d, 0.4));
+      armL.position.set(-0.45, 0.2, 0);
+      const armR = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.22, 12, 16, Math.PI / 2), stdMat(0x15803d, 0.4));
+      armR.rotation.y = Math.PI;
+      armR.position.set(0.45, 0.5, 0);
+      const flower = new THREE.Mesh(new THREE.OctahedronGeometry(0.22, 0), stdMat(0xec4899));
+      flower.position.set(0, 1.25, 0);
+      group.add(sand, stemC, armL, armR, flower);
+      break;
+    }
+
+    case 'plant_pine': {
+      // 3D Snow-Dusted Mountain Pine Tree on Rock Base
+      const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(1.2, 1), stdMat(0x64748b, 0.8));
+      rock.position.y = -1.1;
+      const trunkP = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 1.4, 12), stdMat(0x78350f));
+      trunkP.position.y = -0.3;
+      const tier1 = new THREE.Mesh(new THREE.ConeGeometry(1.4, 1.1, 12), stdMat(0x14532d, 0.5));
+      tier1.position.y = 0.3;
+      const tier2 = new THREE.Mesh(new THREE.ConeGeometry(1.05, 0.95, 12), stdMat(0x15803d, 0.5));
+      tier2.position.y = 0.95;
+      const tier3 = new THREE.Mesh(new THREE.ConeGeometry(0.65, 0.85, 12), stdMat(0x16a34a, 0.5));
+      tier3.position.y = 1.55;
+      const snow = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.4, 8), stdMat(0xf8fafc, 0.2));
+      snow.position.y = 1.95;
+      group.add(rock, trunkP, tier1, tier2, tier3, snow);
+      break;
+    }
+
+    case 'plant_lotus': {
+      // 3D Floating Lily Pad on Blue Water with Pink Lotus Flower
+      const waterPond = new THREE.Mesh(new THREE.CylinderGeometry(2.3, 2.3, 0.15, 32), stdMat(0x0284c7, 0.2, 0.8));
+      waterPond.position.y = -0.9;
+      const pad = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, 0.08, 32, 1, false, 0, Math.PI * 1.8), stdMat(0x16a34a, 0.4));
+      pad.position.set(0, -0.78, 0);
+      const flowerCore = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), stdMat(0xfacc15, 0.3));
+      flowerCore.position.set(0, -0.4, 0);
+      for (let p = 0; p < 8; p++) {
+        const pa = (p / 8) * Math.PI * 2;
+        const petal = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.75, 8), stdMat(0xf472b6, 0.2));
+        petal.rotation.z = Math.PI / 4;
+        petal.rotation.y = pa;
+        petal.position.set(Math.cos(pa) * 0.35, -0.45, Math.sin(pa) * 0.35);
+        group.add(petal);
+      }
+      group.add(waterPond, pad, flowerCore);
+      break;
+    }
+
+    case 'animal_camel': {
+      // 3D Desert Camel with Hump, Long Neck & Padded Feet
+      const cBody = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.1, 0.95), stdMat(0xd97706, 0.6));
+      cBody.position.set(0, -0.1, 0);
+      const hump = new THREE.Mesh(new THREE.SphereGeometry(0.62, 16, 16), stdMat(0xb45309, 0.6));
+      hump.scale.set(1, 1.3, 0.8);
+      hump.position.set(-0.1, 0.8, 0);
+      const cNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.32, 1.2, 12), stdMat(0xd97706, 0.6));
+      cNeck.rotation.z = -0.45;
+      cNeck.position.set(1.0, 0.6, 0);
+      const cHead = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.35, 0.35), stdMat(0xd97706, 0.6));
+      cHead.position.set(1.4, 1.1, 0);
+      // 4 Legs with wide feet
+      const legPositions = [
+        [-0.6, -0.9, -0.3],
+        [0.6, -0.9, -0.3],
+        [-0.6, -0.9, 0.3],
+        [0.6, -0.9, 0.3],
+      ];
+      legPositions.forEach(([lx, ly, lz]) => {
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 1.1, 8), stdMat(0xb45309));
+        leg.position.set(lx, ly, lz);
+        const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.12, 12), stdMat(0x78350f));
+        foot.position.set(lx, ly - 0.55, lz);
+        group.add(leg, foot);
+      });
+      group.add(cBody, hump, cNeck, cHead);
+      break;
+    }
+
+    case 'animal_polar': {
+      // 3D Floating Iceberg with Polar Bear & Emperor Penguin
+      const iceberg = new THREE.Mesh(new THREE.CylinderGeometry(2.3, 2.5, 0.45, 8), stdMat(0xe0f2fe, 0.2));
+      iceberg.position.y = -0.9;
+      // Polar Bear (White body & ears)
+      const bearBody = new THREE.Mesh(new THREE.SphereGeometry(0.65, 16, 16), stdMat(0xf8fafc, 0.8));
+      bearBody.scale.set(1.4, 1, 1);
+      bearBody.position.set(-0.85, -0.3, 0);
+      const bearHead = new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 16), stdMat(0xf8fafc, 0.8));
+      bearHead.position.set(-0.15, 0.05, 0);
+      // Penguin
+      const pBody = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.38, 1.1, 16), stdMat(0x0f172a));
+      pBody.position.set(1.1, -0.2, 0);
+      const pBelly = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.8, 0.15), stdMat(0xffffff));
+      pBelly.position.set(1.1, -0.2, 0.22);
+      const pBeak = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.35, 8), stdMat(0xf59e0b));
+      pBeak.rotation.x = Math.PI / 2;
+      pBeak.position.set(1.1, 0.32, 0.38);
+      group.add(iceberg, bearBody, bearHead, pBody, pBelly, pBeak);
+      break;
+    }
+
+    case 'animal_aquatic': {
+      // 3D Leaping Dolphin with Coral Reef Fish in Ocean Waves
+      const dolphin = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.48, 2.4, 20), stdMat(0x0284c7, 0.2, 0.7));
+      dolphin.rotation.z = Math.PI / 3;
+      dolphin.position.set(0, 0.3, 0);
+      const dorsal = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.65, 8), stdMat(0x0369a1, 0.2));
+      dorsal.position.set(-0.2, 0.85, 0);
+      const flukes = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.12, 0.45), stdMat(0x0284c7));
+      flukes.position.set(-1.0, -0.65, 0);
+      // Ocean wave base
+      const wave = new THREE.Mesh(new THREE.TorusGeometry(1.8, 0.25, 12, 32), stdMat(0x38bdf8, 0.3));
+      wave.rotation.x = Math.PI / 2;
+      wave.position.y = -0.9;
+      group.add(dolphin, dorsal, flukes, wave);
+      break;
+    }
+
+    case 'matter_molecules': {
+      // 3 Side-by-side crystal chambers: Solid (tight grid), Liquid (flowing), Gas (free bounce)
+      const chamberGeo = new THREE.BoxGeometry(1.1, 1.8, 1.1);
+      const chamberMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.35 });
+      [-1.5, 0, 1.5].forEach((cx, cIdx) => {
+        const box = new THREE.Mesh(chamberGeo, chamberMat);
+        box.position.set(cx, 0, 0);
+        group.add(box);
+        if (cIdx === 0) {
+          // Solid: tightly packed 2x2x2 spheres
+          for (let x = -0.25; x <= 0.25; x += 0.5) {
+            for (let y = -0.4; y <= 0.4; y += 0.4) {
+              const mol = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), stdMat(0xef4444));
+              mol.position.set(cx + x, y, 0);
+              group.add(mol);
+            }
+          }
+        } else if (cIdx === 1) {
+          // Liquid: loose spheres at bottom
+          for (let m = 0; m < 6; m++) {
+            const mol = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 12), stdMat(0x3b82f6));
+            mol.position.set(cx + (m % 3 - 1) * 0.3, -0.6 + Math.floor(m / 3) * 0.3, (m % 2) * 0.2);
+            group.add(mol);
+          }
+        } else {
+          // Gas: scattered bouncing spheres
+          const positions = [[-0.3, 0.5], [0.3, -0.4], [0, 0.2], [-0.2, -0.6]];
+          positions.forEach(([gx, gy]) => {
+            const mol = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), stdMat(0xf59e0b));
+            mol.position.set(cx + gx, gy, 0);
+            group.add(mol);
+          });
+        }
+      });
+      break;
+    }
+
+    case 'matter_change': {
+      // Heated stove base + melting ice cube + rising steam
+      const burner = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.8, 0.35, 24), stdMat(0x334155));
+      burner.position.y = -0.8;
+      const puddle = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.08, 24), stdMat(0x38bdf8, 0.1, 0.8));
+      puddle.position.y = -0.58;
+      const iceCube = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), stdMat(0xbae6fd, 0.1));
+      iceCube.rotation.y = 0.4;
+      iceCube.position.set(0, -0.1, 0);
+      // Steam puffs
+      for (let s = 0; s < 3; s++) {
+        const steam = new THREE.Mesh(new THREE.SphereGeometry(0.28, 12, 12), stdMat(0xf8fafc, 0.9));
+        steam.position.set((s - 1) * 0.35, 0.9 + s * 0.35, 0);
+        group.add(steam);
+      }
+      group.add(burner, puddle, iceCube);
+      break;
+    }
+
+    case 'matter_beaker': {
+      // Chemistry Beaker with Blue Solution & Dissolving Sugar/Salt Crystals
+      const beaker = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.0, 2.2, 24, 1, true), stdMat(0x7dd3fc, 0.1, 0.2));
+      const liquid = new THREE.Mesh(new THREE.CylinderGeometry(1.05, 0.95, 1.5, 24), stdMat(0x0284c7, 0.2, 0.6));
+      liquid.position.y = -0.3;
+      // Solute crystals at bottom
+      for (let i = 0; i < 4; i++) {
+        const crystal = new THREE.Mesh(new THREE.OctahedronGeometry(0.18, 0), stdMat(0xfacc15, 0.2, 0.8));
+        crystal.position.set((i % 2 - 0.5) * 0.5, -0.9, (Math.floor(i / 2) - 0.5) * 0.5);
+        group.add(crystal);
+      }
+      group.add(beaker, liquid);
+      break;
+    }
+
+    case 'water_cycle': {
+      // 3D Water Cycle Diorama: Ocean, River Mountain, Rising Vapor & Rain Cloud
+      const ocean = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.35, 3.2), stdMat(0x0284c7, 0.2, 0.6));
+      ocean.position.set(1.1, -0.9, 0);
+      const mtn = new THREE.Mesh(new THREE.ConeGeometry(1.5, 2.0, 4), stdMat(0x78350f, 0.7));
+      mtn.position.set(-1.1, 0.1, 0);
+      const cloud = new THREE.Mesh(new THREE.DodecahedronGeometry(0.75, 1), stdMat(0xf8fafc, 0.6));
+      cloud.position.set(0, 1.5, 0);
+      for (let d = 0; d < 4; d++) {
+        const drop = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.28, 8), stdMat(0x38bdf8));
+        drop.position.set(-0.4 + d * 0.3, 0.8 - d * 0.2, 0.3);
+        group.add(drop);
+      }
+      group.add(ocean, mtn, cloud);
+      break;
+    }
+
+    case 'weather_breeze': {
+      // Coastal Beach Shoreline Diorama with Wind Flow Arrows
+      const beach = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.4, 3.2), stdMat(0xf59e0b, 0.8));
+      beach.position.set(-1.0, -0.9, 0);
+      const sea = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.35, 3.2), stdMat(0x0284c7, 0.3));
+      sea.position.set(1.0, -0.92, 0);
+      const palm = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 1.8, 8), stdMat(0x92400e));
+      palm.position.set(-1.1, 0, 0);
+      const palmTop = new THREE.Mesh(new THREE.SphereGeometry(0.65, 8, 8), stdMat(0x16a34a));
+      palmTop.position.set(-1.1, 0.9, 0);
+      const windRing = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.08, 12, 24, Math.PI), stdMat(0x38bdf8));
+      windRing.position.set(0, 0.6, 0);
+      group.add(beach, sea, palm, palmTop, windRing);
+      break;
+    }
+
+    case 'force_magnet': {
+      // 3D Horseshoe Magnet Attracting Iron Spheres
+      const magRed = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.25, 16, 24, Math.PI / 2), stdMat(0xef4444, 0.3));
+      magRed.position.set(0, 0.4, 0);
+      const magBlue = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.25, 16, 24, Math.PI / 2), stdMat(0x2563eb, 0.3));
+      magBlue.rotation.y = Math.PI;
+      magBlue.position.set(0, 0.4, 0);
+      const ironBall1 = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 16), stdMat(0x94a3b8, 0.2, 0.9));
+      ironBall1.position.set(-0.85, -0.7, 0);
+      const ironBall2 = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), stdMat(0x94a3b8, 0.2, 0.9));
+      ironBall2.position.set(0.85, -0.75, 0);
+      group.add(magRed, magBlue, ironBall1, ironBall2);
+      break;
+    }
+
+    case 'solar_energy': {
+      // 3D Solar Panel with Glowing Bulb
+      const panel = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.12, 1.6), stdMat(0x1e3a8a, 0.2, 0.7));
+      panel.rotation.x = 0.55;
+      panel.position.set(-0.6, -0.2, 0);
+      const standS = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.2, 8), stdMat(0x64748b));
+      standS.position.set(-0.6, -0.8, -0.4);
+      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.55, 20, 20), stdMat(0xfacc15, 0.1, 0.2));
+      bulb.position.set(1.2, 0.4, 0);
+      const bulbBase = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.4, 12), stdMat(0x475569));
+      bulbBase.position.set(1.2, -0.15, 0);
+      group.add(panel, standS, bulb, bulbBase);
+      break;
+    }
+
+    case 'solar_planets': {
+      // 3D Glowing Central Sun, Earth with Moon & Ringed Saturn
+      const sun = new THREE.Mesh(new THREE.SphereGeometry(1.2, 24, 24), stdMat(0xf59e0b, 0.1, 0.3));
+      sun.position.set(-0.9, 0.3, 0);
+      const earthP = new THREE.Mesh(new THREE.SphereGeometry(0.48, 20, 20), stdMat(0x0284c7, 0.3));
+      earthP.position.set(0.95, -0.3, 0.6);
+      const saturnP = new THREE.Mesh(new THREE.SphereGeometry(0.65, 20, 20), stdMat(0xfacc15, 0.4));
+      saturnP.position.set(1.3, 0.7, -0.8);
+      const ringS = new THREE.Mesh(new THREE.TorusGeometry(1.15, 0.15, 4, 32), stdMat(0xd97706, 0.3));
+      ringS.rotation.x = Math.PI / 2.3;
+      ringS.position.set(1.3, 0.7, -0.8);
+      group.add(sun, earthP, saturnP, ringS);
+      break;
+    }
+
+    case 'grammar_stage': {
+      // 3D Parts of Speech Stage with Interlocking Word Blocks
+      const stage = new THREE.Mesh(new THREE.CylinderGeometry(2.3, 2.5, 0.35, 32), stdMat(0x1e293b));
+      stage.position.y = -1.0;
+      const bNoun = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 1.1), stdMat(0xef4444, 0.3));
+      bNoun.position.set(-1.1, -0.3, 0);
+      const bVerb = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 1.1), stdMat(0x3b82f6, 0.3));
+      bVerb.position.set(0, -0.3, 0);
+      const bAdj = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 1.1), stdMat(0x10b981, 0.3));
+      bAdj.position.set(1.1, -0.3, 0);
+      const arch = new THREE.Mesh(new THREE.TorusGeometry(1.6, 0.15, 12, 32, Math.PI), stdMat(0xfacc15));
+      arch.position.set(0, 0.35, 0);
+      group.add(stage, bNoun, bVerb, bAdj, arch);
+      break;
+    }
+
+    case 'literature_book': {
+      // 3D Open Golden Storybook, Quill Pen & Traditional Kerala Nilavilakku (ഓട്ടുവിളക്ക്)
+      const bookL = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.16, 2.0), stdMat(0xfef9c3));
+      bookL.position.set(-0.72, -0.6, 0);
+      bookL.rotation.z = -0.15;
+      const bookR = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.16, 2.0), stdMat(0xfef08a));
+      bookR.position.set(0.72, -0.6, 0);
+      bookR.rotation.z = 0.15;
+      // Nilavilakku (brass lamp)
+      const lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.55, 0.25, 16), stdMat(0xfacc15, 0.2, 0.8));
+      lampBase.position.set(1.3, -0.7, 0.7);
+      const lampStem = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.1, 12), stdMat(0xfacc15, 0.2, 0.8));
+      lampStem.position.set(1.3, -0.1, 0.7);
+      const flame = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.45, 12), stdMat(0xf97316, 0.1));
+      flame.position.set(1.3, 0.65, 0.7);
+      group.add(bookL, bookR, lampBase, lampStem, flame);
+      break;
+    }
+
+    case 'phonics_abc': {
+      // 3 Large Colorful Alphabet Toy Blocks: A (Red), B (Blue), C (Yellow) + Apple & Ball
+      const blockA = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), stdMat(0xef4444, 0.2));
+      blockA.position.set(-1.1, -0.4, 0);
+      const blockB = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), stdMat(0x3b82f6, 0.2));
+      blockB.position.set(0.2, -0.4, -0.4);
+      const blockC = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 1.1), stdMat(0xfacc15, 0.2));
+      blockC.position.set(1.3, -0.45, 0.3);
+      const toyApple = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), stdMat(0xdc2626));
+      toyApple.position.set(-1.1, 0.45, 0);
+      const toyBall = new THREE.Mesh(new THREE.SphereGeometry(0.38, 16, 16), stdMat(0x10b981));
+      toyBall.position.set(0.2, 0.45, -0.4);
+      group.add(blockA, blockB, blockC, toyApple, toyBall);
+      break;
+    }
+
+    case 'abacus_count': {
+      // 3D Kids Math Abacus with Vibrant Sliding Counting Beads
+      const aFrame = new THREE.Mesh(new THREE.BoxGeometry(3.6, 2.6, 0.35), stdMat(0x92400e));
+      aFrame.position.set(0, 0.2, 0);
+      const cutout = new THREE.Mesh(new THREE.BoxGeometry(3.1, 2.1, 0.4), stdMat(0x0f172a));
+      cutout.position.set(0, 0.2, 0);
+      // Rods & beads
+      const beadColors = [0xef4444, 0x10b981, 0x3b82f6, 0xfacc15, 0xec4899];
+      for (let r = 0; r < 4; r++) {
+        const ry = -0.5 + r * 0.45;
+        const wire = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 3.2, 8), stdMat(0xe2e8f0));
+        wire.rotation.z = Math.PI / 2;
+        wire.position.set(0, ry, 0);
+        group.add(wire);
+        for (let b = 0; b < 5; b++) {
+          const bead = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.1, 12, 16), stdMat(beadColors[(r + b) % beadColors.length]));
+          bead.rotation.y = Math.PI / 2;
+          bead.position.set(-1.1 + b * 0.45, ry, 0);
+          group.add(bead);
+        }
+      }
+      group.add(aFrame);
+      break;
+    }
+
+    case 'ukg_senses': {
+      // 3D Senses Organ Display: Big Eyes, Sniffing Nose, Cute Ears & Waving Hand
+      const faceDisc = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, 0.2, 32), stdMat(0xfef08a, 0.4));
+      faceDisc.rotation.x = Math.PI / 2;
+      faceDisc.position.set(0, 0.2, 0);
+      const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), stdMat(0x0284c7));
+      eyeL.position.set(-0.55, 0.5, 0.25);
+      const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), stdMat(0x0284c7));
+      eyeR.position.set(0.55, 0.5, 0.25);
+      const noseU = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.45, 12), stdMat(0xf97316));
+      noseU.position.set(0, 0.15, 0.35);
+      const hand = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.85, 0.18), stdMat(0xf472b6));
+      hand.position.set(1.4, 0.8, 0.2);
+      group.add(faceDisc, eyeL, eyeR, noseU, hand);
       break;
     }
 

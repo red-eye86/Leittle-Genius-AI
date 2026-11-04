@@ -93,13 +93,11 @@ function World3DContent() {
     const subTbs = textbooks.filter((tb) => tb.subjectId === subId);
     const chaps = subTbs.flatMap((tb) => tb.chapters || []);
     setSelectedChapterId(chaps[0]?.id || '');
-    setActiveZone('chapter3d');
   };
 
   const handleChapterSelect = (chapId: string) => {
     soundEffects.playPop();
     setSelectedChapterId(chapId);
-    setActiveZone('chapter3d');
   };
 
   const zones = [
@@ -262,7 +260,16 @@ function World3DContent() {
             {activeZone === 'science' && <SolarSystem3D />}
             {activeZone === 'math' && <MathBlocks3D isUKG={isUKG} />}
             {activeZone === 'english' && <AlphabetWorld3D />}
-            {activeZone === 'classroom' && <Classroom3D />}
+            {activeZone === 'classroom' && (
+              <Classroom3D
+                chapter={activeChapter}
+                subject={activeSubject}
+                subjects={subjects}
+                chapters={subjectChapters}
+                onSelectSubject={handleSubjectSelect}
+                onSelectChapter={handleChapterSelect}
+              />
+            )}
           </>
         )}
       </div>

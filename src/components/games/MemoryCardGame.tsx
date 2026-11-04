@@ -62,6 +62,28 @@ function emojiForTerm(term: string, idx: number): string {
   if (t.includes('dog')) return '🐶';
   if (t.includes('elephant')) return '🐘';
   if (t.includes('umbrella')) return '☂️';
+  // Coding & AI
+  if (t.includes('bit') || t.includes('byte') || t.includes('ram') || t.includes('rom') || t.includes('memory') || t.includes('disk')) return '💾';
+  if (t.includes('robot') || t.includes('ai') || t.includes('sensor')) return '🤖';
+  if (t.includes('code') || t.includes('program') || t.includes('loop') || t.includes('algorithm') || t.includes('flowchart') || t.includes('sprite')) return '💻';
+  if (t.includes('window') || t.includes('desktop') || t.includes('folder') || t.includes('file')) return '📁';
+  // Moral & Values
+  if (t.includes('gratitude') || t.includes('prayer') || t.includes('bless')) return '🙏';
+  if (t.includes('kind') || t.includes('love') || t.includes('heart') || t.includes('peace') || t.includes('care')) return '❤️';
+  if (t.includes('truth') || t.includes('honest') || t.includes('courage')) return '🛡️';
+  if (t.includes('friend') || t.includes('family') || t.includes('share') || t.includes('help')) return '🤝';
+  // English Literature
+  if (t.includes('garden') || t.includes('flower') || t.includes('rose')) return '🌹';
+  if (t.includes('key')) return '🗝️';
+  if (t.includes('king') || t.includes('prince') || t.includes('queen') || t.includes('palace')) return '👑';
+  if (t.includes('magic') || t.includes('fairy')) return '🪄';
+  if (t.includes('book') || t.includes('story') || t.includes('poem')) return '📖';
+  // Hindi
+  if (t.includes('पर्वत') || t.includes('शीश') || t.includes('पहाड़')) return '🏔️';
+  if (t.includes('सागर') || t.includes('तरंग') || t.includes('नदी')) return '🌊';
+  if (t.includes('बीरबल') || t.includes('अकबर') || t.includes('राजा')) return '👑';
+  if (t.includes('खटोला') || t.includes('हवाई') || t.includes('उड़न')) return '🪶';
+  if (t.includes('पेड़') || t.includes('वृक्ष')) return '🌳';
   const pool = ['🌟', '🎯', '🚀', '🧩', '🏆', '💡', '🦋', '🐬'];
   return pool[idx % pool.length];
 }

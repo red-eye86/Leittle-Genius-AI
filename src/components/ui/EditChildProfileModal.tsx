@@ -5,6 +5,7 @@ import { X, Upload, Check, Camera, Sparkles, User, Palette } from 'lucide-react'
 import { ChildProfile, ClassGrade } from '@/lib/db/types';
 import { useApp } from '@/lib/context/AppContext';
 import { soundEffects } from '@/lib/audio/soundEffects';
+import { applyChildTheme } from '@/lib/theme/childTheme';
 import KidAvatar from './KidAvatar';
 
 interface EditChildProfileModalProps {
@@ -139,7 +140,10 @@ export default function EditChildProfileModal({
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
       <div className="bg-white rounded-5xl p-6 sm:p-8 max-w-lg w-full border-4 border-indigo-400 shadow-2xl relative my-8">
         <button
-          onClick={onClose}
+          onClick={() => {
+            applyChildTheme(child.themeColor);
+            onClose();
+          }}
           className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1 rounded-xl transition"
         >
           <X className="w-6 h-6" />
@@ -277,9 +281,13 @@ export default function EditChildProfileModal({
                 <button
                   key={col.hex}
                   type="button"
-                  onClick={() => setThemeColor(col.hex)}
+                  onClick={() => {
+                    soundEffects.playPop();
+                    setThemeColor(col.hex);
+                    applyChildTheme(col.hex);
+                  }}
                   className={`w-8 h-8 rounded-full border-2 transition-transform ${
-                    themeColor === col.hex ? 'scale-125 border-slate-800 shadow-md' : 'border-white'
+                    themeColor === col.hex ? 'scale-125 border-slate-900 shadow-md ring-2 ring-white' : 'border-white hover:scale-110'
                   }`}
                   style={{ backgroundColor: col.hex }}
                   title={col.name}
@@ -321,7 +329,10 @@ export default function EditChildProfileModal({
           <div className="flex items-center justify-end space-x-3 pt-3">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => {
+                applyChildTheme(child.themeColor);
+                onClose();
+              }}
               className="px-5 py-2.5 rounded-2xl font-bold text-xs text-slate-500 hover:bg-slate-100 transition"
             >
               Cancel

@@ -65,7 +65,7 @@ function GamesArenaContent() {
         }
       })
       .catch(() => {});
-  }, [activeChild?.id, queryChapterId, querySubjectId]);
+  }, [activeChild?.id, activeChild?.classGrade, queryChapterId, querySubjectId]);
 
   const subjectChapters: TextbookChapter[] = textbooks
     .filter((tb) => !selectedSubjectId || tb.subjectId === selectedSubjectId)
@@ -187,7 +187,7 @@ function GamesArenaContent() {
       </div>
 
       {/* Subject & Chapter Selector for the Active Child Profile */}
-      {subjects.length > 0 && (
+      {subjects.length > 0 ? (
         <div className="bg-white rounded-3xl p-4 sm:p-5 border-2 border-pink-100 shadow-sm space-y-4">
           {/* 1. Subject Tabs */}
           <div>
@@ -251,6 +251,20 @@ function GamesArenaContent() {
               </div>
             </div>
           )}
+        </div>
+      ) : (
+        <div className="bg-white rounded-3xl p-8 border-2 border-pink-100 text-center space-y-3">
+          <p className="text-sm font-bold text-slate-600">
+            {language === 'ml'
+              ? `${activeChild?.classGrade} സിലബസിനായി പാഠപുസ്തകങ്ങൾ അപ്‌ലോഡ് ചെയ്തിട്ടില്ല.`
+              : `No curriculum uploaded yet for ${activeChild?.classGrade}.`}
+          </p>
+          <button
+            onClick={() => router.push('/parent/syllabus')}
+            className="px-5 py-2 rounded-2xl bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs transition"
+          >
+            Upload School Textbooks
+          </button>
         </div>
       )}
 

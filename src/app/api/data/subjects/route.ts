@@ -4,7 +4,8 @@ import { Subject } from '@/lib/db/types';
 
 export async function GET(req: NextRequest) {
   const childId = req.nextUrl.searchParams.get('childId') || undefined;
-  const subjects = getSubjects(childId);
+  const classGrade = req.nextUrl.searchParams.get('classGrade') || undefined;
+  const subjects = getSubjects(childId, classGrade);
   return NextResponse.json({ subjects });
 }
 

@@ -17,14 +17,16 @@ import {
 } from 'lucide-react';
 import { useApp } from '@/lib/context/AppContext';
 import { soundEffects } from '@/lib/audio/soundEffects';
-import { Quiz, QuizQuestion } from '@/lib/db/types';
+import { Quiz, QuizQuestion, Textbook } from '@/lib/db/types';
 
 function QuizContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const chapterId = searchParams.get('chapterId') || 'chap-c4-sci-1';
+  const queryChapterId = searchParams.get('chapterId');
   const { activeChild, language, t, speak, addStars } = useApp();
 
+  const [resolvedChapterId, setResolvedChapterId] = useState<string>(queryChapterId || '');
+  const [noChaptersFound, setNoChaptersFound] = useState(false);
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -34,15 +36,43 @@ function QuizContent() {
   const [isCompleted, setIsCompleted] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Resolve chapter matching active child's classGrade
   useEffect(() => {
     if (!activeChild) return;
+
+    fetch(`/api/data/textbooks?childId=${activeChild.id}`)
+      .then((r) => r.json())
+      .then((data) => {
+        const books = (data.textbooks || []) as Textbook[];
+        const allChaps = books.flatMap((b) => b.chapters || []);
+
+        const matchingChap = queryChapterId ? allChaps.find((c) => c.id === queryChapterId) : null;
+        if (matchingChap) {
+          setResolvedChapterId(matchingChap.id);
+          setNoChaptersFound(false);
+        } else if (allChaps.length > 0) {
+          setResolvedChapterId(allChaps[0].id);
+          setNoChaptersFound(false);
+        } else {
+          setResolvedChapterId('');
+          setNoChaptersFound(true);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, [activeChild?.id, activeChild?.classGrade, queryChapterId]);
+
+  useEffect(() => {
+    if (!activeChild || !resolvedChapterId) return;
     setLoading(true);
 
     fetch('/api/quiz/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        chapterId,
+        chapterId: resolvedChapterId,
         childId: activeChild.id,
       }),
     })
@@ -57,7 +87,7 @@ function QuizContent() {
         console.error(err);
         setLoading(false);
       });
-  }, [activeChild, chapterId]);
+  }, [activeChild?.id, activeChild?.classGrade, resolvedChapterId]);
 
   if (!activeChild) return null;
 
@@ -163,9 +193,25 @@ function QuizContent() {
             {language === 'ml' ? 'ക്വിസ് തയ്യാറാക്കുന്നു...' : 'Preparing textbook quiz questions...'}
           </p>
         </div>
-      ) : !quiz || quiz.questions.length === 0 ? (
-        <div className="bg-white rounded-4xl p-12 text-center border-2 border-slate-200">
-          <p className="text-lg font-bold text-slate-600">No quiz questions available.</p>
+      ) : noChaptersFound || !quiz || quiz.questions.length === 0 ? (
+        <div className="bg-white rounded-4xl p-12 text-center border-2 border-amber-200 space-y-4">
+          <div className="text-5xl">🏆</div>
+          <h3 className="text-xl font-black text-slate-800">
+            {language === 'ml'
+              ? `${activeChild.classGrade} സിലബസിനായി ക്വിസ് ചോദ്യങ്ങൾ ലഭ്യമല്ല`
+              : `No quiz questions available yet for ${activeChild.classGrade}`}
+          </h3>
+          <p className="text-sm text-slate-500 max-w-md mx-auto">
+            {language === 'ml'
+              ? 'പാരന്റ് സോണിൽ നിന്ന് നിങ്ങളുടെ സ്കൂൾ പാഠപുസ്തകങ്ങൾ അപ്‌ലോഡ് ചെയ്യുമ്പോൾ ക്വിസുകൾ ഇവിടെ ലഭ്യമാകും.'
+              : 'Upload textbooks under this class/grade in the Parent Zone to unlock chapter quizzes!'}
+          </p>
+          <button
+            onClick={() => router.push('/parent/syllabus')}
+            className="px-6 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-md transition"
+          >
+            Upload School Textbooks
+          </button>
         </div>
       ) : isCompleted ? (
         /* Quiz Complete Screen */

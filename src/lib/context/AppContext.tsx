@@ -5,6 +5,7 @@ import { ChildProfile, Language } from '../db/types';
 import { translations, getTranslation } from '../i18n/translations';
 import { speakText, stopSpeaking } from '../audio/tts';
 import { soundEffects } from '../audio/soundEffects';
+import { applyChildTheme } from '../theme/childTheme';
 
 interface AppContextType {
   activeChild: ChildProfile | null;
@@ -115,6 +116,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   const activeChild = allChildren.find((c) => c.id === activeChildId) || allChildren[0] || null;
+
+  useEffect(() => {
+    if (activeChild?.themeColor) {
+      applyChildTheme(activeChild.themeColor);
+    }
+  }, [activeChild?.themeColor]);
 
   const t = (key: keyof typeof translations['en']): string => {
     return getTranslation(language, key);

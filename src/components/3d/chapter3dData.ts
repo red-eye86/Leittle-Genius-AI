@@ -33,6 +33,35 @@ export interface TopicDetail {
   funFactEn: string;
   funFactMl: string;
   modelType:
+    | 'carbs_energy'
+    | 'proteins_body'
+    | 'vitamins_protect'
+    | 'food_pyramid'
+    | 'food_preservation'
+    | 'tooth_jaw'
+    | 'tooth_cross_section'
+    | 'digestive_system'
+    | 'leaf_photosynthesis'
+    | 'plant_cactus'
+    | 'plant_pine'
+    | 'plant_lotus'
+    | 'animal_camel'
+    | 'animal_polar'
+    | 'animal_aquatic'
+    | 'matter_molecules'
+    | 'matter_change'
+    | 'matter_beaker'
+    | 'water_cycle'
+    | 'weather_breeze'
+    | 'water_filter'
+    | 'force_magnet'
+    | 'solar_energy'
+    | 'solar_planets'
+    | 'grammar_stage'
+    | 'literature_book'
+    | 'phonics_abc'
+    | 'abacus_count'
+    | 'ukg_senses'
     | 'monument'
     | 'coins'
     | 'scroll'
@@ -352,37 +381,480 @@ export function getTopicDetail(
     };
   }
 
-  // Teeth & Digestion
-  if (tLower.includes('teeth') || tLower.includes('tooth') || tLower.includes('incisor') || tLower.includes('digest')) {
+  // Science Ch 1: Food & Nutrition - Distinct Topic Models
+  if (tLower.includes('carbohydrate') || tLower.includes('energy-giving') || (tLower.includes('fat') && !tLower.includes('adaptation'))) {
     return {
       index,
       title: topic,
-      shortLabel: '3D Tooth & Digestion',
+      shortLabel: 'Carbohydrates & Fats',
+      emoji: '🍞',
+      explanationEn:
+        'Carbohydrates (Rice, Wheat, Bread, Potatoes, Bananas) give us immediate energy to run, jump, think and study! Healthy fats (Butter, Ghee, Olive Oil, Nuts) store concentrated energy and keep our bodies warm.',
+      explanationMl:
+        'ശരീരത്തിന് വേഗത്തിൽ പ്രവർത്തിക്കാൻ ആവശ്യമായ ഊർജ്ജം നൽകുന്നത് കാർബോഹൈഡ്രേറ്റുകളും (അരി, ഗോതമ്പ്, കിഴങ്ങുകൾ) കൊഴുപ്പുകളുമാണ് (നെയ്യ്, വെണ്ണ, പരിപ്പുകൾ).',
+      funFactEn: '3D Model: Inspect the 3D Crusty Bread Loaf, Steaming Rice Bowl & Potato!',
+      funFactMl: '3D മോഡൽ: ഊർജ്ജം നൽകുന്ന 3D ധാന്യങ്ങളും റൊട്ടിയും ഉരുളക്കിഴങ്ങും കാണാം!',
+      modelType: 'carbs_energy',
+    };
+  }
+
+  if (tLower.includes('protein') || tLower.includes('body-building')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Proteins (Body-Building)',
+      emoji: '🥛',
+      explanationEn:
+        'Proteins are the body-building blocks that help children grow taller, build strong muscles, and repair skin and cuts! Rich protein sources include Milk, Cheese, Eggs, Pulses (Dal), Fish, and Paneer.',
+      explanationMl:
+        'കുട്ടികളുടെ വളർച്ചയ്ക്കും പേശികളുടെയും കോശങ്ങളുടെയും പുനർനിർമ്മാണത്തിനും പ്രോട്ടീനുകൾ (പാൽ, മുട്ട, പരിപ്പുവർഗ്ഗങ്ങൾ, മത്സ്യം) അത്യാവശ്യമാണ്.',
+      funFactEn: '3D Model: Rotate the 3D Milk Carton, Fresh Egg, Fish & Protein Pulses Bowl!',
+      funFactMl: '3D മോഡൽ: വളർച്ചയ്ക്ക് സഹായിക്കുന്ന പാലും മുട്ടയും മീനും പരിപ്പും 3D-യിൽ!',
+      modelType: 'proteins_body',
+    };
+  }
+
+  if (tLower.includes('vitamin') || tLower.includes('mineral') || tLower.includes('protective')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Vitamins & Minerals',
+      emoji: '🍎',
+      explanationEn:
+        'Vitamins (A, B, C, D, E, K) and Minerals (Calcium for strong bones, Iron for red blood) are Protective Foods! They protect our eyes, skin, and teeth, and build our immune shield against illnesses.',
+      explanationMl:
+        'രോഗങ്ങളിൽ നിന്ന് സംരക്ഷണം നൽകുന്ന ജീവകങ്ങളും (Vitamins) എല്ലുകൾക്ക് കരുത്തേകുന്ന കാൽസ്യവും ഇരുമ്പും പഴങ്ങളിലും പച്ചക്കറികളിലുമാണ് ധാരാളമുള്ളത്.',
+      funFactEn: '3D Model: Explore the 3D Crunchy Red Apple, Citrus Orange, Carrot & Fresh Broccoli!',
+      funFactMl: '3D മോഡൽ: രോഗപ്രതിരോധം നൽകുന്ന 3D ആപ്പിളും ക്യാരറ്റും പഴങ്ങളും!',
+      modelType: 'vitamins_protect',
+    };
+  }
+
+  if (tLower.includes('pyramid') || (tLower.includes('balanced') && tLower.includes('diet'))) {
+    return {
+      index,
+      title: topic,
+      shortLabel: '3D Food Pyramid',
+      emoji: '🥗',
+      explanationEn:
+        'A Balanced Diet gives our body all 5 essential nutrients in the right proportions! The 3D Food Pyramid shows: Eat mostly grains at the base, plenty of fruits/veggies, moderate dairy/proteins, and only a tiny pinch of oils/sweets on top!',
+      explanationMl:
+        'ശരിയായ അളവിൽ എല്ലാ പോഷകങ്ങളും നൽകുന്ന ഭക്ഷണക്രമമാണ് സമീകൃതാഹാരം. ഫുഡ് പിരമിഡിൽ ധാന്യങ്ങൾ ഏറ്റവും അടിയിലും മധുരവും എണ്ണയും ഏറ്റവും മുകളിലും അടങ്ങിയിരിക്കുന്നു.',
+      funFactEn: '3D Model: Rotate the 4-Tier Glowing 3D Balanced Food Pyramid!',
+      funFactMl: '3D മോഡൽ: നാല് തട്ടുകളുള്ള 3D ഫുഡ് പിരമിഡ് കറക്കി നോക്കൂ!',
+      modelType: 'food_pyramid',
+    };
+  }
+
+  if (tLower.includes('preservation') || tLower.includes('drying') || tLower.includes('freezing') || tLower.includes('salting')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Food Preservation',
+      emoji: '❄️',
+      explanationEn:
+        'Food Preservation stops germs from spoiling delicious food! Methods include: 1) Freezing / Cold Storage in refrigerators, 2) Sun Drying (raisins, fish), 3) Salting (traditional Kerala pickles in Bharani jars), 4) Sweetening with sugar syrup (jams), and 5) Boiling & Canning.',
+      explanationMl:
+        'ഭക്ഷണം കേടാകാതെ സൂക്ഷിക്കുന്ന രീതികൾ: തണുപ്പിക്കൽ (Freezing), വെയിലിൽ ഉണക്കൽ (Drying), ഉപ്പിലിടൽ (Salting - ഭരണിയിലെ അച്ചാറുകൾ), തിളപ്പിക്കൽ (Boiling).',
+      funFactEn: '3D Model: Inspect the 3D Ice-Cooled Refrigerator, Drying Rack & Ceramic Pickle Jar!',
+      funFactMl: '3D മോഡൽ: ഫ്രിഡ്ജും വെയിലിൽ ഉണക്കൽ മാതൃകയും പരമ്പരാഗത അച്ചാർ ഭരണിയും!',
+      modelType: 'food_preservation',
+    };
+  }
+
+  // Science Ch 2: Teeth & Digestion - Distinct Topic Models
+  if (tLower.includes('incisor') || tLower.includes('canine') || tLower.includes('premolar') || tLower.includes('molar') || tLower.includes('type of teeth') || tLower.includes('sets of teeth')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: '4 Types of Teeth',
       emoji: '🦷',
       explanationEn:
-        'Humans have 4 types of teeth: 8 flat Incisors (for biting/cutting), 4 sharp Canines (for tearing), 8 broad Premolars (for cracking), and 12 big Molars (for grinding food). Every tooth has a hard white outer Enamel crown, Dentine layer, and inner Pulp with nerves!',
+        'Children have 20 Milk Teeth, and adults have 32 Permanent Teeth! We have 4 specialized tooth tools in our jaw: 8 sharp chisel Incisors (biting), 4 pointed Canines (tearing), 8 broad Premolars (crushing), and 12 strong Molars (grinding)!',
       explanationMl:
-        'മനുഷ്യരിൽ 4 തരം പല്ലുകളുണ്ട്: കടിച്ചുമുറിക്കാൻ ഉളിപ്പല്ലുകൾ (Incisors), കീറിമുറിക്കാൻ ദംഷ്ട്രകൾ (Canines), ചവച്ചരയ്ക്കാൻ അഗ്രചർവണകങ്ങളും ചർവണകങ്ങളും (Premolars & Molars). പല്ലിന്റെ പുറംപാളിയാണ് Enamel.',
-      funFactEn: '3D Model: Rotate the 3D Molar Tooth Crown, Roots & Enamel Cross-Section!',
-      funFactMl: '3D മോഡൽ: പല്ലിന്റെ ക്രൗൺ, ഇനാമൽ, വേരുകൾ എന്നിവയുടെ 3D മോഡൽ!',
+        'മനുഷ്യന്റെ താടിയെല്ലിൽ 4 തരം പല്ലുകളുണ്ട്: കടിച്ചുമുറിക്കാൻ ഉളിപ്പല്ലുകൾ (Incisors), കീറിമുറിക്കാൻ ദംഷ്ട്രകൾ (Canines), ചവച്ചരയ്ക്കാൻ അഗ്രചർവണകങ്ങളും ചർവണകങ്ങളും (Premolars & Molars).',
+      funFactEn: '3D Model: Rotate the 3D Dental Jaw Arch showing Incisors, Canines & Molars!',
+      funFactMl: '3D മോഡൽ: താടിയെല്ലിലെ 4 തരം പല്ലുകളുടെ 3D മാതൃക!',
+      modelType: 'tooth_jaw',
+    };
+  }
+
+  if (tLower.includes('structure') || tLower.includes('enamel') || tLower.includes('dentine') || tLower.includes('pulp')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Tooth Enamel & Pulp',
+      emoji: '✨',
+      explanationEn:
+        'A tooth has 2 main parts: the visible Crown above the gum and the Root anchored in the jawbone! Inside: 1) Enamel (hardest white substance in the human body!), 2) Dentine (yellow bone-like layer), and 3) Pulp (soft inner chamber with blood vessels & sensitive nerves).',
+      explanationMl:
+        'പല്ലിന്റെ പുറമെയുള്ള കടുപ്പമേറിയ വെളുത്ത പാളിയാണ് ഇനാമൽ (Enamel). അതിനടിയിലുള്ള മഞ്ഞ പാളിയാണ് ഡെന്റൈൻ (Dentine). രക്തക്കുഴലുകളും ഞരമ്പുകളുമുള്ള ഉൾഭാഗമാണ് പൾപ്പ് (Pulp).',
+      funFactEn: '3D Model: Inspect the Split 3D Tooth Cross-Section with Enamel, Dentine & Red Nerve Pulp!',
+      funFactMl: '3D മോഡൽ: ഇനാമലും പൾപ്പും ഞരമ്പുകളും വ്യക്തമായി കാണിക്കുന്ന പല്ലിന്റെ 3D പരിച്ഛേദം!',
+      modelType: 'tooth_cross_section',
+    };
+  }
+
+  if (tLower.includes('digestive system') || tLower.includes('stomach') || tLower.includes('journey of food') || tLower.includes('intestine')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Digestive Journey',
+      emoji: '🫀',
+      explanationEn:
+        'Digestion turns tasty food into energy! The journey: 1) Mouth (chewed & mixed with saliva), 2) Food Pipe (Esophagus), 3) Stomach (churned with digestive juices into soup), 4) Small Intestine (nutrients absorbed into blood), 5) Large Intestine (water absorbed) and waste excreted!',
+      explanationMl:
+        'ഭക്ഷണം വായിൽ വെച്ച് ചവച്ചരച്ച് ആഹാരക്കുഴൽ വഴി ആമാശയത്തിലും (Stomach) ചെറുകുടലിലും (Small Intestine) എത്തി പോഷകങ്ങൾ രക്തത്തിലേക്ക് ആഗിരണം ചെയ്യുന്ന പ്രക്രിയയാണ് ദഹനം.',
+      funFactEn: '3D Model: Follow the 3D Digestive Track — Mouth → Stomach → Liver → Intestines!',
+      funFactMl: '3D മോഡൽ: ആമാശയവും കുടലുകളും അടങ്ങിയ 3D ദഹനവ്യവസ്ഥ!',
+      modelType: 'digestive_system',
+    };
+  }
+
+  if (tLower.includes('hygiene') || tLower.includes('dental care') || tLower.includes('plaque') || tLower.includes('cavity') || tLower.includes('brush')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Dental Care & Brush',
+      emoji: '🪥',
+      explanationEn:
+        'Brush teeth twice a day—morning and before bedtime! Sticky sugar left on teeth feeds bacteria that make acid, leading to yellow Plaque and Tooth Decay (Cavities). Rinse your mouth thoroughly after every meal!',
+      explanationMl:
+        'ദിവസവും രണ്ട് നേരം പല്ല് തേയ്ക്കണം! മധുരപലഹാരങ്ങൾ പല്ലിൽ പറ്റിപ്പിടിച്ചിരുന്നാൽ ബാക്ടീരിയകൾ ആസിഡ് ഉല്പാദിപ്പിച്ച് പല്ലിൽ പോടുകൾ (Cavities) ഉണ്ടാക്കുന്നു.',
+      funFactEn: '3D Model: Inspect the Sparkling 3D Tooth, Soft Bristle Toothbrush & Toothpaste Tube!',
+      funFactMl: '3D മോഡൽ: തിളങ്ങുന്ന പല്ലും ടൂത്ത്ബ്രഷും പേസ്റ്റും 3D-യിൽ!',
       modelType: 'tooth',
     };
   }
 
-  // Nutrition & Food
-  if (tLower.includes('carbohydrate') || tLower.includes('protein') || tLower.includes('vitamin') || tLower.includes('diet') || tLower.includes('food')) {
+  // Science Ch 3: Plant Adaptations & Photosynthesis
+  if (tLower.includes('photosynthesis') || tLower.includes('chloroplast') || tLower.includes('stomata')) {
     return {
       index,
       title: topic,
-      shortLabel: 'Balanced Diet 3D',
-      emoji: '🥗',
+      shortLabel: 'Photosynthesis Cell',
+      emoji: '🍃',
       explanationEn:
-        'A Balanced Diet gives our body all 5 essential nutrients in the right amount: Carbohydrates & Fats (energy-giving rice, wheat, butter), Proteins (body-building milk, pulses, eggs, fish), and Vitamins & Minerals (protective fresh fruits and green vegetables) plus plenty of water!',
+        'Inside green plant leaves, millions of tiny solar power kitchens called Chloroplasts trap sunlight energy! Leaves take in Carbon Dioxide through microscopic pores called Stomata and water from roots, baking glucose sugar and releasing fresh Oxygen!',
       explanationMl:
-        'ശരീരത്തിന് ആവശ്യമായ കാർബോഹൈഡ്രേറ്റ് (ഊർജ്ജം), പ്രോട്ടീൻ (വളർച്ചയ്ക്ക്), വിറ്റാമിനുകളും ധാതുക്കളും (രോഗപ്രതിരോധത്തിന്), നാരുകൾ, ജലം എന്നിവ ശരിയായ അളവിൽ അടങ്ങിയതാണ് സമീകൃതാഹാരം (Balanced Diet).',
-      funFactEn: '3D Model: Explore the 3D Balanced Nutrition Plate & Food Pyramid!',
-      funFactMl: '3D മോഡൽ: സമീകൃതാഹാര പ്ലേറ്റും ഫുഡ് പിരമിഡും 3D-യിൽ!',
-      modelType: 'food_plate',
+        'ഇലകളിലെ ഹരിതകണങ്ങൾ (Chloroplasts) സൂര്യപ്രകാശം ആഗിരണം ചെയ്ത് ജലവും കാർബൺ ഡൈ ഓക്സൈഡും ചേർത്ത് അന്നജം നിർമ്മിക്കുകയും ഓക്സിജൻ പുറത്തുവിടുകയും ചെയ്യുന്നു.',
+      funFactEn: '3D Model: Inspect the 3D Green Leaf with Sun Rays, Chloroplast Cells & Oxygen Bubbles!',
+      funFactMl: '3D മോഡൽ: സൂര്യപ്രകാശവും ഓക്സിജൻ കണികകളുമുള്ള ഇലയുടെ 3D പ്രകാശസംശ്ലേഷണ മാതൃക!',
+      modelType: 'leaf_photosynthesis',
+    };
+  }
+
+  if (tLower.includes('desert plant') || tLower.includes('cactus') || tLower.includes('desert adaptation')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Desert Cactus',
+      emoji: '🌵',
+      explanationEn:
+        'Cactus plants survive the hottest deserts! Their leaves are reduced to sharp Thorns (spines) to prevent water loss and protect from animals. Their thick, fleshy green stem stores gallons of water and carries out photosynthesis!',
+      explanationMl:
+        'മരുഭൂമിയിലെ കള്ളിമുൾച്ചെടികൾക്ക് (Cactus) ഇലകൾക്ക് പകരം മുള്ളുകളാണുള്ളത്. ഇവയുടെ തടിച്ച പച്ച തണ്ട് ജലം സംഭരിക്കുകയും ആഹാരം നിർമ്മിക്കുകയും ചെയ്യുന്നു.',
+      funFactEn: '3D Model: Rotate the 3D Desert Saguaro Cactus on Sandy Dune Base!',
+      funFactMl: '3D മോഡൽ: മണൽക്കുന്നിൽ നിൽക്കുന്ന മരുഭൂമിയിലെ 3D കള്ളിമുൾച്ചെടി!',
+      modelType: 'plant_cactus',
+    };
+  }
+
+  if (tLower.includes('mountain plant') || tLower.includes('pine') || tLower.includes('conifer')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Mountain Pine Tree',
+      emoji: '🌲',
+      explanationEn:
+        'Coniferous trees (Pine, Fir, Deodar, Spruce) growing on cold snowy mountains have conical shapes with sloping branches so heavy snow slides right off! Instead of flowers, they have woody cones, and their leaves are tough, waxy needles.',
+      explanationMl:
+        'പർവ്വതങ്ങളിലെ പൈൻ മരങ്ങൾക്ക് കോൺ ആകൃതിയിലുള്ള ശാഖകളാണുള്ളത്. ഇത് മഞ്ഞ് അടിഞ്ഞുകൂടാതെ താഴേക്ക് വീഴാൻ സഹായിക്കുന്നു. ഇവയ്ക്ക് സൂചിപോലെയുള്ള ഇലകളാണുള്ളത്.',
+      funFactEn: '3D Model: Explore the Snow-Dusted 3D Coniferous Pine Tree & Woody Cones!',
+      funFactMl: '3D മോഡൽ: മഞ്ഞുപെയ്ത മലനിരകളിലെ 3D പൈൻ മരം!',
+      modelType: 'plant_pine',
+    };
+  }
+
+  if (tLower.includes('water lily') || tLower.includes('lotus') || tLower.includes('aquatic plant')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Aquatic Water Lily',
+      emoji: '🪷',
+      explanationEn:
+        'Aquatic plants (Lotus, Water Lily, Hydrilla) thrive in lakes and ponds! They have wide, flat, waxy leaves that float on the water surface without rotting, with stomata on the upper surface and light, spongy stems filled with air spaces.',
+      explanationMl:
+        'താമരയും ആമ്പലും ജലത്തിൽ ജീവിക്കുന്ന സസ്യങ്ങളാണ്. ജലത്തിന് മുകളിൽ പൊങ്ങിക്കിടക്കാൻ ഇവയുടെ ഇലകളിൽ മെഴുക് പാളിയും തണ്ടുകളിൽ വായു അറകളും ഉണ്ട്.',
+      funFactEn: '3D Model: Watch the 3D Floating Lily Pad, Pink Lotus Flower & Air Stem!',
+      funFactMl: '3D മോഡൽ: വെള്ളത്തിൽ വിരിഞ്ഞുനിൽക്കുന്ന 3D താമരപ്പൂവും ഇലയും!',
+      modelType: 'plant_lotus',
+    };
+  }
+
+  // Science Ch 4: Animal Adaptations
+  if (tLower.includes('camel') || tLower.includes('desert animal')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Desert Camel',
+      emoji: '🐪',
+      explanationEn:
+        'The Camel is called the "Ship of the Desert"! It stores rich fat in its Hump for energy when food is scarce, has wide padded hooves that never sink in desert sand, long eyelashes to keep sand out, and can survive days without drinking water!',
+      explanationMl:
+        'ഒട്ടകത്തിന് മണലിൽ ആണ്ടുപോകാത്ത പരന്ന കാൽപാദങ്ങളും, കൊഴുപ്പ് സംഭരിക്കുന്ന പൂഞ്ഞയും (Hump), മണലിൽ നിന്ന് സംരക്ഷിക്കാൻ നീളമുള്ള കൺപീലികളും ഉണ്ട്.',
+      funFactEn: '3D Model: Rotate the 3D Desert Camel with Hump & Padded Feet on Dunes!',
+      funFactMl: '3D മോഡൽ: മരുഭൂമിയിലെ ഒട്ടകത്തിന്റെ 3D മാതൃക കറക്കി കാണാം!',
+      modelType: 'animal_camel',
+    };
+  }
+
+  if (tLower.includes('polar') || tLower.includes('penguin') || tLower.includes('bear') || tLower.includes('arctic')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Polar Iceberg Life',
+      emoji: '🐻‍❄️',
+      explanationEn:
+        'Polar Bears and Penguins thrive in freezing icy polar zones! They have a thick layer of fat under their skin called Blubber and dense waterproof fur or tightly overlapping feathers to lock in body warmth.',
+      explanationMl:
+        'ധ്രുവക്കരടികൾക്കും പെൻഗ്വിനുകൾക്കും കൊടുംതണുപ്പിൽ നിന്ന് രക്ഷനേടാൻ ചർമ്മത്തിനടിയിൽ കട്ടിയുള്ള കൊഴുപ്പ് പാളിയും (Blubber) വാട്ടർപ്രൂഫ് രോമങ്ങളുമുണ്ട്.',
+      funFactEn: '3D Model: Explore the 3D Polar Bear & Emperor Penguin on Floating Iceberg!',
+      funFactMl: '3D മോഡൽ: മഞ്ഞുമലയിൽ നിൽക്കുന്ന ധ്രുവക്കരടിയും പെൻഗ്വിനും 3D-യിൽ!',
+      modelType: 'animal_polar',
+    };
+  }
+
+  if (tLower.includes('aquatic animal') || tLower.includes('fish') || tLower.includes('dolphin') || tLower.includes('gills')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Aquatic Dolphin Life',
+      emoji: '🐬',
+      explanationEn:
+        'Water animals have streamlined spindle-shaped bodies that cut smoothly through water! Fishes use Gills to breathe dissolved oxygen and fins to steer, while playful Dolphins use blowholes at the top of their heads to breathe fresh air.',
+      explanationMl:
+        'ജലജീവികൾക്ക് വെള്ളത്തിൽ നീന്താൻ സഹായിക്കുന്ന പടകുപോലെയുള്ള ശരീരവും (Streamlined body), ചിറകുകളും, ശ്വസിക്കാൻ ചെകിളകളും (Gills) ഉണ്ട്.',
+      funFactEn: '3D Model: Watch the 3D Leaping Dolphin & Coral Reef Fish in Ocean Waves!',
+      funFactMl: '3D മോഡൽ: കടലിൽ നീന്തുന്ന 3D ഡോൾഫിനും വർണ്ണമത്സ്യങ്ങളും!',
+      modelType: 'animal_aquatic',
+    };
+  }
+
+  // Science Ch 5: Matter - Solids, Liquids, Gases
+  if (tLower.includes('state') || tLower.includes('solid') || tLower.includes('liquid') || tLower.includes('gas') || tLower.includes('molecule')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: '3 States of Matter',
+      emoji: '🧊',
+      explanationEn:
+        'Everything is made of Matter! 1) Solids: molecules tightly packed in rigid grids with definite shape & volume (wood, ice), 2) Liquids: loosely packed molecules that flow and take the shape of the container (water, milk), 3) Gases: molecules far apart zooming freely with no fixed shape!',
+      explanationMl:
+        'പദാർത്ഥത്തിന്റെ മൂന്ന് അവസ്ഥകൾ: കട്ടിയുള്ള ഖരം (Solid), ഒഴുകുന്ന ദ്രാവകം (Liquid), തന്മാത്രകൾ വേഗത്തിൽ പായുന്ന വാതകം (Gas).',
+      funFactEn: '3D Model: Inspect the 3 Side-by-Side 3D Molecular Chamber Demonstrations!',
+      funFactMl: '3D മോഡൽ: ഖര-ദ്രാവക-വാതക തന്മാത്രകളുടെ 3D പ്രവർത്തന അറകൾ!',
+      modelType: 'matter_molecules',
+    };
+  }
+
+  if (tLower.includes('melting') || tLower.includes('evaporat') || tLower.includes('condens') || tLower.includes('change')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Melting & Steam',
+      emoji: '💨',
+      explanationEn:
+        'Heating and cooling change states of matter! Ice (Solid) melts with heat into Water (Liquid). Boiling water evaporates into Steam (Gas). Cooling steam condenses back into water, and freezing water turns back into ice!',
+      explanationMl:
+        'ചൂടാക്കുമ്പോൾ ഐസ് ഉരുകി വെള്ളമാകുന്നു (Melting), തിളപ്പിക്കുമ്പോൾ നീരാവിയാകുന്നു (Evaporation). തണുപ്പിക്കുമ്പോൾ തിരികെ ദ്രാവകവും ഖരവുമാകുന്നു.',
+      funFactEn: '3D Model: Watch the 3D Melting Translucent Ice Cube, Water Pool & Rising Steam!',
+      funFactMl: '3D മോഡൽ: ഉരുകുന്ന ഐസ് ക്യൂബും ഉയരുന്ന നീരാവിയും 3D-യിൽ!',
+      modelType: 'matter_change',
+    };
+  }
+
+  if (tLower.includes('solute') || tLower.includes('solvent') || tLower.includes('solution') || tLower.includes('dissolv')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Solute & Solution',
+      emoji: '🧪',
+      explanationEn:
+        'When you stir sugar into water, you make a Solution! The substance that dissolves (sugar or salt) is the Solute. The liquid that dissolves it (water) is the Solvent. Water is known as the "Universal Solvent" because it dissolves so many things!',
+      explanationMl:
+        'പഞ്ചസാര വെള്ളത്തിൽ അലിയിക്കുമ്പോൾ ലായനി (Solution) ഉണ്ടാകുന്നു. അലിയുന്ന വസ്തു ലീനം (Solute), അലിയിക്കുന്ന ദ്രാവകം ലായകവുമാണ് (Solvent).',
+      funFactEn: '3D Model: Swirl the 3D Chemistry Glass Beaker with Dissolving Crystal Solute!',
+      funFactMl: '3D മോഡൽ: ലായനി തയ്യാറാക്കുന്ന 3D കെമിസ്ട്രി ബീക്കർ!',
+      modelType: 'matter_beaker',
+    };
+  }
+
+  // Science Ch 6: Water & Weather
+  if (tLower.includes('water cycle') || tLower.includes('precipitation')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'The Water Cycle',
+      emoji: '💧',
+      explanationEn:
+        'Earth’s continuous natural recycling journey of water: 1) Evaporation (Sun heats lakes and oceans into vapor), 2) Condensation (cold air high up turns vapor into clouds), 3) Precipitation (clouds release rain, snow or hail back to Earth)!',
+      explanationMl:
+        'സൂര്യന്റെ ചൂടേറ്റ് ജലം നീരാവിയാകുന്ന ബാഷ്പീകരണവും (Evaporation), അത് തണുത്തുറഞ്ഞ് മേഘങ്ങളാകുന്ന സാന്ദ്രീകരണവും (Condensation), മഴയായി പെയ്യുന്നതും (Precipitation) ചേർന്നതാണ് ജലചക്രം.',
+      funFactEn: '3D Model: Explore the 3D Water Cycle Diorama — Ocean, Rising Vapor & Rain Cloud!',
+      funFactMl: '3D മോഡൽ: സമുദ്രവും നീരാവിയും മഴമേഘങ്ങളുമുള്ള 3D ജലചക്രം!',
+      modelType: 'water_cycle',
+    };
+  }
+
+  if (tLower.includes('breeze') || tLower.includes('land breeze') || tLower.includes('sea breeze')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Land & Sea Breeze',
+      emoji: '🏖️',
+      explanationEn:
+        'Land heats up and cools down much faster than water! By day, warm air over land rises and cool sea air rushes in (Sea Breeze). At night, land cools faster than the sea, so breeze blows from land towards the warm sea (Land Breeze).',
+      explanationMl:
+        'പകൽ സമയത്ത് കടലിൽ നിന്ന് കരയിലേക്ക് വീശുന്ന കാറ്റാണ് കടൽക്കാറ്റ് (Sea Breeze). രാത്രിയിൽ കരയിൽ നിന്ന് കടലിലേക്ക് വീശുന്ന കാറ്റാണ് കരക്കാറ്റ് (Land Breeze).',
+      funFactEn: '3D Model: Inspect the Coastal Beach Diorama with Convection Wind Arrows!',
+      funFactMl: '3D മോഡൽ: കാറ്റിന്റെ ഗതി കാണിക്കുന്ന 3D കടൽത്തീര മാതൃക!',
+      modelType: 'weather_breeze',
+    };
+  }
+
+  // Science Ch 7: Force, Work & Energy
+  if (tLower.includes('magnet') || tLower.includes('gravity') || tLower.includes('friction')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Forces & Magnet',
+      emoji: '🧲',
+      explanationEn:
+        'Forces make things move, stop, or change direction! Gravitational Force pulls everything towards Earth’s center. Frictional Force slows sliding objects down. Magnetic Force attracts iron without even touching it!',
+      explanationMl:
+        'ഭൂമി വസ്തുക്കളെ താഴേക്ക് വലിക്കുന്ന ഗുരുത്വാകർഷണ ബലവും (Gravity), ചലനത്തെ തടയുന്ന ഘർഷണ ബലവും (Friction), കാന്തിക ബലവും (Magnetism) പ്രധാന ബലങ്ങളാണ്.',
+      funFactEn: '3D Model: Rotate the 3D Red-Blue Horseshoe Magnet Attracting Iron Spheres!',
+      funFactMl: '3D മോഡൽ: ഇരുമ്പ് തരികളെ ആകർഷിക്കുന്ന 3D കാന്തം!',
+      modelType: 'force_magnet',
+    };
+  }
+
+  if (tLower.includes('solar energy') || (tLower.includes('energy') && !tLower.includes('food'))) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Solar Energy & Light',
+      emoji: '💡',
+      explanationEn:
+        'Energy is the ability to do work! The Sun is our primary source of Solar Energy. Solar panels convert golden sunlight directly into clean electricity to power homes, streetlights, and glowing lightbulbs!',
+      explanationMl:
+        'സൗരോർജ്ജം (Solar Energy) ഉപയോഗിച്ച് സൗരോർജ്ജ പാനലുകൾ വഴി വൈദ്യുതി ഉല്പാദിപ്പിച്ച് വീടുകളും തെരുവിളക്കുകളും പ്രകാശിപ്പിക്കാം.',
+      funFactEn: '3D Model: Inspect the 3D Solar Panel Capturing Sunlight & Powering Bulb!',
+      funFactMl: '3D മോഡൽ: സൂര്യപ്രകാശം സ്വീകരിച്ച് ബൾബ് കത്തിക്കുന്ന 3D സോളാർ പാനൽ!',
+      modelType: 'solar_energy',
+    };
+  }
+
+  // Science Ch 8: Solar System
+  if (tLower.includes('planet') || tLower.includes('solar system') || tLower.includes('sun')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Sun & 8 Planets',
+      emoji: '🪐',
+      explanationEn:
+        'Our Solar System has 8 planets orbiting the blazing Sun: Mercury, Venus, Earth, Mars, Jupiter (largest!), Saturn (magnificent rings!), Uranus, and Neptune! Earth is the only planet known to support life with oceans and atmosphere.',
+      explanationMl:
+        'സൂര്യനെ വലംവയ്ക്കുന്ന 8 ഗ്രഹങ്ങൾ: ബുധൻ, ശുക്രൻ, ഭൂമി, ചൊവ്വ, വ്യാഴം, ശനി, യുറാനസ്, നെപ്റ്റ്യൂൺ. ജീവനുള്ള ഒരേയൊരു ഗ്രഹമാണ് നമ്മുടെ ഭൂമി.',
+      funFactEn: '3D Model: Explore the 3D Sun, Orbiting Blue Earth & Golden Ringed Saturn!',
+      funFactMl: '3D മോഡൽ: തിളങ്ങുന്ന സൂര്യനും ഭൂമിയും വളയങ്ങളുള്ള ശനി ഗ്രഹവും 3D-യിൽ!',
+      modelType: 'solar_planets',
+    };
+  }
+
+  // English Grammar - Parts of Speech
+  if (tLower.includes('noun') || tLower.includes('verb') || tLower.includes('adjective') || tLower.includes('grammar') || tLower.includes('sentence')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: '3D Grammar Blocks',
+      emoji: '🔤',
+      explanationEn:
+        'Words work together in sentences! Nouns name persons, places, and things (Eadrick, Dog, Castle). Verbs show actions (run, jump, study). Adjectives describe nouns with color and size (Happy, Glowing, Smart)!',
+      explanationMl:
+        'വ്യാകരണത്തിലെ പ്രധാന ഭാഗങ്ങൾ: നാമം (Noun - വ്യക്തി, സ്ഥലം, വസ്തു), ക്രിയ (Verb - പ്രവർത്തികൾ), നാമവിശേഷണം (Adjective - സ്വഭാവം).',
+      funFactEn: '3D Model: Interlock the Colorful 3D Noun, Verb & Adjective Grammar Stage Blocks!',
+      funFactMl: '3D മോഡൽ: വർണ്ണാഭമായ 3D വ്യാകരണ ബ്ലോക്കുകൾ!',
+      modelType: 'grammar_stage',
+    };
+  }
+
+  // Malayalam & Hindi Literature
+  if (tLower.includes('കവിത') || tLower.includes('കഥ') || tLower.includes('ഭാഷ') || tLower.includes('कविता') || tLower.includes('कहानी') || tLower.includes('hindi') || tLower.includes('malayalam')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Golden Book & Letters',
+      emoji: '📖',
+      explanationEn:
+        'Literature and language stories open doors of imagination, culture, and values! Explore classical stories, rich poetry verses, and beautiful scripts with traditional cultural motifs.',
+      explanationMl:
+        'ഭാഷയും സാഹിത്യവും ഭാവനയുടെ ലോകം തുറക്കുന്നു. കൊച്ചു കഥകളും കവിതകളും മാതൃഭാഷയുടെ മാധുര്യം കുട്ടികളിൽ നിറയ്ക്കുന്നു.',
+      funFactEn: '3D Model: Inspect the 3D Open Golden Storybook, Quill Pen & Traditional Oil Lamp!',
+      funFactMl: '3D മോഡൽ: തുറന്നുവെച്ച 3D പുസ്തകവും എഴുത്താണിയും നിലവിളക്കും!',
+      modelType: 'literature_book',
+    };
+  }
+
+  // UKG English Phonics
+  if (tLower.includes('phonic') || tLower.includes('alphabet') || tLower.includes('letter') || tLower.includes('cvc') || tLower.includes('sight word')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Phonics & A-Z Blocks',
+      emoji: '🔤',
+      explanationEn:
+        'Learn the magic sounds of letters! A is for Apple /æ/, B is for Ball /b/, C is for Cat /k/! Reading short three-letter CVC words (c-a-t, b-a-t, s-u-n) turns little kids into super readers!',
+      explanationMl:
+        'അക്ഷരങ്ങളുടെ ശബ്ദങ്ങൾ (Phonics) കേട്ടു പഠിക്കാം! A for Apple, B for Ball, C for Cat! കൊച്ചു വാക്കുകൾ വായിക്കാൻ കുട്ടികളെ സഹായിക്കുന്നു.',
+      funFactEn: '3D Model: Rotate the 3D Wooden Letter Blocks A-B-C with Apple & Bouncing Ball!',
+      funFactMl: '3D മോഡൽ: കൊച്ചുകുട്ടികൾക്കായുള്ള 3D അക്ഷര ബ്ലോക്കുകളും ആപ്പിളും!',
+      modelType: 'phonics_abc',
+    };
+  }
+
+  // UKG Math Counting
+  if (tLower.includes('count') || tLower.includes('number') || (tLower.includes('math') && !tLower.includes('fraction')) || tLower.includes('addition') || tLower.includes('shape')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Counting Abacus & Blocks',
+      emoji: '🔢',
+      explanationEn:
+        'Counting is so much fun! Count 1 to 10 shiny stars and slide colorful beads on the abacus. 1 Apple + 1 Apple = 2 yummy Apples! Spot geometric shapes: Circle ⚪, Triangle 🔺, Square 🟩!',
+      explanationMl:
+        '1 മുതൽ 10 വരെ എണ്ണാൻ പഠിക്കാം! അബാക്കസിലെ മുത്തുകൾ നിരക്കി എണ്ണലും കൂട്ടലും ലളിതമായി മനസ്സിലാക്കാം.',
+      funFactEn: '3D Model: Slide the 3D Colorful Counting Beads on the Wooden Math Abacus!',
+      funFactMl: '3D മോഡൽ: വർണ്ണ മുത്തുകളുള്ള 3D കുട്ടികളുടെ അബാക്കസ്!',
+      modelType: 'abacus_count',
+    };
+  }
+
+  // UKG EVS / Senses / Healthy Habits
+  if (tLower.includes('body') || tLower.includes('sense') || tLower.includes('myself') || tLower.includes('habit') || tLower.includes('animal')) {
+    return {
+      index,
+      title: topic,
+      shortLabel: 'Senses & Healthy Habits',
+      emoji: '🖐️',
+      explanationEn:
+        'Our 5 magical Senses: Eyes to see colors 👁️, Ears to hear sounds 👂, Nose to smell flowers 👃, Tongue to taste sweet fruit 👅, and Hands to touch and feel! Good habits keep our body energetic and smiling!',
+      explanationMl:
+        'നമ്മുടെ പഞ്ചേന്ദ്രിയങ്ങൾ: കാണാൻ കണ്ണുകൾ, കേൾക്കാൻ കാതുകൾ, മണം അറിയാൻ മൂക്ക്, രുചിക്കാൻ നാവ്, സ്പർശിക്കാൻ കൈകൾ!',
+      funFactEn: '3D Model: Explore the 3D Senses Organ Display & Sparkling Healthy Smile!',
+      funFactMl: '3D മോഡൽ: പഞ്ചേന്ദ്രിയങ്ങളുടെയും ആരോഗ്യ ശീലങ്ങളുടെയും 3D മാതൃക!',
+      modelType: 'ukg_senses',
     };
   }
 

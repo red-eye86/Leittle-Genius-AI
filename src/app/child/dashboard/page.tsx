@@ -68,10 +68,12 @@ export default function ChildDashboardPage() {
     <div className="space-y-8 pb-12 animate-fade-in">
       {/* Top Child Hero Card */}
       <section
-        className={`relative rounded-4xl p-6 sm:p-10 text-white shadow-xl overflow-hidden border-4 ${isUKG
-            ? 'bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 border-pink-300'
-            : 'bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 border-sky-300'
-          }`}
+        className="relative rounded-4xl p-6 sm:p-10 text-white shadow-xl overflow-hidden border-4 transition-all duration-500"
+        style={{
+          background: `linear-gradient(135deg, ${activeChild.themeColor || '#38bdf8'} 0%, #6366f1 50%, #8b5cf6 100%)`,
+          borderColor: activeChild.themeColor || '#38bdf8',
+          boxShadow: `0 20px 35px -10px ${activeChild.themeColor || '#38bdf8'}40`,
+        }}
       >
         <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
           <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-5">

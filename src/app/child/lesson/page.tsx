@@ -18,27 +18,57 @@ import {
 import { useApp } from '@/lib/context/AppContext';
 import MascotOwl from '@/components/ui/MascotOwl';
 import { soundEffects } from '@/lib/audio/soundEffects';
-import { Lesson, LessonSection } from '@/lib/db/types';
+import { Lesson, LessonSection, Textbook } from '@/lib/db/types';
 
 function LessonContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const chapterId = searchParams.get('chapterId') || 'chap-c4-sci-1';
+  const queryChapterId = searchParams.get('chapterId');
   const { activeChild, language, t, speak, stopSpeech, isSpeaking, addStars } = useApp();
 
+  const [resolvedChapterId, setResolvedChapterId] = useState<string>(queryChapterId || '');
+  const [noChaptersFound, setNoChaptersFound] = useState(false);
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [activeTab, setActiveTab] = useState<'teach' | 'story' | 'visual' | 'activity'>('teach');
   const [loading, setLoading] = useState(true);
   const [completed, setCompleted] = useState(false);
 
+  // Resolve chapter matching active child's classGrade
   useEffect(() => {
     if (!activeChild) return;
+
+    fetch(`/api/data/textbooks?childId=${activeChild.id}`)
+      .then((r) => r.json())
+      .then((data) => {
+        const books = (data.textbooks || []) as Textbook[];
+        const allChaps = books.flatMap((b) => b.chapters || []);
+
+        const matchingChap = queryChapterId ? allChaps.find((c) => c.id === queryChapterId) : null;
+        if (matchingChap) {
+          setResolvedChapterId(matchingChap.id);
+          setNoChaptersFound(false);
+        } else if (allChaps.length > 0) {
+          setResolvedChapterId(allChaps[0].id);
+          setNoChaptersFound(false);
+        } else {
+          setResolvedChapterId('');
+          setNoChaptersFound(true);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, [activeChild?.id, activeChild?.classGrade, queryChapterId]);
+
+  useEffect(() => {
+    if (!activeChild || !resolvedChapterId) return;
     setLoading(true);
     fetch('/api/lesson/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        chapterId,
+        chapterId: resolvedChapterId,
         childId: activeChild.id,
       }),
     })
@@ -53,7 +83,7 @@ function LessonContent() {
         console.error(err);
         setLoading(false);
       });
-  }, [activeChild, chapterId]);
+  }, [activeChild?.id, activeChild?.classGrade, resolvedChapterId]);
 
   if (!activeChild) return null;
 
@@ -111,9 +141,25 @@ function LessonContent() {
             {language === 'ml' ? 'ചിക്കു പാഠം തയ്യാറാക്കുന്നു... 🐶' : 'Chikoo is preparing your lesson... 🐶'}
           </p>
         </div>
-      ) : !lesson ? (
-        <div className="bg-white rounded-4xl p-12 text-center border-2 border-slate-200">
-          <p className="text-lg font-bold text-slate-600">Lesson not found.</p>
+      ) : noChaptersFound || !lesson ? (
+        <div className="bg-white rounded-4xl p-12 text-center border-2 border-indigo-200 space-y-4">
+          <div className="text-5xl">📖</div>
+          <h3 className="text-xl font-black text-slate-800">
+            {language === 'ml'
+              ? `${activeChild.classGrade} സിലബസിനായി പാഠങ്ങൾ ലഭ്യമല്ല`
+              : `No lessons available yet for ${activeChild.classGrade}`}
+          </h3>
+          <p className="text-sm text-slate-500 max-w-md mx-auto">
+            {language === 'ml'
+              ? 'പാരന്റ് സോണിൽ നിന്ന് നിങ്ങളുടെ സ്കൂൾ പാഠപുസ്തകങ്ങൾ അപ്‌ലോഡ് ചെയ്യുമ്പോൾ പുതിയ പാഠങ്ങൾ ഇവിടെ ലഭ്യമാകും.'
+              : 'Upload textbooks under this class/grade in the Parent Zone to unlock interactive AI lessons!'}
+          </p>
+          <button
+            onClick={() => router.push('/parent/syllabus')}
+            className="px-6 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition"
+          >
+            Upload School Textbooks
+          </button>
         </div>
       ) : (
         <div className="space-y-6">
@@ -288,7 +334,7 @@ function LessonContent() {
                 <button
                   onClick={() => {
                     soundEffects.playPop();
-                    router.push(`/child/quiz?chapterId=${chapterId}`);
+                    router.push(`/child/quiz?chapterId=${resolvedChapterId}`);
                   }}
                   className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-black text-sm flex items-center space-x-2 shadow-md btn-kid-3d"
                 >
@@ -301,7 +347,7 @@ function LessonContent() {
               <button
                 onClick={() => {
                   soundEffects.playPop();
-                  router.push(`/child/flashcards?chapterId=${chapterId}`);
+                  router.push(`/child/flashcards?chapterId=${resolvedChapterId}`);
                 }}
                 className="px-4 py-3 rounded-2xl bg-purple-100 hover:bg-purple-200 text-purple-800 font-black text-xs"
               >

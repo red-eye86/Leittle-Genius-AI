@@ -24,12 +24,12 @@ body {
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #38bdf8;
+  background: var(--child-theme-accent, #38bdf8);
   border-radius: 9999px;
   border: 2px solid #f1f5f9;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #0284c7;
+  background: var(--child-theme-primary, #0284c7);
 }
 
 /* 3D button press effect */

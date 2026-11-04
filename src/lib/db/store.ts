@@ -29,8 +29,17 @@ export function getDb(): DatabaseState {
       const data = fs.readFileSync(DB_FILE, 'utf-8');
       const parsed: DatabaseState = JSON.parse(data);
 
-      // Ensure all 9 official ICSE E-Books (Class 4 & UKG) are synced and up-to-date
       let updated = false;
+
+      // Ensure all textbooks have classGrade normalized (support legacy 'grade' field)
+      parsed.textbooks.forEach((b: any) => {
+        if (!b.classGrade && b.grade) {
+          b.classGrade = b.grade;
+          updated = true;
+        }
+      });
+
+      // Ensure all 9 official ICSE E-Books (Class 4 & UKG) are synced and up-to-date
       const existingMap = new Map(parsed.textbooks.map((t) => [t.id, t]));
       const needsSync = ICSE_EBOOK_TEXTBOOKS.some((icseBook) => {
         const existing = existingMap.get(icseBook.id);
@@ -239,10 +248,16 @@ export function updateChildProfile(id: string, updates: Partial<ChildProfile>): 
   return db.children[index];
 }
 
-export function getSubjects(childId?: string): Subject[] {
+export function getSubjects(childId?: string, classGrade?: string): Subject[] {
   const db = getDb();
-  if (!childId) return db.subjects;
-  return db.subjects.filter((s) => s.childId === childId);
+  const targetGrade = classGrade || (childId ? db.children.find((c) => c.id === childId)?.classGrade : undefined);
+  if (targetGrade) {
+    return db.subjects.filter((s) => s.classGrade === targetGrade);
+  }
+  if (childId) {
+    return db.subjects.filter((s) => s.childId === childId);
+  }
+  return db.subjects;
 }
 
 export function addSubject(subject: Subject): Subject {
@@ -263,10 +278,13 @@ export function deleteSubject(id: string): boolean {
   return false;
 }
 
-export function getTextbooks(childId?: string, subjectId?: string): Textbook[] {
+export function getTextbooks(childId?: string, subjectId?: string, classGrade?: string): Textbook[] {
   const db = getDb();
   let books = db.textbooks;
-  if (childId) {
+  const targetGrade = classGrade || (childId ? db.children.find((c) => c.id === childId)?.classGrade : undefined);
+  if (targetGrade) {
+    books = books.filter((b) => (b.classGrade || (b as any).grade) === targetGrade);
+  } else if (childId) {
     books = books.filter((b) => b.childId === childId);
   }
   if (subjectId) {
@@ -313,11 +331,17 @@ export function saveLesson(lesson: Lesson): Lesson {
 export function getFlashcards(childId?: string, chapterId?: string): Flashcard[] {
   const db = getDb();
   let cards = db.flashcards;
-  if (childId) {
-    cards = cards.filter((c) => c.childId === childId);
-  }
   if (chapterId) {
-    cards = cards.filter((c) => c.chapterId === chapterId);
+    return cards.filter((c) => c.chapterId === chapterId);
+  }
+  if (childId) {
+    const child = db.children.find((c) => c.id === childId);
+    if (child) {
+      const validBooks = db.textbooks.filter((b) => (b.classGrade || (b as any).grade) === child.classGrade);
+      const validChapIds = new Set(validBooks.flatMap((b) => b.chapters.map((ch) => ch.id)));
+      return cards.filter((c) => validChapIds.has(c.chapterId));
+    }
+    return cards.filter((c) => c.childId === childId);
   }
   return cards;
 }

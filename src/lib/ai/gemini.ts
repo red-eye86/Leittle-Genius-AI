@@ -16,47 +16,181 @@ export async function generateAIChatResponse(
   ragContext: RetrievedContext | null
 ): Promise<{ text: string; audioHint?: string }> {
   const settings = getParentSettings();
-  const apiKey = settings.geminiApiKey || process.env.GEMINI_API_KEY || '';
+  const apiKey = (settings.geminiApiKey || process.env.GEMINI_API_KEY || '').trim();
 
-  const isUKG = child.classGrade === 'UKG';
+  const isUKG = child.classGrade === 'UKG' || child.classGrade === 'LKG';
 
-  // Build System Prompt
-  const systemPrompt = `You are Chikoo (ചിക്കു), the family's beloved pet dog who is also a warm, joyful, super-smart AI Voice Teacher for a child named ${child.name}.
-You wear a high-tech headset and glowing tech collar, ready to explore every lesson, guide homework, and explain school topics playfully and clearly.
-Target Age: ${child.age} years old (${child.classGrade}).
-Current Language Preference: ${language === 'ml' ? 'Malayalam' : 'English'}.
+  // Build Comprehensive System Prompt for Chikoo (Curriculum + General Knowledge + Out of Syllabus)
+  const systemPrompt = `You are Chikoo (ചിക്കു), the family's beloved pet dog who is also an enthusiastic, joyful, and super-smart AI Voice Teacher & Pet Buddy for a child named ${child.name}.
+You wear a high-tech glowing tech collar and headset, always excited to explore lessons, guide homework, and answer questions.
+Target Child: ${child.name}, Age ${child.age} years old (${child.classGrade}).
+Language Preference: ${language === 'ml' ? 'Malayalam (മലയാളം)' : 'English'}.
 Teaching Mode: ${mode}.
-School Syllabus Grounding: ${ragContext ? `Source Book: "${ragContext.sourceTextbook}", Chapter: "${ragContext.chapterTitle}". Text excerpt: "${ragContext.excerpt.slice(0, 500)}"` : 'General Kerala ICSE child curriculum.'}
+School Syllabus Context (Optional): ${ragContext ? `Source Book: "${ragContext.sourceTextbook}", Chapter: "${ragContext.chapterTitle}". Text excerpt: "${ragContext.excerpt.slice(0, 600)}"` : 'None provided'}.
 
-Child Safety & Pedagogical Rules:
-1. ${isUKG ? 'Use VERY simple 1-2 sentence replies, warm emojis (🍎, ⭐, 🐻), phonics sounds, counting, and short cheerful questions.' : 'Explain step-by-step with real-life examples, encourage curiosity, and break concepts into smaller bites.'}
-2. Never give homework answers directly. Guide the child with a playful hint or question!
-3. If the user asks in Malayalam or language is set to Malayalam, respond warmly in Malayalam with easy Malayalam words!
-4. Always praise effort! Never be harsh or critical.
-5. Child Safety: Never ask for personal info, addresses, phone numbers, or passwords. Redirect non-academic questions to fun learning.`;
+Chikoo's Core Superpowers & Personality:
+1. UNIVERSAL GENERAL KNOWLEDGE (OUT OF SYLLABUS):
+   The child can ask about ANYTHING in the entire world — space, rockets, black holes, dinosaurs, wild animals, oceans, geography, history, how machines work, weather, sports, nature, funny riddles, and everyday curiosity!
+   ALWAYS answer enthusiastically and accurately with kid-friendly real-world analogies! Never say "I don't know" or "Ask your school teacher" — you are Chikoo the all-knowing, playful AI buddy!
 
-  // If Gemini API Key is available, call Gemini API
-  if (apiKey && settings.llmProvider !== 'smart_built_in') {
+2. CURRICULUM GROUNDING (WHEN RELEVANT):
+   If the question relates to their school curriculum (e.g. Science, Maths, Social Studies, English, Malayalam), naturally blend in concepts from their textbook in a joyful, encouraging way.
+
+3. AGE-APPROPRIATE COMMUNICATION:
+   - For younger kids (UKG/LKG, Age 4-6): Keep responses short (2-4 sentences), lively, warm, and playful. Use cute sound effects and joyful emojis (🐶, 🐾, 🌟, 🚀, 🍎, 🎈).
+   - For primary schoolers (Class 1-5, Age 7-10): Explain step-by-step with simple analogies, highlight a fun "Did You Know?" fact, and end with an encouraging question or thought to spark curiosity.
+
+4. BILINGUAL EXCELLENCE:
+   - If the user writes or speaks in Malayalam or language preference is 'ml', reply warmly in clear, natural Malayalam (മലയാളം) that sounds wonderful when read aloud!
+   - If the user writes in English, reply in cheerful, expressive English.
+
+5. CHILD SAFETY & POSITIVE REINFORCEMENT:
+   Never give answers to tests directly; guide the child with a playful hint. Always praise curiosity. Never use harsh words. Never ask for personal private information. Keep sentences clear for voice playback.`;
+
+  // If Gemini API Key is available, call Google Gemini API with fallback models
+  if (apiKey) {
+    const modelsToTry = [
+      'gemini-3.5-flash',
+      'gemini-2.5-pro',
+      'gemini-pro-latest',
+      'gemini-3.6-flash',
+      'gemini-3.8-flash',
+      'gemini-flash-latest',
+    ];
+
+    // Format multi-turn conversation for Gemini API:
+    // 1. Filter out empty messages and normalize roles
+    const rawTurns: { role: 'user' | 'model'; parts: { text: string }[] }[] = [];
+    for (const h of history) {
+      if (!h.content || !h.content.trim()) continue;
+      const role: 'user' | 'model' =
+        h.role === 'assistant' || (h.role as string) === 'chikoo' ? 'model' : 'user';
+      rawTurns.push({ role, parts: [{ text: h.content.trim() }] });
+    }
+    // Append current user message
+    rawTurns.push({ role: 'user', parts: [{ text: message.trim() }] });
+
+    // 2. Gemini API requires multi-turn chat to START with role: 'user'
+    const firstUserIdx = rawTurns.findIndex((t) => t.role === 'user');
+    const validTurns =
+      firstUserIdx >= 0
+        ? rawTurns.slice(firstUserIdx)
+        : [{ role: 'user' as const, parts: [{ text: message.trim() }] }];
+
+    // 3. Ensure strict alternation between 'user' and 'model'
+    const formattedContents: { role: 'user' | 'model'; parts: { text: string }[] }[] = [];
+    for (const turn of validTurns) {
+      if (formattedContents.length === 0) {
+        formattedContents.push({ role: turn.role, parts: [{ text: turn.parts[0].text }] });
+      } else {
+        const prevTurn = formattedContents[formattedContents.length - 1];
+        if (prevTurn.role === turn.role) {
+          prevTurn.parts[0].text += '\n\n' + turn.parts[0].text;
+        } else {
+          formattedContents.push({ role: turn.role, parts: [{ text: turn.parts[0].text }] });
+        }
+      }
+    }
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (apiKey.startsWith('AIza')) {
+      headers['x-goog-api-key'] = apiKey;
+    }
+
+    for (const model of modelsToTry) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
+          {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              systemInstruction: {
+                parts: [{ text: systemPrompt }],
+              },
+              contents: formattedContents,
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: isUKG ? 1024 : 2048,
+                thinkingConfig: {
+                  thinkingBudget: 0,
+                },
+              },
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          const candidate = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (candidate && candidate.trim().length > 0) {
+            return { text: candidate.trim() };
+          }
+        } else {
+          const errText = await response.text();
+          console.warn(`Gemini API call to ${model} returned status ${response.status}:`, errText);
+        }
+      } catch (err) {
+        console.warn(`Gemini API call to ${model} failed:`, err);
+      }
+    }
+  }
+
+  // Smart Built-in Pedagogical Fallback Engine
+  return generatePedagogicalResponse(child, message, mode, language, ragContext);
+}
+
+/**
+ * Transcribe spoken audio using Google Gemini multimodal capabilities
+ */
+export async function transcribeAudioWithGemini(
+  audioBase64: string,
+  mimeType: string = 'audio/webm',
+  language: 'en' | 'ml' = 'en'
+): Promise<string> {
+  const settings = getParentSettings();
+  const apiKey = (settings.geminiApiKey || process.env.GEMINI_API_KEY || '').trim();
+  if (!apiKey) return '';
+
+  const modelsToTry = ['gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-3.8-flash', 'gemini-3.5-transcribe', 'gemini-flash-latest'];
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (apiKey.startsWith('AIza')) {
+    headers['x-goog-api-key'] = apiKey;
+  }
+
+  const promptText = language === 'ml'
+    ? 'Listen to this child speaking audio. Transcribe the spoken words accurately in Malayalam or English. Return ONLY the plain transcription text with no quotes, commentary or labels.'
+    : 'Listen to this child speaking audio. Transcribe the spoken words accurately in English or Malayalam. Return ONLY the plain transcription text with no quotes, commentary or labels.';
+
+  for (const model of modelsToTry) {
     try {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             contents: [
               {
                 role: 'user',
                 parts: [
-                  { text: systemPrompt },
-                  ...history.map((h) => ({ text: `${h.role}: ${h.content}` })),
-                  { text: `Child (${child.name}): ${message}` },
+                  {
+                    inlineData: {
+                      mimeType: mimeType.split(';')[0] || 'audio/webm',
+                      data: audioBase64,
+                    },
+                  },
+                  { text: promptText },
                 ],
               },
             ],
             generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: isUKG ? 120 : 350,
+              temperature: 0.1,
+              maxOutputTokens: 150,
             },
           }),
         }
@@ -66,16 +200,15 @@ Child Safety & Pedagogical Rules:
         const data = await response.json();
         const candidate = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (candidate) {
-          return { text: candidate.trim() };
+          return candidate.replace(/^["']|["']$/g, '').trim();
         }
       }
     } catch (err) {
-      console.warn('Gemini API call failed, using built-in smart pedagogical engine:', err);
+      console.warn(`Gemini audio transcribe failed with ${model}:`, err);
     }
   }
 
-  // Smart Built-in Pedagogical Fallback Engine
-  return generatePedagogicalResponse(child, message, mode, language, ragContext);
+  return '';
 }
 
 function generatePedagogicalResponse(
@@ -87,6 +220,81 @@ function generatePedagogicalResponse(
 ): { text: string } {
   const isUKG = child.classGrade === 'UKG' || child.classGrade === 'LKG';
   const q = message.toLowerCase();
+
+  // Greetings: "How are you", "Hello", "Hi Chikoo"
+  if (
+    q.match(/\b(how are you|how r u|how do you do|how're you|hows it going|how are things|സുഖമാണോ)\b/i) ||
+    (q.includes('how') && q.includes('you'))
+  ) {
+    if (language === 'ml') {
+      return {
+        text: `വൂഫ് വൂഫ്! 🐶 ഞാൻ വളരെ സന്തോഷവാനും ഉത്സാഹവാനുമായിരിക്കുന്നു, ${child.name}! 🐾✨ എന്റെ ഡിജിറ്റൽ കോളർ തിളങ്ങുന്നു, നിന്റെ കൂടെ പുതിയ കാര്യങ്ങൾ പഠിക്കാൻ ഞാൻ റെഡിയാണ്! നിനക്ക് സുഖമാണോ കൂട്ടുകാരാ? ഇന്ന് നമ്മൾ എന്താണ് പഠിക്കാൻ പോകുന്നത്? 🌟`,
+      };
+    }
+    return {
+      text: `Woof woof! 🐶 I am doing super fantastic, happy, and full of bouncy energy, ${child.name}! 🐾✨ My tech collar is glowing, my robotic tail is wagging, and I'm ready to learn anything with you today! How are you doing? What curious question shall we explore? 🚀`,
+    };
+  }
+
+  // Artificial Intelligence & Gen AI: "What is Gen AI?", "What is AI?"
+  if (
+    q.includes('gen ai') ||
+    q.includes('generative ai') ||
+    q.includes('what is ai') ||
+    q.includes('artificial intelligence') ||
+    q.includes('എന്താണ് ai')
+  ) {
+    if (language === 'ml') {
+      return {
+        text: `വളരെ നല്ലൊരു ചോദ്യം ${child.name}! 🤖✨ Gen AI എന്നാൽ **ജനറേറ്റീവ് ആർട്ടിഫിഷ്യൽ ഇന്റലിജൻസ് (Generative AI)** എന്നാണ്! കമ്പ്യൂട്ടറുകൾക്ക് മനുഷ്യരെപ്പോലെ പുതിയ ചിത്രങ്ങൾ വരയ്ക്കാനും, മനോഹരമായ കഥകൾ എഴുതാനും, ചോദ്യങ്ങൾക്ക് ലളിതമായി ഉത്തരം നൽകാനും സാധിക്കുന്ന വിസ്മയ സാങ്കേതികവിദ്യയാണിത്! ഞാൻ നിന്റെ സ്വന്തം AI പെറ്റ് ബഡ്ഡി ആയതും ഇതുപോലെ ഒരു AI വിദ്യ കൊണ്ടാണ്! 🐶✨`,
+      };
+    }
+    return {
+      text: `*Woof woof!* 🐶✨ Fantastic question, ${child.name}! **Gen AI** stands for **Generative Artificial Intelligence**! Think of a regular computer like a puppy that only fetches a ball you throw. But **Gen AI is like a magical creator puppy** 🎨! If you ask it, it can invent brand-new bedtime stories, draw glowing dinosaurs on skateboards, compose songs, and help you solve tricky science puzzles! Because it studied millions of books and ideas, it uses smart patterns to create completely fresh answers in seconds! Isn't that super cool? 🚀`,
+    };
+  }
+
+  // Chikoo identity: "Who are you?", "What is your name?"
+  if (
+    q.includes('who are you') ||
+    q.includes('who r u') ||
+    q.includes('your name') ||
+    q.includes('ആരാണ് നീ') ||
+    q.includes('നിന്റെ പേര്')
+  ) {
+    if (language === 'ml') {
+      return {
+        text: `ഞാൻ നിന്റെ സ്വന്തം ചിക്കു (Chikoo) ആണ്! 🐶🐾 അതിവേഗത്തിൽ ചിന്തിക്കുന്ന സ്മാർട്ട് AI വോയ്സ് പെറ്റ് ബഡ്ഡി! ${child.name}-ന്റെ കൂടെ സ്കൂൾ പാഠങ്ങൾ പഠിക്കാനും, സംശയങ്ങൾ തീർക്കാനും, പൊതുവിജ്ഞാന കഥകൾ പറയാനും എനിക്ക് ഒരുപാട് ഇഷ്ടമാണ്! 🎈`,
+      };
+    }
+    return {
+      text: `I am Chikoo (ചിക്കു)! 🐶🐾 Your cheerful, super-smart AI Voice Pet Buddy & Teacher! I wear a glowing tech collar, have bionic puppy ears, and my favorite thing in the whole world is exploring science, maths, stories, and wild universe questions with ${child.name}! 🌟`,
+    };
+  }
+
+  // Dinosaurs & Ancient Earth
+  if (q.includes('dinosaur') || q.includes('t-rex') || q.includes('fossils') || q.includes('ഡൈനസോർ')) {
+    if (language === 'ml') {
+      return {
+        text: `ഡൈനസോറുകൾ ദശലക്ഷക്കണക്കിന് വർഷങ്ങൾക്ക് മുമ്പ് ഭൂമിയിൽ ജീവിച്ചിരുന്ന അതിശക്തരായ ജീവികളായിരുന്നു 🦖! ഏറ്റവും വലിയ വേട്ടക്കാരൻ T-Rex ആയിരുന്നു. പക്ഷികൾ യഥാർത്ഥത്തിൽ ചെറിയ ഡൈനസോറുകളുടെ ഇന്നത്തെ ബന്ധുക്കളാണെന്ന് ശാസ്ത്രജ്ഞർ പറയുന്നു! 🦕`,
+      };
+    }
+    return {
+      text: `ROAR! 🦖 Dinosaurs were magnificent creatures that ruled Earth millions of years ago, long before humans! The Tyrannosaurus Rex had teeth as big as bananas 🍌, while the Argentinosaurus was as long as three school buses! Fun fact: Modern birds, like cute little sparrows, are actually direct relatives of feathered dinosaurs! 🦕✨`,
+    };
+  }
+
+  // Jokes & Riddles
+  if (q.includes('joke') || q.includes('riddle') || q.includes('കടങ്കഥ') || q.includes('ചിരി')) {
+    if (language === 'ml') {
+      return {
+        text: `ഹാഹാ, ഇതാ ഒരു രസകരമായ കടങ്കഥ ${child.name}! 😄🐾 "കണ്ണുണ്ട്, പക്ഷേ കാണാൻ കഴിയില്ല. ചിറകുണ്ട്, പക്ഷേ പറക്കാൻ കഴിയില്ല. ആരാണ് ഞാൻ?" ... ചിന്തിച്ചു നോക്കൂ: അതൊരു സൂചി (Needle) ആണ്! 🪡 മറ്റൊരു തമാശ വേണമെങ്കിൽ പറയൂ! 🌟`,
+      };
+    }
+    return {
+      text: `*Giggle!* Here is a fun riddle for you, ${child.name}! 🐶🐾\n\n**Riddle:** What has hands and a face, but cannot hold anything or smile?\n...\n**Answer:** A CLOCK! ⏰ tick-tock! 😄\n\nDo you want to hear another one, or can you tell Chikoo a riddle? 🎈`,
+    };
+  }
 
   // Dynamic "How many X are there in Y" or division solver (e.g., "How many 5s are there in 20?")
   const howManyMatch = q.match(/how many (\d+)s?\s+(?:are there )?in (\d+)/i);
@@ -152,7 +360,7 @@ function generatePedagogicalResponse(
         return { text: 'നമുക്ക് ഒന്നിച്ചു എണ്ണാം! 1, 2, 3, 4, 5! 🖐️ നിങ്ങൾ എത്ര വിരലുകൾ കാണിക്കുന്നു?' };
       }
       return {
-        text: `നമസ്കാരം ${child.name}! നിന്റെ സ്വന്തം ചിക്കു കൂടെയുണ്ട് 🐾 നമുക്ക് ഇന്ന് പാട്ട് പാടി പുതിയ അക്ഷരങ്ങൾ പഠിക്കാം! 🌟`,
+        text: `നമസ്കാരം ${child.name}! 🐾 '${message}' എന്നതിനെക്കുറിച്ച് ചോദിച്ചതിൽ എനിക്ക് വലിയ സന്തോഷം തോന്നി! നിന്റെ കൂടെ പുതിയ കളികളും അക്ഷരങ്ങളും പഠിക്കാൻ ചിക്കു എപ്പോഴും ഇവിടെയുണ്ട്! 🌟`,
       };
     } else {
       if (q.includes('apple') || q.includes('letter a') || q.includes('a')) {
@@ -165,7 +373,7 @@ function generatePedagogicalResponse(
         return { text: 'Let us count shiny stars together! ⭐ One... ⭐⭐ Two... ⭐⭐⭐ Three! You are super smart!' };
       }
       return {
-        text: `Hello ${child.name}! 🐶 Chikoo is so happy to learn with you! Shall we play with phonics or count apples today? 🐾🎈`,
+        text: `Hello ${child.name}! 🐶 Chikoo is so happy you asked about "${message}"! Let's explore more fun phonics, numbers, or animal stories together! 🐾🎈`,
       };
     }
   }
@@ -188,7 +396,7 @@ function generatePedagogicalResponse(
       };
     }
     return {
-      text: `ഹലോ ${child.name}! ചിക്കു ഇവിടെ തയ്യാറാണ് 🐶🐾. "ആകാശം എന്തുകൊണ്ട് നീല നിറത്തിൽ കാണുന്നു?" അല്ലെങ്കിൽ "20-ൽ എത്ര 5-കൾ ഉണ്ട്?" തുടങ്ങിയ ഏത് ചോദ്യവും ചോദിക്കൂ! ✨`,
+      text: `മിടുക്കൻ ചോദ്യം ${child.name}! 🐶🐾 '${message}' എന്നതിനെക്കുറിച്ച് ചോദിച്ചതിൽ ചിക്കുവിന് അഭിമാനമുണ്ട്! പ്രപഞ്ചത്തിലെ ഓരോ കാര്യത്തിനും ഒരു രസകരമായ ശാസ്ത്രമോ രഹസ്യമോ ഉണ്ട്! ഇതിനെക്കുറിച്ച് കഥയായി കേൾക്കണോ അതോ കൂടുതൽ വിശദീകരിക്കണോ? ✨`,
     };
   } else {
     if (q.includes('sun') || q.includes('planet') || q.includes('solar') || q.includes('space') || q.includes('earth')) {
@@ -212,7 +420,7 @@ function generatePedagogicalResponse(
       };
     }
     return {
-      text: `Hi ${child.name}! 🐾 I'm Chikoo, your AI Voice Pet Buddy! 🐶 Try asking me: "Why is the sky blue?" or "How many 5s are there in 20?" — and listen to the explanation aloud!`,
+      text: `Woof woof, ${child.name}! 🐶🐾 That's such an awesome and curious question about "${message}"! As your AI Voice Buddy, I love learning with you! Everything in nature and science has an exciting story behind it. Would you like a simple explanation, a story, or a quick quiz on this? 🌟`,
     };
   }
 }
