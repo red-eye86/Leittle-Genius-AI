@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
+import NetlifyImage from '@/components/ui/NetlifyImage';
 import {
   ArrowLeft,
   Tv,
@@ -305,7 +305,7 @@ function CartoonTheaterContent() {
                 className="relative w-12 h-14 sm:w-14 sm:h-16 rounded-2xl overflow-hidden border-2 border-white shadow-md hover:scale-110 transition duration-200"
                 title={`${char.name} (${char.role})`}
               >
-                <Image src={char.avatarUrl} alt={char.name} fill className="object-cover object-top" />
+                <NetlifyImage src={char.avatarUrl} alt={char.name} width={56} height={64} loading="lazy" className="w-full h-full object-cover object-top" />
               </div>
             ))}
           </div>
@@ -498,7 +498,7 @@ function CartoonTheaterContent() {
               className="bg-white rounded-3xl p-4 border-2 border-slate-200 hover:border-indigo-400 shadow-sm transition space-y-3 flex flex-col items-center text-center card-kid-hover"
             >
               <div className="relative w-24 h-32 rounded-2xl overflow-hidden shadow-md border-2 border-white ring-2 ring-indigo-200 flex-shrink-0">
-                <Image src={char.avatarUrl} alt={char.name} fill className="object-cover object-top" />
+                <NetlifyImage src={char.avatarUrl} alt={char.name} width={96} height={128} loading="lazy" className="w-full h-full object-cover object-top" />
               </div>
 
               <div>

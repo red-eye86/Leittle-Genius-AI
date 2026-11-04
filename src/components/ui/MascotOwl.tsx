@@ -1,16 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
+import NetlifyImage from './NetlifyImage';
 import { soundEffects } from '@/lib/audio/soundEffects';
 
 interface MascotOwlProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   speaking?: boolean;
   onTap?: () => void;
+  priority?: boolean;
 }
 
-export default function MascotOwl({ size = 'md', speaking = false, onTap }: MascotOwlProps) {
+export default function MascotOwl({ size = 'md', speaking = false, onTap, priority = false }: MascotOwlProps) {
   const [isWiggling, setIsWiggling] = useState(false);
 
   const sizeClasses = {
@@ -18,6 +19,13 @@ export default function MascotOwl({ size = 'md', speaking = false, onTap }: Masc
     md: 'w-16 h-16',
     lg: 'w-24 h-24',
     xl: 'w-36 h-36',
+  };
+
+  const pixelDimensions = {
+    sm: 40,
+    md: 64,
+    lg: 96,
+    xl: 144,
   };
 
   const badgeSizeClasses = {
@@ -34,6 +42,8 @@ export default function MascotOwl({ size = 'md', speaking = false, onTap }: Masc
     if (onTap) onTap();
   };
 
+  const dim = pixelDimensions[size];
+
   return (
     <div
       onClick={handleClick}
@@ -49,13 +59,14 @@ export default function MascotOwl({ size = 'md', speaking = false, onTap }: Masc
 
       {/* Chikoo 3D Avatar Image */}
       <div className="relative w-full h-full rounded-full overflow-hidden border-2 sm:border-3 border-cyan-400 shadow-lg ring-2 ring-indigo-200 bg-gradient-to-tr from-sky-400 via-indigo-500 to-purple-600">
-        <Image
+        <NetlifyImage
           src="/characters/chikoo.jpg"
           alt="Chikoo - AI Pet Assistant"
-          fill
+          width={dim}
+          height={dim}
           sizes="(max-width: 768px) 100px, 150px"
-          className="object-cover object-top hover:scale-105 transition-transform duration-300"
-          priority
+          className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
+          priority={priority}
         />
         {speaking && (
           <div className="absolute inset-0 border-2 border-cyan-300 rounded-full pointer-events-none animate-pulse" />

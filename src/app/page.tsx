@@ -61,7 +61,7 @@ export default function LandingPage() {
 
           <div className="flex flex-col items-center">
             <div className="relative p-6 bg-white/10 backdrop-blur-xl rounded-4xl border-2 border-white/30 shadow-2xl animate-float">
-              <MascotOwl size="xl" />
+              <MascotOwl size="xl" priority={true} />
               <div className="mt-4 bg-white text-slate-800 px-4 py-2 rounded-2xl shadow-md text-center">
                 <p className="text-xs font-black text-indigo-600 uppercase">Meet Chikoo 🐶🐾</p>
                 <p className="text-xs font-bold text-slate-600">Your AI Pet & Study Buddy!</p>

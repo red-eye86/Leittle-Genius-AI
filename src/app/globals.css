@@ -2,6 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Font display swap rules to prevent invisible text during loading (FOIT) */
+@font-face {
+  font-family: 'Comic Neue';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Comic Neue'), local('Comic Sans MS');
+}
+
+@font-face {
+  font-family: 'Comic Neue';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Comic Neue Bold'), local('Comic Sans MS Bold');
+}
+
+@font-face {
+  font-family: 'Gayathri';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Gayathri');
+}
+
+@font-face {
+  font-family: 'Gayathri';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Gayathri Bold');
+}
+
+@font-face {
+  font-family: 'Manjari';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Manjari');
+}
+
+@font-face {
+  font-family: 'Manjari';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Manjari Bold');
+}
+
+@font-face {
+  font-family: 'Noto Sans Malayalam';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Noto Sans Malayalam');
+}
+
+@font-face {
+  font-family: 'Noto Sans Malayalam';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Noto Sans Malayalam Bold');
+}
+
 :root {
   --primary-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Comic Sans MS", "Comic Neue", sans-serif;
 }
@@ -70,4 +135,3 @@ body {
   font-family: 'Gayathri', 'Manjari', 'Chilanka', 'Rachana', 'Noto Sans Malayalam', sans-serif;
   line-height: 1.6;
 }
-

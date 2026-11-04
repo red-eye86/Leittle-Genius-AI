@@ -2,7 +2,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import NetlifyImage from '@/components/ui/NetlifyImage';
 import {
   BookOpen,
   Bot,
@@ -318,19 +318,19 @@ export default function ChildDashboardPage() {
           {/* 5 Family Character Photo Badges */}
           <div className="flex items-center -space-x-4 bg-white/10 backdrop-blur-md p-2.5 rounded-3xl border border-white/25 shadow-inner">
             <div className="relative w-14 h-18 sm:w-16 sm:h-22 rounded-2xl overflow-hidden border-2 border-white shadow-md hover:scale-110 transition duration-200">
-              <Image src="/characters/grandmother_lilly.jpg" alt="Grandma Lilly Joseph" fill className="object-cover object-top" />
+              <NetlifyImage src="/characters/grandmother_lilly.jpg" alt="Grandma Lilly Joseph" width={64} height={88} loading="lazy" className="w-full h-full object-cover object-top" />
             </div>
             <div className="relative w-14 h-18 sm:w-16 sm:h-22 rounded-2xl overflow-hidden border-2 border-white shadow-md hover:scale-110 transition duration-200">
-              <Image src="/characters/father_manoj.jpg" alt="Papa Manoj" fill className="object-cover object-top" />
+              <NetlifyImage src="/characters/father_manoj.jpg" alt="Papa Manoj" width={64} height={88} loading="lazy" className="w-full h-full object-cover object-top" />
             </div>
             <div className="relative w-14 h-18 sm:w-16 sm:h-22 rounded-2xl overflow-hidden border-2 border-white shadow-md hover:scale-110 transition duration-200">
-              <Image src="/characters/mother_tessy.jpg" alt="Mummy Tessy" fill className="object-cover object-top" />
+              <NetlifyImage src="/characters/mother_tessy.jpg" alt="Mummy Tessy" width={64} height={88} loading="lazy" className="w-full h-full object-cover object-top" />
             </div>
             <div className="relative w-14 h-18 sm:w-16 sm:h-22 rounded-2xl overflow-hidden border-2 border-white shadow-md hover:scale-110 transition duration-200">
-              <Image src="/characters/brother_eadrick.jpg" alt="Brother Eadrick" fill className="object-cover object-top" />
+              <NetlifyImage src="/characters/brother_eadrick.jpg" alt="Brother Eadrick" width={64} height={88} loading="lazy" className="w-full h-full object-cover object-top" />
             </div>
             <div className="relative w-14 h-18 sm:w-16 sm:h-22 rounded-2xl overflow-hidden border-2 border-white shadow-md hover:scale-110 transition duration-200 ring-2 ring-amber-300">
-              <Image src="/characters/faidan.jpg" alt="Little Faidan" fill className="object-cover object-top" />
+              <NetlifyImage src="/characters/faidan.jpg" alt="Little Faidan" width={64} height={88} loading="lazy" className="w-full h-full object-cover object-top" />
             </div>
           </div>
         </div>
