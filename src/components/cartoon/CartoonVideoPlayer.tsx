@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import Image from 'next/image';
+import NetlifyImage from '@/components/ui/NetlifyImage';
 import {
   Play,
   Pause,
@@ -534,11 +534,13 @@ export function CartoonVideoPlayer({
                   </div>
                 ) : (
                   <div className="relative w-9 h-9 rounded-full overflow-hidden border-2 border-indigo-400 shadow-sm flex-shrink-0">
-                    <Image
+                    <NetlifyImage
                       src={activeActor.avatarUrl || '/characters/faidan.jpg'}
                       alt={activeActor.name}
-                      fill
-                      className="object-cover"
+                      width={36}
+                      height={36}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                 )}
@@ -636,11 +638,13 @@ export function CartoonVideoPlayer({
                       : 'w-10 h-16 sm:w-16 sm:h-22 grayscale-10 border-2 border-white/70'
                   }`}
                 >
-                  <Image
+                  <NetlifyImage
                     src={char.avatarUrl}
                     alt={char.name}
-                    fill
-                    className="object-cover object-top hover:scale-105 transition duration-300"
+                    width={88}
+                    height={112}
+                    loading="lazy"
+                    className="w-full h-full object-cover object-top hover:scale-105 transition duration-300"
                   />
                   {isSpeakingNow && (
                     <div className="absolute inset-0 border-2 border-amber-300 rounded-2xl pointer-events-none animate-pulse"></div>

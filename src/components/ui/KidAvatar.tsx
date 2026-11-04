@@ -1,12 +1,22 @@
 'use client';
 
 import React from 'react';
+import NetlifyImage from './NetlifyImage';
 
 interface KidAvatarProps {
   avatar?: string;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
 }
+
+const sizePixels: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl', number> = {
+  xs: 24,
+  sm: 32,
+  md: 48,
+  lg: 64,
+  xl: 80,
+  '2xl': 96,
+};
 
 export default function KidAvatar({ avatar = '🦉', size = 'md', className = '' }: KidAvatarProps) {
   const isImage = avatar?.startsWith('data:image') || avatar?.startsWith('http') || avatar?.startsWith('/');
@@ -20,14 +30,19 @@ export default function KidAvatar({ avatar = '🦉', size = 'md', className = ''
     '2xl': 'w-24 h-24 text-5xl',
   };
 
+  const dim = sizePixels[size];
+
   return (
     <div
       className={`inline-flex items-center justify-center rounded-2xl overflow-hidden select-none flex-shrink-0 ${sizeClasses[size]} ${className}`}
     >
       {isImage ? (
-        <img
+        <NetlifyImage
           src={avatar}
           alt="Child Profile Avatar"
+          width={dim}
+          height={dim}
+          loading="lazy"
           className="w-full h-full object-cover rounded-2xl"
         />
       ) : (
@@ -36,4 +51,3 @@ export default function KidAvatar({ avatar = '🦉', size = 'md', className = ''
     </div>
   );
 }
-
