@@ -7,6 +7,600 @@ import { Textbook } from './types';
  * - UKG (Upper Kindergarten): English Phonics, Mathematics, EVS & General Awareness, Malayalam
  */
 export const ICSE_EBOOK_TEXTBOOKS: Textbook[] = [
+
+  // 6. Hindi — Udan Khatola 4 (Rachna Sagar)
+  {
+      "id": "tb-c4-hindi-1",
+      "subjectId": "sub-c4-hindi",
+      "childId": "child-1",
+      "title": "उड़न खटोला 4: हिंदी पाठ्यपुस्तक (Text-Cum-Workbook) — रचना सागर प्रा० लि०",
+      "author": "मंजुलिका घोष (वरिष्ठ अध्यापिका, रामजस स्कूल, दिल्ली)",
+      "publisher": "रचना सागर प्रा० लि० (Rachna Sagar Pvt. Ltd.)",
+      "classGrade": "Class 4",
+      "coverImage": "/textbooks/c4-hindi-udan-khatola.jpg",
+      "chapters": [
+          {
+              "id": "chap-c4-hin-1",
+              "chapterNumber": 1,
+              "title": "पाठ 1: प्रकृति का संदेश (कविता - पर्वत कहता शीश उठाकर)",
+              "malayalamTitle": "പ്രകൃതി നൽകുന്ന സന്ദേശം (ഹിന്ദി കവിത)",
+              "summary": "सोहनलाल द्विवेदी जी की प्रसिद्ध प्रेरणादायक कविता। पर्वत शीश उठाकर ऊंचा बनने, सागर मन में गहराई लाने, तरंग उमंग से भरने और नभ सारा संसार ढक लेने की सीख देते हैं।",
+              "malayalamSummary": "പർവ്വതവും കടലും ആകാശവും മനുഷ്യർക്ക് നൽകുന്ന ഉന്നതമായ സന്ദേശങ്ങൾ വിവരിക്കുന്ന കവിത.",
+              "keyTerms": [
+                  "पर्वत",
+                  "शीश",
+                  "सागर",
+                  "तरंग",
+                  "धैर्य",
+                  "नभ",
+                  "उमंग"
+              ],
+              "learningObjectives": [
+                  "कविता का सस्वर एवं लयबद्ध वाचन करना",
+                  "प्रकृति के तत्वों से धैर्य और उच्च विचारों की प्रेरणा लेना"
+              ]
+          },
+          {
+              "id": "chap-c4-hin-2",
+              "chapterNumber": 2,
+              "title": "पाठ 2: बीरबल की बुद्धिमानी (हास्य-बोध कथा - न्याय और चतुराई)",
+              "malayalamTitle": "ബീർബലിന്റെ ബുദ്ധിസാമർത്ഥ്യം (ഹാസ്യകഥ)",
+              "summary": "अकबर और बीरबल की बुद्धिमानी पर आधारित रोचक कहानी। बीरबल ने अपनी तीक्ष्ण बुद्धि और हाजिरजवाबी से चोर का पता लगाया और निर्दोष को न्याय दिलाया।",
+              "malayalamSummary": "അക്ബറുടെ കൊട്ടാരത്തിലെ ബുദ്ധിമാനായ ബീർബൽ സത്യം വെളിച്ചത്തു കൊണ്ടുവരുന്ന രസകരമായ കഥ.",
+              "keyTerms": [
+                  "बीरबल",
+                  "अकबर",
+                  "न्याय",
+                  "बुद्धिमानी",
+                  "हाजिरजवाबी",
+                  "दरबार"
+              ],
+              "learningObjectives": [
+                  "मुश्किल परिस्थितियों में शांत रहकर बुद्धि से समाधान निकालना",
+                  "नए हिंदी शब्दों का वाक्यों में सटीक प्रयोग करना"
+              ]
+          },
+          {
+              "id": "chap-c4-hin-3",
+              "chapterNumber": 3,
+              "title": "पाठ 3: उड़न खटोला की रोमांचक सैर (कल्पना-कथा - आकाश यात्रा)",
+              "malayalamTitle": "ഉഡൻ ഖടോലയുടെ ആകാശയാത്ര (കഥ)",
+              "summary": "उड़न खटोला पुस्तक की मुख्य शीर्षक कथा! दो छोटे बच्चे जादुई उड़न खटोले में बैठकर बादलों, पर्वतों और नदियों की सैर करते हैं और भारत की विविधता को ऊपर से देखते हैं।",
+              "malayalamSummary": "മാന്ത്രിക വാഹനത്തിൽ ആകാശത്തിലൂടെ നാടുകാണാൻ പോകുന്ന കുട്ടികളുടെ അത്ഭുതകഥ.",
+              "keyTerms": [
+                  "उड़न खटोला",
+                  "सैर",
+                  "बादल",
+                  "रोमांच",
+                  "पर्वतमाला",
+                  "कल्पना"
+              ],
+              "learningObjectives": [
+                  "कल्पनाशक्ति और रचनात्मक वर्णन का विकास",
+                  "आकाश यात्रा के माध्यम से भौगोलिक विविधता को समझना"
+              ]
+          },
+          {
+              "id": "chap-c4-hin-4",
+              "chapterNumber": 4,
+              "title": "पाठ 4: पेड़ हमारे सच्चे मित्र (पर्यावरण और वृक्ष संरक्षण)",
+              "malayalamTitle": "മരങ്ങൾ നമ്മുടെ ഉത്തമ സുഹൃത്തുക്കൾ",
+              "summary": "वृक्ष हमें प्राणवायु (ऑक्सीजन), मीठे फल, छाया, औषधियां और लकड़ी देते हैं। वृक्षारोपण और पर्यावरण संरक्षण का महत्व।",
+              "malayalamSummary": "മരങ്ങൾ നൽകുന്ന തണലും ഫലങ്ങളും പ്രാണവായുവും, പരിസ്ഥിതി സംരക്ഷണത്തിന്റെ പ്രാധാന്യവും.",
+              "keyTerms": [
+                  "पेड़",
+                  "प्राणवायु",
+                  "छाया",
+                  "औषधि",
+                  "वृक्षारोपण",
+                  "संरक्षण"
+              ],
+              "learningObjectives": [
+                  "पेड़ों से मिलने वाले लाभों की सूची बनाना",
+                  "अपने जन्मदिन पर एक पौधा लगाने का संकल्प लेना"
+              ]
+          },
+          {
+              "id": "chap-c4-hin-5",
+              "chapterNumber": 5,
+              "title": "पाठ 5: समय का मोल (अनुशासन और समय-पालन की सीख)",
+              "malayalamTitle": "സമയത്തിന്റെ വില (അച്ചടക്ക പാഠം)",
+              "summary": "बीता हुआ समय कभी वापस नहीं आता। समय-सारिणी (टाइम टेबल) बनाकर नियमित अध्ययन और खेलकूद करने वाला बच्चा ही जीवन में सफलता प्राप्त करता है।",
+              "malayalamSummary": "പോയ സമയം തിരിച്ചു വരില്ല; സമയനിഷ്ഠ പാലിക്കേണ്ടതിന്റെ പ്രാധാന്യം.",
+              "keyTerms": [
+                  "समय",
+                  "अनमोल",
+                  "अनुशासन",
+                  "नियम",
+                  "सफलता",
+                  "परिश्रम"
+              ],
+              "learningObjectives": [
+                  "समय प्रबंधन और दैनिक दिनचर्या का पालन करना",
+                  "समय के महत्व पर 5 पंक्तियाँ लिखना"
+              ]
+          },
+          {
+              "id": "chap-c4-hin-6",
+              "chapterNumber": 6,
+              "title": "पाठ 6: सच्चा मित्र और एकता की शक्ति (पंचतंत्र की प्रेरक कहानी)",
+              "malayalamTitle": "സത്യമുള്ള സുഹൃത്തും ഐക്യത്തിന്റെ ശക്തിയും",
+              "summary": "पंचतंत्र की प्रसिद्ध प्रेरक कथा - कबूतरों का जाल लेकर उड़ जाना और चूहे द्वारा जाल काटना। एकता में ही सबसे बड़ी शक्ति होती है।",
+              "malayalamSummary": "ഐക്യമത്യം മഹാബലം എന്ന് വ്യക്തമാക്കുന്ന പ്രാവിൻകൂട്ടത്തിന്റെയും എലിയുടെയും കഥ.",
+              "keyTerms": [
+                  "मित्रता",
+                  "एकता",
+                  "संगठन",
+                  "शिकारी",
+                  "संकट",
+                  "सद्भावना"
+              ],
+              "learningObjectives": [
+                  "कठिन समय में मिलकर काम करने का महत्व समझना",
+                  "कहानी का नैतिक संदेश अपने शब्दों में व्यक्त करना"
+              ]
+          },
+          {
+              "id": "chap-c4-hin-7",
+              "chapterNumber": 7,
+              "title": "पाठ 7: हिंदी व्याकरण उपवन: संज्ञा, सर्वनाम, विशेषण, क्रिया और विलोम शब्द",
+              "malayalamTitle": "ഹിന്ദി വ്യാകരണം: നാമം, സർവ്വനാമം, ക്രിയ & വിപരീത പദങ്ങൾ",
+              "summary": "संज्ञा (किसी व्यक्ति, वस्तु, स्थान का नाम), सर्वनाम (मैं, तुम, वह), विशेषण (गुण बताने वाले शब्द), क्रिया (काम का होना)। विलोम शब्द (दिन-रात, अच्छा-बुरा, मित्र-शत्रु)।",
+              "malayalamSummary": "ഹിന്ദിയിലെ നാമം, സർവ്വനാമം, വിശേഷണം, ക്രിയ, വിപരീത പദങ്ങൾ എന്നിവയുടെ ലളിതമായ വിവരണം.",
+              "keyTerms": [
+                  "संज्ञा",
+                  "सर्वनाम",
+                  "विशेषण",
+                  "क्रिया",
+                  "विलोम शब्द",
+                  "पर्यायवाची"
+              ],
+              "learningObjectives": [
+                  "संज्ञा, सर्वनाम और क्रिया की सही पहचान करना",
+                  "विलोम और पर्यायवाची शब्दों का अभ्यास करना"
+              ]
+          }
+      ]
+  },
+
+  // 7. English Literature — FOCUS 4 (Ratna Sagar)
+  {
+      "id": "tb-c4-focus-1",
+      "subjectId": "sub-c4-focus-eng",
+      "childId": "child-1",
+      "title": "FOCUS Book 4 Preparatory: A Complete English Course — Ratna Sagar",
+      "author": "Christine Dacosta, Manaswini Sridhar, Sujatha Jayaprakash, Inderpreet Kaur",
+      "publisher": "Ratna Sagar",
+      "classGrade": "Class 4",
+      "coverImage": "/textbooks/c4-eng-focus-4.jpg",
+      "chapters": [
+          {
+              "id": "chap-c4-foc-1",
+              "chapterNumber": 1,
+              "title": "The Key to the Garden (Prose - Discovery & The Secret Garden)",
+              "malayalamTitle": "പൂന്തോട്ടത്തിലേക്കുള്ള താക്കോൽ (കഥ)",
+              "summary": "Adapted from Frances Hodgson Burnett's beloved classic 'The Secret Garden'. Mary Lennox discovers a rusted brass key buried in the earth and uncovers the ivy-covered door to a forgotten magical garden, finding hope, friendship, and nature's healing magic.",
+              "malayalamSummary": "പ്രകൃതിയുടെ മാന്ത്രികതയും സൗഹൃദത്തിന്റെ പ്രാധാന്യവും വ്യക്തമാക്കുന്ന രഹസ്യ പൂന്തോട്ടത്തിന്റെ കഥ.",
+              "keyTerms": [
+                  "Secret Garden",
+                  "Ivy",
+                  "Robin Bird",
+                  "Brass Key",
+                  "Discovery",
+                  "Curiosity"
+              ],
+              "learningObjectives": [
+                  "Develop descriptive reading and inference skills",
+                  "Identify character motivations and descriptive vocabulary"
+              ]
+          },
+          {
+              "id": "chap-c4-foc-2",
+              "chapterNumber": 2,
+              "title": "The Pied Piper of Hamelin (Classic Legend of Hamelin Town)",
+              "malayalamTitle": "ഹാംലിനിലെ പൈഡ് പൈപ്പർ (ഐതിഹ്യ കഥ)",
+              "summary": "Robert Browning's famous tale of Hamelin town overrun by rats. A mysterious piper dressed in half yellow and half red promises to rid the town of rats using his magical pipe. When the greedy Mayor refuses to pay the promised 1,000 guilders, the piper teaches the town an unforgettable lesson on honoring promises.",
+              "malayalamSummary": "വാക്കുപാലിക്കേണ്ടതിന്റെ ആവശ്യകതയും അത്യാഗ്രഹത്തിന്റെ ദൂഷ്യഫലങ്ങളും പഠിപ്പിക്കുന്ന പ്രസിദ്ധ കഥ.",
+              "keyTerms": [
+                  "Pied Piper",
+                  "Hamelin",
+                  "Guilders",
+                  "Promise",
+                  "Magic Flute",
+                  "Integrity"
+              ],
+              "learningObjectives": [
+                  "Appreciate rhythm, setting, and dramatic storytelling",
+                  "Understand the moral value of keeping one's promise"
+              ]
+          },
+          {
+              "id": "chap-c4-foc-3",
+              "chapterNumber": 3,
+              "title": "The Rocket Women of India (ISRO Mars Orbiter Mission - Mangalyaan)",
+              "malayalamTitle": "ഭാരതത്തിന്റെ റോക്കറ്റ് വനിതകൾ (ശാസ്ത്ര നേട്ടം)",
+              "summary": "The inspiring true story of the brilliant women scientists at ISRO (Indian Space Research Organisation) who spearheaded the Mars Orbiter Mission (Mangalyaan). How hard work, teamwork, and indigenous science placed India in Mars orbit on the very first attempt at minimal cost.",
+              "malayalamSummary": "ഇന്ത്യയുടെ അഭിമാനമായ മംഗൾയാൻ ദൗത്യത്തിന് പിന്നിൽ പ്രവർത്തിച്ച വനിതാ ശാസ്ത്രജ്ഞരുടെ പ്രചോദനാത്മക കഥ.",
+              "keyTerms": [
+                  "ISRO",
+                  "Mangalyaan",
+                  "Mars Orbit",
+                  "Rocket Science",
+                  "Perseverance",
+                  "Innovation"
+              ],
+              "learningObjectives": [
+                  "Gain appreciation for Indian scientific achievements and space exploration",
+                  "Learn factual comprehension and biographical reading"
+              ]
+          },
+          {
+              "id": "chap-c4-foc-4",
+              "chapterNumber": 4,
+              "title": "Tom Paints the Fence (Mark Twain's The Adventures of Tom Sawyer)",
+              "malayalamTitle": "ടോം വേലിക്ക് പെയിന്റടിക്കുന്നു (ഹാസ്യ കഥ)",
+              "summary": "Mark Twain's humorous episode where mischievous Tom Sawyer is punished with whitewashing a thirty-yard wooden fence on a sunny Saturday. By pretending that painting the fence is a grand, artistic privilege, Tom cleverly convinces his friends to give him their treasures just for a chance to paint!",
+              "malayalamSummary": "ടോം സോയറിന്റെ രസകരമായ തന്ത്രവും ബുദ്ധിസാമർത്ഥ്യവും വരച്ചുകാട്ടുന്ന കഥ.",
+              "keyTerms": [
+                  "Tom Sawyer",
+                  "Whitewash",
+                  "Aunt Polly",
+                  "Clever Trick",
+                  "Humour",
+                  "Playfulness"
+              ],
+              "learningObjectives": [
+                  "Identify irony and light-hearted humor in classic literature",
+                  "Expand vocabulary with colloquial dialogue and idioms"
+              ]
+          },
+          {
+              "id": "chap-c4-foc-5",
+              "chapterNumber": 5,
+              "title": "Out with the Goats (Johanna Spyri's Classic 'Heidi')",
+              "malayalamTitle": "മലമുകളിലെ ആട്ടിടയൻ (ഹെയ്ഡിയുടെ കഥ)",
+              "summary": "Little orphan Heidi accompanies Peter the goatherd up the breathtaking Swiss Alps. Surrounded by golden eagles, yellow rock-roses, and whispering fir trees, Heidi discovers the joy of simple, pure life in the mountains.",
+              "malayalamSummary": "ആൽപ്സ് പർവ്വതനിരകളിലെ ശുദ്ധമായ പ്രകൃതിയും ആട്ടിൻകൂട്ടങ്ങളും നിറഞ്ഞ ഹെയ്ഡിയുടെ അനുഭവം.",
+              "keyTerms": [
+                  "Swiss Alps",
+                  "Goatherd",
+                  "Pasture",
+                  "Mountain Breeze",
+                  "Nature",
+                  "Contentment"
+              ],
+              "learningObjectives": [
+                  "Analyze sensory imagery describing nature and wildlife",
+                  "Express personal reactions through creative writing"
+              ]
+          },
+          {
+              "id": "chap-c4-foc-6",
+              "chapterNumber": 6,
+              "title": "Young Kalam: The Boy from Rameswaram (APJ Abdul Kalam Biography)",
+              "malayalamTitle": "കൊച്ചു കലാം: രാമേശ്വരത്തെ മിടുക്കൻ",
+              "summary": "The childhood of Dr. A.P.J. Abdul Kalam, from delivering newspapers at dawn at Rameswaram railway station to his dream of flying like sea birds. How curiosity, dedication to studies, and parental values molded him into India's beloved 'Missile Man' and President.",
+              "malayalamSummary": "ഡോ. എ.പി.ജെ. അബ്ദുൾ കലാമിന്റെ ബാല്യകാല പോരാട്ടങ്ങളും സ്വപ്നങ്ങളും.",
+              "keyTerms": [
+                  "Dr. APJ Abdul Kalam",
+                  "Rameswaram",
+                  "Dedication",
+                  "Dream High",
+                  "Missile Man",
+                  "Humility"
+              ],
+              "learningObjectives": [
+                  "Draw inspiration from Kalam's resilience and thirst for knowledge",
+                  "Write a short character sketch using descriptive adjectives"
+              ]
+          },
+          {
+              "id": "chap-c4-foc-7",
+              "chapterNumber": 7,
+              "title": "The Magic Pot (Folk Tale of Kindness & Contentment)",
+              "malayalamTitle": "മാന്ത്രിക പാത്രം (നാടോടിക്കഥ)",
+              "summary": "A poor, hardworking farmer finds a magical copper pot buried in his field that duplicates whatever is placed inside it. When he drops his spade in, two spades appear. But when a greedy village landlord tries to seize it, greed leads to hilarious and rightful consequences.",
+              "malayalamSummary": "അത്യാഗ്രഹം വിനാശത്തിന് കാരണമാകും എന്ന് വ്യക്തമാക്കുന്ന മാന്ത്രിക പാത്രത്തിന്റെ നാടോടിക്കഥ.",
+              "keyTerms": [
+                  "Magic Pot",
+                  "Farmer",
+                  "Duplication",
+                  "Greed",
+                  "Justice",
+                  "Contentment"
+              ],
+              "learningObjectives": [
+                  "Understand story structure: Beginning, Problem, Climax, and Resolution",
+                  "Discuss the ethical theme that true wealth lies in contentment"
+              ]
+          }
+      ]
+  },
+
+  // 8. Coding & AI — Coding Capers 4 (KIPS Learning)
+  {
+      "id": "tb-c4-coding-1",
+      "subjectId": "sub-c4-coding",
+      "childId": "child-1",
+      "title": "Coding Capers 4: Empowering NexGen with AI-Robotics and Coding — KIPS Learning",
+      "author": "Kips Editorial Team",
+      "publisher": "KIPS LEARNING PVT. LTD.",
+      "classGrade": "Class 4",
+      "coverImage": "/textbooks/c4-comp-coding-capers-4.jpg",
+      "chapters": [
+          {
+              "id": "chap-c4-cod-1",
+              "chapterNumber": 1,
+              "title": "Computer Memory & Storage: Bits, Bytes, RAM, ROM & Secondary Disks",
+              "malayalamTitle": "കമ്പ്യൂട്ടർ മെമ്മറിയും സ്റ്റോറേജും: ബിറ്റുകൾ, ബൈറ്റുകൾ & ഹാർഡ് ഡിസ്ക്",
+              "summary": "How computers store digital data. Binary digits (0 and 1) make up Bits and Bytes (8 bits = 1 Byte; 1024 Bytes = 1 KB; 1024 KB = 1 MB; 1024 MB = 1 GB). Internal memory: RAM (Random Access Memory - volatile) and ROM (Read Only Memory - non-volatile). Secondary storage: Hard Disk, SSD, USB Flash Pen Drive, Cloud Storage.",
+              "malayalamSummary": "കമ്പ്യൂട്ടർ വിവരങ്ങൾ സൂക്ഷിക്കുന്ന രീതി, ബിറ്റ്, ബൈറ്റ്, റാം (RAM), റോം (ROM), പെൻഡ്രൈവ്, ഹാർഡ് ഡിസ്ക്.",
+              "keyTerms": [
+                  "Bit",
+                  "Byte",
+                  "RAM",
+                  "ROM",
+                  "Volatile Memory",
+                  "Hard Disk",
+                  "Pen Drive",
+                  "Cloud Storage"
+              ],
+              "learningObjectives": [
+                  "Understand units of digital memory from bytes to gigabytes",
+                  "Distinguish primary internal memory (RAM/ROM) from secondary storage"
+              ]
+          },
+          {
+              "id": "chap-c4-cod-2",
+              "chapterNumber": 2,
+              "title": "Operating System & Desktop Management: Windows, Files & Folders",
+              "malayalamTitle": "ഓപ്പറേറ്റിംഗ് സിസ്റ്റവും ഡെസ്ക്ടോപ്പ് മാനേജ്മെന്റും",
+              "summary": "The Operating System as an interface between user and computer hardware. Windows 11 GUI desktop features: Taskbar, Start Menu, System Tray, Desktop Icons. Creating, renaming, moving, copying, and deleting files and folders. Personalizing wallpaper and screen savers. The Recycle Bin.",
+              "malayalamSummary": "വിൻഡോസ് ഓപ്പറേറ്റിംഗ് സിസ്റ്റം, ഫയലുകളും ഫോൾഡറുകളും ഉണ്ടാക്കൽ, ഡെസ്ക്ടോപ്പ് ക്രമീകരിക്കൽ.",
+              "keyTerms": [
+                  "Operating System",
+                  "GUI",
+                  "Taskbar",
+                  "File",
+                  "Folder",
+                  "Recycle Bin",
+                  "Shortcuts"
+              ],
+              "learningObjectives": [
+                  "Organize computer files efficiently into structured folders",
+                  "Navigate Windows taskbar and system settings with confidence"
+              ]
+          },
+          {
+              "id": "chap-c4-cod-3",
+              "chapterNumber": 3,
+              "title": "Word Processing Tools: Formatting, Font Styling & Alignment",
+              "malayalamTitle": "വേർഡ് പ്രോസസ്സിംഗ് ടൂളുകൾ: ഫോർമാറ്റിംഗും അലൈൻമെന്റും",
+              "summary": "Creating and editing documents in Word. Font formatting: Typeface, Font Size, Bold (Ctrl+B), Italic (Ctrl+I), Underline (Ctrl+U), Text Color, and Highlight. Text Alignment: Align Left, Center, Align Right, Justify. Line spacing, Bulleted and Numbered lists. Using Find and Replace.",
+              "malayalamSummary": "വേർഡ് പ്രോസസ്സറിലെ ടെക്സ്റ്റ് എഡിറ്റിംഗ്, ഫോണ്ട് മാറ്റൽ, ബുള്ളറ്റ് പോയിന്റുകൾ, അലൈൻമെന്റ്.",
+              "keyTerms": [
+                  "Word Processor",
+                  "Font",
+                  "Alignment",
+                  "Bullets",
+                  "Find and Replace",
+                  "Cut-Copy-Paste"
+              ],
+              "learningObjectives": [
+                  "Format creative school essays with stylish fonts and proper paragraph alignment",
+                  "Master essential keyboard shortcuts (Ctrl+C, Ctrl+V, Ctrl+Z)"
+              ]
+          },
+          {
+              "id": "chap-c4-cod-4",
+              "chapterNumber": 4,
+              "title": "Step-wise Algorithmic Thinking: Logic, Sequencing & Flowcharts",
+              "malayalamTitle": "ഘട്ടംഘട്ടമായുള്ള ചിന്താരീതിയും അൽഗോരിതവും",
+              "summary": "Breaking down complex problems into step-by-step logical instructions (Algorithms). Daily life algorithms (brushing teeth, making lemonade, packing school bag). Flowcharts: Start/Stop oval, Input/Output parallelogram, Process rectangle, Decision diamond, Flow lines.",
+              "malayalamSummary": "പ്രശ്നങ്ങൾ പരിഹരിക്കുന്നതിനുള്ള ഘട്ടംഘട്ടമായുള്ള വഴികൾ (അൽഗോരിതം), ഫ്ലോചാർട്ട് ചിഹ്നങ്ങൾ.",
+              "keyTerms": [
+                  "Algorithm",
+                  "Flowchart",
+                  "Sequence",
+                  "Input-Process-Output",
+                  "Decision Box"
+              ],
+              "learningObjectives": [
+                  "Formulate precise step-by-step instructions for daily and math tasks",
+                  "Interpret and draw simple flowcharts using standard geometric blocks"
+              ]
+          },
+          {
+              "id": "chap-c4-cod-5",
+              "chapterNumber": 5,
+              "title": "Introduction to Presentation Software: Slides, Themes & Transitions",
+              "malayalamTitle": "ഡിജിറ്റൽ പ്രസന്റേഷൻ: സ്ലൈഡുകളും ആനിമേഷനും",
+              "summary": "Basics of digital presentations (PowerPoint / Google Slides). What is a Slide? Adding Title and Subtitle, inserting colorful images, shapes, and text boxes. Applying design templates and background themes. Slide Transitions and running a Slide Show (F5 key).",
+              "malayalamSummary": "സ്ലൈഡുകൾ ഉണ്ടാക്കൽ, ചിത്രങ്ങൾ ചേർക്കൽ, തീമുകൾ, സ്ലൈഡ് ഷോ (Slide Show) പ്രവർത്തിപ്പിക്കൽ.",
+              "keyTerms": [
+                  "Slide",
+                  "Presentation",
+                  "Theme",
+                  "Transition",
+                  "Slide Show",
+                  "Placeholder"
+              ],
+              "learningObjectives": [
+                  "Build a 3-slide visual presentation on a favorite topic",
+                  "Deliver a digital slide show with smooth transition effects"
+              ]
+          },
+          {
+              "id": "chap-c4-cod-6",
+              "chapterNumber": 6,
+              "title": "Visual Block Coding & Loops: Sprites, Motion & Events",
+              "malayalamTitle": "ബ്ലോക്ക് കോഡിംഗും ലൂപ്പുകളും: സ്പ്രൈറ്റും ചലനങ്ങളും",
+              "summary": "Introduction to block-based visual coding (Scratch / Blockly environment). The Stage and Sprites. Palette blocks: Motion (Move 10 steps, Turn 15 degrees), Looks (Say Hello!, Change Costume), Sound (Play Meow), Events (When Green Flag Clicked), and Control (Repeat 10 times loop, Wait 1 sec).",
+              "malayalamSummary": "ബ്ലോക്ക് കോഡിംഗ്, സ്പ്രൈറ്റുകൾ, ചലനങ്ങൾ, ഗ്രീൻ ഫ്ലാഗ് ക്ലിക്ക് ചെയ്യുമ്പോൾ ആരംഭിക്കുന്ന ആനിമേഷനുകൾ.",
+              "keyTerms": [
+                  "Block Coding",
+                  "Sprite",
+                  "Stage",
+                  "Green Flag",
+                  "Loops",
+                  "Event Trigger"
+              ],
+              "learningObjectives": [
+                  "Snap together coding blocks to animate an interactive moving character",
+                  "Use repeat loops to eliminate repetitive code lines"
+              ]
+          },
+          {
+              "id": "chap-c4-cod-7",
+              "chapterNumber": 7,
+              "title": "AI & Robotics Pioneers: Sensors, Smart Machines & Future Technology",
+              "malayalamTitle": "ആർട്ടിഫിഷ്യൽ ഇന്റലിജൻസും റോബോട്ടിക്സും: സ്മാർട്ട് മെഷീനുകൾ",
+              "summary": "What is Artificial Intelligence (AI)? How AI machines learn from data examples. Natural vs Artificial Intelligence. Smart machines around us: Face recognition, Voice assistants (Siri, Alexa), Self-driving cars, Vacuum cleaning robots. Components of a Robot: Sensors (Eyes/Ears), Controller (Brain), Actuators (Motors/Arms).",
+              "malayalamSummary": "എന്താണ് ആർട്ടിഫിഷ്യൽ ഇന്റലിജൻസ് (AI), റോബോട്ടുകളുടെ ഭാഗങ്ങൾ (സെൻസർ, മോട്ടോർ), സ്മാർട്ട് സാങ്കേതികവിദ്യ.",
+              "keyTerms": [
+                  "Artificial Intelligence",
+                  "Robotics",
+                  "Sensors",
+                  "Actuators",
+                  "Voice Assistant",
+                  "Smart Automation"
+              ],
+              "learningObjectives": [
+                  "Recognize AI in everyday gadgets and applications",
+                  "Understand how robots sense, think, and take action in physical environments"
+              ]
+          }
+      ]
+  },
+
+  // 9. Value Education — Joy of Better Living 4 (Arrow Publications)
+  {
+      "id": "tb-c4-moral-1",
+      "subjectId": "sub-c4-moral",
+      "childId": "child-1",
+      "title": "Joy of Better Living Book-4: For the Curious Minds — Arrow Publications",
+      "author": "Dr. Martin Mallath CMI & Editorial Team",
+      "publisher": "Arrow Publications Pvt. Ltd.",
+      "classGrade": "Class 4",
+      "coverImage": "/textbooks/c4-moral-joy-of-better-living-4.jpg",
+      "chapters": [
+          {
+              "id": "chap-c4-mor-1",
+              "chapterNumber": 1,
+              "title": "Gratitude & Prayer: Counting Our Daily Blessings",
+              "malayalamTitle": "നന്ദിയും പ്രാർത്ഥനയും: അനുഗ്രഹങ്ങളെ തിരിച്ചറിയൽ",
+              "summary": "Learning to appreciate the gift of life, loving parents, teachers, good health, and nature. Saying 'Thank You' genuinely. Starting each morning with a peaceful prayer and a cheerful heart.",
+              "malayalamSummary": "ജീവിതത്തിലെ നന്മകൾക്കും മാതാപിതാക്കളുടെ സ്നേഹത്തിനും നന്ദി പറയുന്ന നല്ല ശീലം.",
+              "keyTerms": [
+                  "Gratitude",
+                  "Blessings",
+                  "Thankfulness",
+                  "Prayer",
+                  "Peace"
+              ],
+              "learningObjectives": [
+                  "Cultivate an attitude of genuine gratitude towards family and helpers",
+                  "Express thankfulness through daily positive affirmations"
+              ]
+          },
+          {
+              "id": "chap-c4-mor-2",
+              "chapterNumber": 2,
+              "title": "The Gift of Honesty: Truthfulness in Words and Actions",
+              "malayalamTitle": "സത്യസന്ധത എന്ന സുകൃതം: വാക്കിലും പ്രവർത്തിയിലും",
+              "summary": "Why honesty is the cornerstone of trust. Admitting mistakes courageously without fear. The story of Abraham Lincoln walking miles to return extra pennies. A peaceful conscience is the best pillow to sleep on.",
+              "malayalamSummary": "ധൈര്യത്തോടെ സത്യം പറയാനും തെറ്റുകൾ തിരുത്താനുമുള്ള സന്നദ്ധത.",
+              "keyTerms": [
+                  "Honesty",
+                  "Truth",
+                  "Integrity",
+                  "Courage",
+                  "Trustworthiness"
+              ],
+              "learningObjectives": [
+                  "Understand why truth builds lifelong trust and respect",
+                  "Practice honesty in school tests, games, and home chores"
+              ]
+          },
+          {
+              "id": "chap-c4-mor-3",
+              "chapterNumber": 3,
+              "title": "Empathy and Kindness: Caring for Elders, Friends & Animals",
+              "malayalamTitle": "സഹാനുഭൂതിയും ദയയും: മുതിർന്നവരെയും ജീവികളെയും സ്നേഹിക്കൽ",
+              "summary": "Putting yourself in someone else's shoes. Helping elderly grandparents, welcoming new classmates, standing up against bullying, and treating stray animals with tender compassion.",
+              "malayalamSummary": "മറ്റുള്ളവരുടെ സങ്കടങ്ങൾ മനസ്സിലാക്കി സ്നേഹത്തോടെ സഹായിക്കാനുള്ള മനസ്സ്.",
+              "keyTerms": [
+                  "Empathy",
+                  "Kindness",
+                  "Compassion",
+                  "Respect for Elders",
+                  "Inclusion"
+              ],
+              "learningObjectives": [
+                  "Practice small acts of unexpected kindness every day",
+                  "Demonstrate respect and affection for grandparents and helpers"
+              ]
+          },
+          {
+              "id": "chap-c4-mor-4",
+              "chapterNumber": 4,
+              "title": "Teamwork & Cooperation: Together Everyone Achieves More",
+              "malayalamTitle": "ഒരുമയും കൂട്ടായ്മയും: ഐക്യമത്യം മഹാബലം",
+              "summary": "The power of working harmoniously as a team. Listening to others, sharing responsibilities, celebrating group victories, and supporting friends when they fall. A bunch of sticks cannot be broken!",
+              "malayalamSummary": "ഒരുമിച്ച് നിന്ന് പ്രവർത്തിക്കുമ്പോൾ ലഭിക്കുന്ന വലിയ വിജയം.",
+              "keyTerms": [
+                  "Teamwork",
+                  "Cooperation",
+                  "Sharing",
+                  "Unity",
+                  "Sportsmanship"
+              ],
+              "learningObjectives": [
+                  "Cooperate happily in group projects and playground sports",
+                  "Value every member's contribution regardless of differences"
+              ]
+          },
+          {
+              "id": "chap-c4-mor-5",
+              "chapterNumber": 5,
+              "title": "Respect for Nature: Green Earth, Clean Water & No Waste",
+              "malayalamTitle": "പ്രകൃതിയോടുള്ള ആദരവ്: പരിസ്ഥിതി സംരക്ഷണം",
+              "summary": "Nature is God's grandest home. Avoiding single-use plastics, turning off running water taps, switching off unused lights, planting saplings, and keeping school grounds litter-free.",
+              "malayalamSummary": "ഭൂമിയെയും ജലത്തെയും സംരക്ഷിക്കേണ്ടത് നമ്മുടെ ഓരോരുത്തരുടെയും കടമയാണ്.",
+              "keyTerms": [
+                  "Clean Earth",
+                  "Conservation",
+                  "Plastic Free",
+                  "Save Water",
+                  "Eco Warrior"
+              ],
+              "learningObjectives": [
+                  "Adopt eco-friendly habits in personal daily routine",
+                  "Participate actively in planting trees and conserving water"
+              ]
+          },
+          {
+              "id": "chap-c4-mor-6",
+              "chapterNumber": 6,
+              "title": "Courage & Perseverance: Never Giving Up on Good Goals",
+              "malayalamTitle": "ആത്മധൈര്യവും സ്ഥിരോത്സാഹവും: പരാജയങ്ങളിൽ തളരാതിരിക്കൽ",
+              "summary": "Mistakes and failures are stepping stones to success. The story of King Bruce and the persevering spider. Cultivating a growth mindset: 'I can do it with practice!'",
+              "malayalamSummary": "ലക്ഷ്യത്തിലെത്തും വരെ പ്രയത്നിക്കാനുള്ള ആത്മധൈര്യം.",
+              "keyTerms": [
+                  "Perseverance",
+                  "Determination",
+                  "Growth Mindset",
+                  "Courage",
+                  "Resilience"
+              ],
+              "learningObjectives": [
+                  "Develop resilience in tackling difficult school subjects and challenges",
+                  "Maintain optimistic spirit when things do not go as planned"
+              ]
+          }
+      ]
+  },
+
   // ============================================================================
   // CLASS 4 (4TH STANDARD) — 5 SUBJECT E-BOOKS
   // ============================================================================

@@ -37,8 +37,9 @@ export interface TextbookChapter {
   malayalamTitle: string;
   summary: string;
   malayalamSummary: string;
-  topics: string[];
+  topics?: string[];
   keyTerms: string[];
+  learningObjectives?: string[];
   extractedTextChunk?: string;
   pageNumber?: number;
 }
@@ -48,13 +49,17 @@ export interface Textbook {
   childId: string;
   subjectId: string;
   title: string;
-  academicYear: string;
+  academicYear?: string;
   classGrade: ClassGrade;
-  fileName: string;
-  fileSize: string;
-  pageCount: number;
+  fileName?: string;
+  fileSize?: string;
+  pageCount?: number;
+  author?: string;
+  publisher?: string;
+  coverImage?: string;
+  grade?: string;
   chapters: TextbookChapter[];
-  uploadDate: string;
+  uploadDate?: string;
   rawText?: string;
 }
 
