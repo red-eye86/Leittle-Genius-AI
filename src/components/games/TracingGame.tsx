@@ -1,13 +1,32 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
-import { RefreshCw, Sparkles, Volume2, Palette, PenTool, CheckCircle2 } from 'lucide-react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
+import {
+  RefreshCw,
+  Sparkles,
+  Volume2,
+  Palette,
+  PenTool,
+  Undo2,
+  Redo2,
+  Download,
+  Eraser,
+  Pencil,
+  Highlighter,
+  Stamp,
+  Grid,
+  CheckCircle2,
+  Maximize2,
+  Sliders,
+} from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useApp } from '@/lib/context/AppContext';
 import { soundEffects } from '@/lib/audio/soundEffects';
 import { TextbookChapter, Subject } from '@/lib/db/types';
 
 type TraceCategory = 'chapter_words' | 'letters' | 'numbers' | 'shapes' | 'freedraw';
+type ToolType = 'pencil' | 'pen' | 'crayon' | 'highlighter' | 'rainbow' | 'eraser' | 'stamp';
+type GuideLineStyle = 'four_line' | 'grid' | 'blank';
 
 interface TraceItem {
   id: string;
@@ -52,39 +71,72 @@ const BASE_TRACE_ITEMS: TraceItem[] = [
   { id: 's-heart', category: 'shapes', display: '❤️', label: 'Heart', malayalamLabel: 'ഹൃദയം (Heart)', guide: 'Two curves on top meeting at a point below!', phonics: 'Heart! Full of love and kindness!', color: '#ec4899', shapeType: 'heart' },
 ];
 
-const CRAYON_COLORS = [
-  { name: 'Red', hex: '#ef4444' },
-  { name: 'Blue', hex: '#3b82f6' },
-  { name: 'Green', hex: '#10b981' },
-  { name: 'Orange', hex: '#f97316' },
-  { name: 'Purple', hex: '#8b5cf6' },
-  { name: 'Pink', hex: '#ec4899' },
-  { name: 'Gold', hex: '#eab308' },
+// Rich 14-Color Curated Vibrant Palette
+const COLOR_PALETTE = [
+  { name: 'Crimson Red', hex: '#ef4444' },
+  { name: 'Coral Orange', hex: '#f97316' },
+  { name: 'Warm Amber', hex: '#f59e0b' },
+  { name: 'Sunshine Yellow', hex: '#eab308' },
+  { name: 'Lime Green', hex: '#84cc16' },
+  { name: 'Emerald Green', hex: '#10b981' },
+  { name: 'Sky Cyan', hex: '#06b6d4' },
+  { name: 'Bright Blue', hex: '#3b82f6' },
+  { name: 'Royal Indigo', hex: '#6366f1' },
+  { name: 'Vivid Purple', hex: '#8b5cf6' },
+  { name: 'Hot Pink', hex: '#ec4899' },
+  { name: 'Earth Brown', hex: '#854d0e' },
+  { name: 'Slate Black', hex: '#1e293b' },
+  { name: 'Pure White', hex: '#ffffff' },
 ];
 
+// Precision Pin-Point Presets
+const PIN_POINT_PRESETS = [
+  { id: 'ultra_pin', label: '📌 Ultra Pin', size: 2, iconLabel: '2px' },
+  { id: 'fine_pen', label: '📍 Fine Point', size: 5, iconLabel: '5px' },
+  { id: 'medium', label: '✏️ Pencil', size: 10, iconLabel: '10px' },
+  { id: 'marker', label: '🖍️ Marker', size: 18, iconLabel: '18px' },
+  { id: 'jumbo', label: '🖌️ Jumbo', size: 28, iconLabel: '28px' },
+];
+
+const STICKER_STAMPS = ['⭐', '🌸', '🚀', '🐱', '🦋', '🌈', '🏆', '🐾', '🍎', '🎈'];
+
 export default function TracingGame({ chapter, subject }: TracingGameProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  // Layered canvases: guide canvas in back, drawing canvas on top
+  const guideCanvasRef = useRef<HTMLCanvasElement>(null);
+  const drawCanvasRef = useRef<HTMLCanvasElement>(null);
+  const colorInputRef = useRef<HTMLInputElement>(null);
+
   const { language, speak, addStars } = useApp();
 
   const [category, setCategory] = useState<TraceCategory>('chapter_words');
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
+
+  // Tools & Brushes
+  const [currentTool, setCurrentTool] = useState<ToolType>('pencil');
   const [brushColor, setBrushColor] = useState('#ef4444');
-  const [brushSize, setBrushSize] = useState(14);
-  const [isDrawing, setIsDrawing] = useState(false);
+  const [brushSize, setBrushSize] = useState(10);
+  const [selectedStamp, setSelectedStamp] = useState('⭐');
+  const [lineStyle, setLineStyle] = useState<GuideLineStyle>('four_line');
   const [completed, setCompleted] = useState(false);
 
-  // Path metrics tracking to avoid premature completion
+  // History Undo / Redo Stacks
+  const undoStackRef = useRef<ImageData[]>([]);
+  const redoStackRef = useRef<ImageData[]>([]);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  // Metric tracking for path coverage
+  const isDrawingRef = useRef(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
-  const strokeLengthRef = useRef<number>(0);
-  const minXRef = useRef<number>(9999);
-  const maxXRef = useRef<number>(0);
-  const minYRef = useRef<number>(9999);
-  const maxYRef = useRef<number>(0);
+  const strokeLengthRef = useRef(0);
+  const minXRef = useRef(9999);
+  const maxXRef = useRef(0);
+  const rainbowHueRef = useRef(0);
 
   // Build chapter-specific tracing words from chapter.keyTerms
   const chapterTraceItems: TraceItem[] = (chapter?.keyTerms || []).map((term, idx) => {
     const cleanWord = term.split('(')[0].trim().slice(0, 14);
-    const color = CRAYON_COLORS[idx % CRAYON_COLORS.length].hex;
+    const color = COLOR_PALETTE[idx % COLOR_PALETTE.length].hex;
     return {
       id: `cw-${chapter?.id}-${idx}`,
       category: 'chapter_words',
@@ -106,27 +158,102 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
   }, [chapter?.id]);
 
   useEffect(() => {
-    if (category !== 'freedraw' && currentItem) {
+    if (category !== 'freedraw' && currentItem && currentTool !== 'eraser' && currentTool !== 'rainbow') {
       setBrushColor(currentItem.color);
     }
-    drawCanvasGuide();
-  }, [category, selectedItemIndex, chapter?.id]);
+    drawBackgroundGuide();
+    clearDrawCanvas();
+  }, [category, selectedItemIndex, chapter?.id, lineStyle]);
+
+  // Save current drawing surface state for Undo
+  const pushUndoState = () => {
+    const canvas = drawCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    try {
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      undoStackRef.current.push(imgData);
+      if (undoStackRef.current.length > 25) {
+        undoStackRef.current.shift();
+      }
+      redoStackRef.current = [];
+      setCanUndo(true);
+      setCanRedo(false);
+    } catch (e) {}
+  };
+
+  const handleUndo = () => {
+    const canvas = drawCanvasRef.current;
+    if (!canvas || undoStackRef.current.length === 0) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    soundEffects.playPop();
+    const currentImg = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    redoStackRef.current.push(currentImg);
+
+    const previousImg = undoStackRef.current.pop();
+    if (previousImg) {
+      ctx.putImageData(previousImg, 0, 0);
+    }
+    setCanUndo(undoStackRef.current.length > 0);
+    setCanRedo(true);
+  };
+
+  const handleRedo = () => {
+    const canvas = drawCanvasRef.current;
+    if (!canvas || redoStackRef.current.length === 0) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    soundEffects.playPop();
+    const currentImg = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    undoStackRef.current.push(currentImg);
+
+    const nextImg = redoStackRef.current.pop();
+    if (nextImg) {
+      ctx.putImageData(nextImg, 0, 0);
+    }
+    setCanUndo(true);
+    setCanRedo(redoStackRef.current.length > 0);
+  };
+
+  const clearDrawCanvas = () => {
+    const canvas = drawCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    undoStackRef.current = [];
+    redoStackRef.current = [];
+    setCanUndo(false);
+    setCanRedo(false);
+
+    lastPointRef.current = null;
+    strokeLengthRef.current = 0;
+    minXRef.current = 9999;
+    maxXRef.current = 0;
+    setCompleted(false);
+  };
 
   const drawShapePath = (ctx: CanvasRenderingContext2D, shape: string, cx: number, cy: number) => {
     ctx.beginPath();
     if (shape === 'circle') {
-      ctx.arc(cx, cy, 95, 0, Math.PI * 2);
+      ctx.arc(cx, cy, 105, 0, Math.PI * 2);
     } else if (shape === 'square') {
-      ctx.rect(cx - 85, cy - 85, 170, 170);
+      ctx.rect(cx - 95, cy - 95, 190, 190);
     } else if (shape === 'triangle') {
-      ctx.moveTo(cx, cy - 95);
-      ctx.lineTo(cx + 95, cy + 80);
-      ctx.lineTo(cx - 95, cy + 80);
+      ctx.moveTo(cx, cy - 105);
+      ctx.lineTo(cx + 105, cy + 90);
+      ctx.lineTo(cx - 105, cy + 90);
       ctx.closePath();
     } else if (shape === 'star') {
       const spikes = 5;
-      const outerRadius = 100;
-      const innerRadius = 45;
+      const outerRadius = 110;
+      const innerRadius = 50;
       let rot = (Math.PI / 2) * 3;
       let x = cx;
       let y = cy;
@@ -146,71 +273,113 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
       ctx.closePath();
     } else if (shape === 'heart') {
       ctx.moveTo(cx, cy - 35);
-      ctx.bezierCurveTo(cx, cy - 45, cx - 90, cy - 90, cx - 90, cy - 20);
-      ctx.bezierCurveTo(cx - 90, cy + 35, cx, cy + 65, cx, cy + 95);
-      ctx.bezierCurveTo(cx, cy + 65, cx + 90, cy + 35, cx + 90, cy - 20);
-      ctx.bezierCurveTo(cx + 90, cy - 90, cx, cy - 45, cx, cy - 35);
+      ctx.bezierCurveTo(cx, cy - 50, cx - 100, cy - 100, cx - 100, cy - 20);
+      ctx.bezierCurveTo(cx - 100, cy + 40, cx, cy + 70, cx, cy + 105);
+      ctx.bezierCurveTo(cx, cy + 70, cx + 100, cy + 40, cx + 100, cy - 20);
+      ctx.bezierCurveTo(cx + 100, cy - 100, cx, cy - 50, cx, cy - 35);
       ctx.closePath();
     }
   };
 
-  const drawCanvasGuide = () => {
-    const canvas = canvasRef.current;
+  // Render notebook ruling and dashed letter/word template on the guide canvas
+  const drawBackgroundGuide = () => {
+    const canvas = guideCanvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw notebook guidelines
+    // 1. Notebook Guidelines
     ctx.save();
-    ctx.strokeStyle = '#f1f5f9';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([]);
-    for (let y = 40; y < canvas.height; y += 40) {
+    if (lineStyle === 'four_line') {
+      // Traditional 4-Line Primary Handwriting Ruling (Red - Blue - Blue - Red)
+      const centerY = canvas.height / 2;
+      const lineGap = 42;
+      const y1 = centerY - lineGap * 1.5; // Top Red Line
+      const y2 = centerY - lineGap * 0.5; // Middle Blue Line (dashed)
+      const y3 = centerY + lineGap * 0.5; // Baseline Blue Line
+      const y4 = centerY + lineGap * 1.5; // Descender Red Line
+
+      // Top Red line
+      ctx.strokeStyle = '#fca5a5';
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(canvas.width, y);
+      ctx.moveTo(15, y1);
+      ctx.lineTo(canvas.width - 15, y1);
       ctx.stroke();
+
+      // Middle Blue Line (dashed)
+      ctx.strokeStyle = '#93c5fd';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([8, 8]);
+      ctx.beginPath();
+      ctx.moveTo(15, y2);
+      ctx.lineTo(canvas.width - 15, y2);
+      ctx.stroke();
+
+      // Baseline Blue Line (solid)
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(15, y3);
+      ctx.lineTo(canvas.width - 15, y3);
+      ctx.stroke();
+
+      // Bottom Red Line
+      ctx.strokeStyle = '#fca5a5';
+      ctx.beginPath();
+      ctx.moveTo(15, y4);
+      ctx.lineTo(canvas.width - 15, y4);
+      ctx.stroke();
+    } else if (lineStyle === 'grid') {
+      // Subtle Graph Paper Grid
+      ctx.strokeStyle = '#f1f5f9';
+      ctx.lineWidth = 1;
+      for (let x = 30; x < canvas.width; x += 30) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 30; y < canvas.height; y += 30) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
     }
     ctx.restore();
 
-    // Reset metric tracking
-    lastPointRef.current = null;
-    strokeLengthRef.current = 0;
-    minXRef.current = 9999;
-    maxXRef.current = 0;
-    minYRef.current = 9999;
-    maxYRef.current = 0;
-    setCompleted(false);
+    if (category === 'freedraw') return;
 
-    if (category === 'freedraw') {
-      return;
-    }
-
+    // 2. Render Large Dashed Tracing Template
     ctx.save();
     const cx = canvas.width / 2;
     const cy = canvas.height / 2;
 
     if (category === 'shapes' && currentItem?.shapeType) {
       drawShapePath(ctx, currentItem.shapeType, cx, cy);
-      ctx.fillStyle = '#f8fafc';
+      ctx.fillStyle = 'rgba(248, 250, 252, 0.7)';
       ctx.fill();
       ctx.strokeStyle = '#94a3b8';
-      ctx.lineWidth = 10;
-      ctx.setLineDash([12, 14]);
+      ctx.lineWidth = 12;
+      ctx.setLineDash([14, 16]);
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.stroke();
     } else if (currentItem) {
       const len = currentItem.display.length;
-      const fontSize = len <= 2 ? 170 : len <= 5 ? 95 : len <= 8 ? 68 : 50;
-      ctx.font = `bold ${fontSize}px "Comic Sans MS", "Comic Neue", sans-serif`;
+      const fontSize = len <= 2 ? 180 : len <= 5 ? 105 : len <= 8 ? 74 : 54;
+      ctx.font = `bold ${fontSize}px "Comic Sans MS", "Comic Neue", "Arial Rounded MT Bold", sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#f8fafc';
+
+      // Soft filled silhouette
+      ctx.fillStyle = 'rgba(241, 245, 249, 0.8)';
       ctx.fillText(currentItem.display, cx, cy);
-      ctx.strokeStyle = '#94a3b8';
+
+      // High-visibility dashed outline for tracing
+      ctx.strokeStyle = '#64748b';
       ctx.lineWidth = len <= 2 ? 10 : 5;
       ctx.setLineDash([8, 10]);
       ctx.strokeText(currentItem.display, cx, cy);
@@ -221,7 +390,7 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
   const getCoordinates = (
     e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement> | React.PointerEvent<HTMLCanvasElement>
   ) => {
-    const canvas = canvasRef.current;
+    const canvas = drawCanvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -243,36 +412,78 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
   };
 
   const startDraw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    setIsDrawing(true);
-    const canvas = canvasRef.current;
+    const canvas = drawCanvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const { x, y } = getCoordinates(e);
+
+    // If in Stamp mode, stamp a cute sticker and exit!
+    if (currentTool === 'stamp') {
+      pushUndoState();
+      ctx.save();
+      ctx.font = `${Math.max(28, brushSize * 2.5)}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(selectedStamp, x, y);
+      ctx.restore();
+      soundEffects.playPop();
+      return;
+    }
+
+    pushUndoState();
+    isDrawingRef.current = true;
     lastPointRef.current = { x, y };
+
     minXRef.current = Math.min(minXRef.current, x);
     maxXRef.current = Math.max(maxXRef.current, x);
-    minYRef.current = Math.min(minYRef.current, y);
-    maxYRef.current = Math.max(maxYRef.current, y);
 
     ctx.beginPath();
     ctx.moveTo(x, y);
-    ctx.setLineDash([]);
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = brushSize;
-    ctx.strokeStyle = brushColor;
+
+    // Configure brush styles based on tool
+    if (currentTool === 'eraser') {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.lineWidth = brushSize * 1.6;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+    } else {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = brushSize;
+
+      if (currentTool === 'highlighter') {
+        ctx.strokeStyle = brushColor + '70'; // ~45% translucent
+      } else if (currentTool === 'crayon') {
+        ctx.strokeStyle = brushColor;
+        ctx.shadowColor = brushColor;
+        ctx.shadowBlur = 2;
+      } else {
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = brushColor;
+      }
+    }
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
-    const canvas = canvasRef.current;
+    if (!isDrawingRef.current) return;
+    const canvas = drawCanvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const { x, y } = getCoordinates(e);
+
+    // Rainbow magic shifting ink
+    if (currentTool === 'rainbow') {
+      rainbowHueRef.current = (rainbowHueRef.current + 6) % 360;
+      ctx.strokeStyle = `hsl(${rainbowHueRef.current}, 100%, 50%)`;
+      ctx.shadowColor = `hsl(${rainbowHueRef.current}, 100%, 70%)`;
+      ctx.shadowBlur = 4;
+    }
+
     ctx.lineTo(x, y);
     ctx.stroke();
 
@@ -284,8 +495,26 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
 
     minXRef.current = Math.min(minXRef.current, x);
     maxXRef.current = Math.max(maxXRef.current, x);
-    minYRef.current = Math.min(minYRef.current, y);
-    maxYRef.current = Math.max(maxYRef.current, y);
+  };
+
+  const stopDraw = () => {
+    isDrawingRef.current = false;
+    lastPointRef.current = null;
+
+    if (category === 'freedraw') return;
+
+    // Check completion ONLY when user finishes a stroke (lifts finger)
+    const totalLength = strokeLengthRef.current;
+    const spanX = maxXRef.current - minXRef.current;
+    const isWord = category === 'chapter_words';
+    const charCount = currentItem?.display?.length || 1;
+
+    const requiredLength = isWord ? Math.max(280, charCount * 55) : category === 'shapes' ? 240 : 160;
+    const requiredSpan = isWord ? Math.max(100, charCount * 25) : 45;
+
+    if (!completed && totalLength >= requiredLength && spanX >= requiredSpan) {
+      triggerCompletion();
+    }
   };
 
   const triggerCompletion = () => {
@@ -293,34 +522,12 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
     setCompleted(true);
     soundEffects.playCorrect();
     addStars(3);
-    confetti({ particleCount: 55, spread: 65, origin: { y: 0.65 } });
+    confetti({ particleCount: 60, spread: 70, origin: { y: 0.65 } });
     speak(
       language === 'ml'
         ? `വളരെ മിടുക്കൻ! ${currentItem.malayalamLabel} മനോഹരമായി എഴുതി!`
         : `Awesome job tracing ${currentItem.display}! You earned 3 stars!`
     );
-  };
-
-  const stopDraw = () => {
-    setIsDrawing(false);
-    lastPointRef.current = null;
-
-    if (category === 'freedraw') return;
-
-    // Check completion ONLY when user finishes a stroke (lifts pen/finger)
-    // and has covered substantial length and span across the word
-    const totalLength = strokeLengthRef.current;
-    const spanX = maxXRef.current - minXRef.current;
-    const isWord = category === 'chapter_words';
-    const charCount = currentItem?.display?.length || 1;
-
-    // Generous thresholds so child can comfortably draw without false triggers
-    const requiredLength = isWord ? Math.max(260, charCount * 55) : category === 'shapes' ? 240 : 150;
-    const requiredSpan = isWord ? Math.max(90, charCount * 25) : 40;
-
-    if (!completed && totalLength >= requiredLength && spanX >= requiredSpan) {
-      triggerCompletion();
-    }
   };
 
   const handleNextItem = () => {
@@ -330,8 +537,42 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
     }
   };
 
+  // Export & Download the child's drawing as a PNG image
+  const handleDownloadDrawing = () => {
+    soundEffects.playPop();
+    const guideCanvas = guideCanvasRef.current;
+    const drawCanvas = drawCanvasRef.current;
+    if (!guideCanvas || !drawCanvas) return;
+
+    // Composite both onto an export canvas
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = guideCanvas.width;
+    exportCanvas.height = guideCanvas.height;
+    const expCtx = exportCanvas.getContext('2d');
+    if (!expCtx) return;
+
+    // White background paper
+    expCtx.fillStyle = '#ffffff';
+    expCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+
+    // Draw guidelines & drawing
+    expCtx.drawImage(guideCanvas, 0, 0);
+    expCtx.drawImage(drawCanvas, 0, 0);
+
+    // Footer Watermark
+    expCtx.fillStyle = '#94a3b8';
+    expCtx.font = 'bold 12px sans-serif';
+    expCtx.textAlign = 'right';
+    expCtx.fillText('Little Genius AI • Young Artist Studio', exportCanvas.width - 15, exportCanvas.height - 12);
+
+    const link = document.createElement('a');
+    link.download = `Little_Genius_Drawing_${currentItem?.display || 'Artwork'}.png`;
+    link.href = exportCanvas.toDataURL('image/png');
+    link.click();
+  };
+
   return (
-    <div className="bg-white rounded-4xl p-5 sm:p-7 border-4 border-pink-300 shadow-xl max-w-2xl mx-auto space-y-5">
+    <div className="bg-white rounded-4xl p-5 sm:p-7 border-4 border-pink-300 shadow-xl max-w-3xl mx-auto space-y-4">
       {/* Chapter Badge */}
       {chapter && (
         <div className="text-center">
@@ -341,7 +582,7 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
         </div>
       )}
 
-      {/* Top Category Tabs */}
+      {/* 1. Category Switcher */}
       <div className="flex flex-wrap items-center justify-center gap-2">
         {[
           ...(chapterTraceItems.length > 0
@@ -359,7 +600,7 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
               setCategory(tab.id as TraceCategory);
               setSelectedItemIndex(0);
             }}
-            className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-black transition ${
+            className={`px-3.5 py-1.5 rounded-2xl text-xs sm:text-sm font-black transition ${
               category === tab.id
                 ? 'bg-pink-500 text-white shadow-md scale-105'
                 : 'bg-pink-50 text-pink-700 hover:bg-pink-100 border border-pink-200'
@@ -370,9 +611,9 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
         ))}
       </div>
 
-      {/* Item Quick Picker Pills */}
+      {/* 2. Item Selector Pills */}
       {category !== 'freedraw' && (
-        <div className="flex items-center justify-center flex-wrap gap-2">
+        <div className="flex items-center justify-center flex-wrap gap-1.5">
           {filteredItems.map((item, idx) => (
             <button
               key={item.id}
@@ -380,7 +621,7 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
                 soundEffects.playPop();
                 setSelectedItemIndex(idx);
               }}
-              className={`px-3.5 py-1.5 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center border-2 transition ${
+              className={`px-3 py-1 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center border-2 transition ${
                 selectedItemIndex === idx
                   ? 'bg-amber-400 text-slate-900 border-amber-500 shadow-sm scale-105'
                   : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
@@ -392,8 +633,8 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
         </div>
       )}
 
-      {/* Header & Audio Guide */}
-      <div className="flex items-center justify-between bg-pink-50/70 p-3.5 sm:p-4 rounded-3xl border border-pink-200">
+      {/* 3. Header & Audio Guide */}
+      <div className="flex items-center justify-between bg-pink-50/70 p-3 sm:p-3.5 rounded-3xl border border-pink-200">
         <div className="flex items-center space-x-3 text-left">
           <span className="text-2xl sm:text-3xl font-black text-pink-600">
             {category === 'freedraw' ? '🎨' : currentItem?.display}
@@ -402,15 +643,15 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
             <h3 className="text-sm sm:text-base font-black text-slate-800">
               {category === 'freedraw'
                 ? language === 'ml'
-                  ? 'സ്വതന്ത്രമായി ചിത്രം വരയ്ക്കാം (Mouse / Finger / Stylus)'
+                  ? 'സ്വതന്ത്രമായി ചിത്രം വരയ്ക്കാം (Pencil, Marker, Rainbow)'
                   : 'Free Drawing Pad (Use Mouse, Finger, or Stylus)'
                 : language === 'ml'
                 ? currentItem?.malayalamLabel
                 : `Trace ${currentItem?.label}`}
             </h3>
-            <p className="text-[11px] sm:text-xs text-pink-600 font-bold">
+            <p className="text-[11px] text-pink-600 font-bold">
               {category === 'freedraw'
-                ? 'Pick any crayon color below and draw your masterpiece!'
+                ? 'Choose pencils, pin-points, rainbow ink, or stamps!'
                 : currentItem?.guide}
             </p>
           </div>
@@ -427,53 +668,231 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
         )}
       </div>
 
-      {/* Crayon Colors & Brush Thickness */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
-        <div className="flex items-center space-x-2">
-          <Palette className="w-4 h-4 text-slate-500" />
-          <div className="flex items-center space-x-1.5">
-            {CRAYON_COLORS.map((col) => (
-              <button
-                key={col.hex}
-                onClick={() => setBrushColor(col.hex)}
-                className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 transition transform ${
-                  brushColor === col.hex ? 'scale-125 border-slate-900 shadow-md' : 'border-white'
-                }`}
-                style={{ backgroundColor: col.hex }}
-                title={col.name}
-              />
-            ))}
+      {/* 4. Complete Toolset: Pencils, Pin-Points, Eraser, Rainbow, Stamps & Ruler Lines */}
+      <div className="bg-slate-50 p-3 sm:p-4 rounded-3xl border border-slate-200 space-y-3">
+        {/* Row A: Drawing Tools & Eraser */}
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2.5">
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            <span className="text-[11px] font-black uppercase text-slate-400 mr-1">Tools:</span>
+            {[
+              { id: 'pencil', label: '✏️ Pencil', icon: Pencil },
+              { id: 'pen', label: '🖋️ Ink Pen', icon: PenTool },
+              { id: 'crayon', label: '🖍️ Crayon', icon: Palette },
+              { id: 'highlighter', label: '✨ Neon Glow', icon: Highlighter },
+              { id: 'rainbow', label: '🌈 Rainbow', icon: Sparkles },
+              { id: 'eraser', label: '🧽 Eraser', icon: Eraser },
+              { id: 'stamp', label: '⭐ Stamp', icon: Stamp },
+            ].map((t) => {
+              const Icon = t.icon;
+              const isActive = currentTool === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => {
+                    soundEffects.playPop();
+                    setCurrentTool(t.id as ToolType);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black flex items-center space-x-1 transition shadow-sm ${
+                    isActive
+                      ? 'bg-slate-900 text-white scale-105 shadow'
+                      : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{t.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Undo / Redo Actions */}
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={handleUndo}
+              disabled={!canUndo}
+              className="p-1.5 rounded-xl bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-30 border border-slate-200 transition"
+              title="Undo Last Stroke"
+            >
+              <Undo2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleRedo}
+              disabled={!canRedo}
+              className="p-1.5 rounded-xl bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-30 border border-slate-200 transition"
+              title="Redo Stroke"
+            >
+              <Redo2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleDownloadDrawing}
+              className="p-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition flex items-center space-x-1 text-xs font-bold"
+              title="Download Drawing (Save as PNG Image)"
+            >
+              <Download className="w-4 h-4" />
+              <span className="hidden sm:inline">Save</span>
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <PenTool className="w-4 h-4 text-slate-500" />
-          {[
-            { label: 'Fine', size: 10 },
-            { label: 'Medium', size: 16 },
-            { label: 'Jumbo', size: 24 },
-          ].map((b) => (
-            <button
-              key={b.size}
-              onClick={() => setBrushSize(b.size)}
-              className={`px-2.5 py-1 rounded-xl text-xs font-black transition ${
-                brushSize === b.size ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200'
-              }`}
-            >
-              {b.label}
-            </button>
-          ))}
+        {/* Row B: Precision Pin-Point Sizes + Interactive Slider */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center space-x-2">
+            <span className="text-[11px] font-black uppercase text-slate-400">Pin Points:</span>
+            <div className="flex items-center gap-1.5">
+              {PIN_POINT_PRESETS.map((p) => {
+                const isSelected = brushSize === p.size;
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => {
+                      soundEffects.playPop();
+                      setBrushSize(p.size);
+                    }}
+                    className={`px-2.5 py-1 rounded-xl text-xs font-black transition flex items-center space-x-1.5 border ${
+                      isSelected
+                        ? 'bg-amber-400 text-slate-900 border-amber-500 shadow-sm scale-105'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span
+                      className="inline-block rounded-full bg-slate-900"
+                      style={{ width: Math.max(3, p.size / 2.5), height: Math.max(3, p.size / 2.5) }}
+                    />
+                    <span>{p.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Pin-Point Slider with Live Size Dot Preview */}
+          <div className="flex items-center space-x-2 bg-white px-3 py-1 rounded-xl border border-slate-200">
+            <Sliders className="w-3.5 h-3.5 text-slate-400" />
+            <input
+              type="range"
+              min="2"
+              max="36"
+              value={brushSize}
+              onChange={(e) => setBrushSize(Number(e.target.value))}
+              className="w-20 sm:w-24 accent-pink-500 cursor-pointer"
+              title={`Custom Tip: ${brushSize}px`}
+            />
+            <span className="text-xs font-black text-slate-600 w-7 text-right">{brushSize}px</span>
+            {/* Live size preview circle */}
+            <div className="w-7 h-7 flex items-center justify-center bg-slate-100 rounded-lg">
+              <span
+                className="rounded-full inline-block transition-all"
+                style={{
+                  width: Math.min(22, brushSize),
+                  height: Math.min(22, brushSize),
+                  backgroundColor: currentTool === 'eraser' ? '#94a3b8' : brushColor,
+                }}
+              />
+            </div>
+          </div>
         </div>
+
+        {/* Row C: Rich Color Palette & Real Color Picker */}
+        {currentTool !== 'eraser' && currentTool !== 'rainbow' && currentTool !== 'stamp' && (
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-200">
+            <div className="flex items-center space-x-1.5 overflow-x-auto py-1">
+              <span className="text-[11px] font-black uppercase text-slate-400 mr-1">Colors:</span>
+              {COLOR_PALETTE.map((col) => {
+                const isSelected = brushColor === col.hex;
+                return (
+                  <button
+                    key={col.hex}
+                    onClick={() => {
+                      soundEffects.playPop();
+                      setBrushColor(col.hex);
+                    }}
+                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 transition transform ${
+                      isSelected ? 'scale-125 border-slate-900 shadow-md ring-2 ring-pink-400' : 'border-white hover:scale-110'
+                    }`}
+                    style={{ backgroundColor: col.hex }}
+                    title={col.name}
+                  />
+                );
+              })}
+
+              {/* Custom HTML5 Color Picker Input */}
+              <div className="relative inline-block ml-1">
+                <button
+                  onClick={() => colorInputRef.current?.click()}
+                  className="w-7 h-7 rounded-full border-2 border-slate-300 bg-gradient-to-tr from-rose-500 via-amber-400 to-sky-500 shadow-sm flex items-center justify-center hover:scale-110 transition"
+                  title="Pick Any Custom Color!"
+                >
+                  <Palette className="w-3.5 h-3.5 text-white drop-shadow" />
+                </button>
+                <input
+                  ref={colorInputRef}
+                  type="color"
+                  value={brushColor}
+                  onChange={(e) => setBrushColor(e.target.value)}
+                  className="sr-only"
+                />
+              </div>
+            </div>
+
+            {/* Notebook Line Style Switcher */}
+            <div className="flex items-center space-x-1">
+              <span className="text-[10px] font-black uppercase text-slate-400">Ruling:</span>
+              {[
+                { id: 'four_line', label: '📝 4-Line' },
+                { id: 'grid', label: '📐 Grid' },
+                { id: 'blank', label: '📄 Blank' },
+              ].map((style) => (
+                <button
+                  key={style.id}
+                  onClick={() => setLineStyle(style.id as GuideLineStyle)}
+                  className={`px-2 py-0.5 rounded-lg text-[10px] font-black transition ${
+                    lineStyle === style.id ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200'
+                  }`}
+                >
+                  {style.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Row D: Sticker Stamp Selector (when Stamp tool is active) */}
+        {currentTool === 'stamp' && (
+          <div className="flex items-center space-x-2 pt-1 border-t border-slate-200 overflow-x-auto py-1">
+            <span className="text-[11px] font-black uppercase text-slate-400">Tap to Stamp:</span>
+            {STICKER_STAMPS.map((s) => (
+              <button
+                key={s}
+                onClick={() => setSelectedStamp(s)}
+                className={`text-xl p-1.5 rounded-xl transition ${
+                  selectedStamp === s ? 'bg-amber-300 scale-125 shadow-sm' : 'hover:bg-slate-200'
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+            <span className="text-xs text-slate-500 font-bold ml-2">👉 Tap anywhere on canvas to stamp!</span>
+          </div>
+        )}
       </div>
 
-      {/* Interactive Drawing Canvas */}
+      {/* 5. Dual-Layer Interactive Canvas (Guide underneath, Drawing on top) */}
       <div className="space-y-3">
         <div className="relative flex justify-center">
-          <div className="relative inline-block border-4 border-dashed border-pink-300 rounded-3xl bg-white p-2 touch-none shadow-inner">
+          <div className="relative inline-block border-4 border-dashed border-pink-300 rounded-3xl bg-white p-2 touch-none shadow-inner overflow-hidden">
+            {/* Guide Canvas (Bottom Layer) */}
             <canvas
-              ref={canvasRef}
-              width={480}
-              height={300}
+              ref={guideCanvasRef}
+              width={560}
+              height={320}
+              className="rounded-2xl bg-white max-w-full h-auto pointer-events-none block"
+            />
+
+            {/* Active Drawing Canvas (Top Layer - Completely transparent) */}
+            <canvas
+              ref={drawCanvasRef}
+              width={560}
+              height={320}
               onMouseDown={startDraw}
               onMouseMove={draw}
               onMouseUp={stopDraw}
@@ -481,12 +900,12 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
               onTouchStart={startDraw}
               onTouchMove={draw}
               onTouchEnd={stopDraw}
-              className="rounded-2xl cursor-crosshair bg-white max-w-full h-auto"
+              className="absolute inset-2 rounded-2xl cursor-crosshair max-w-full h-auto block"
             />
           </div>
         </div>
 
-        {/* Celebratory Banner - Keeps canvas fully accessible without blocking */}
+        {/* Celebratory Banner - Never covers canvas */}
         {completed && category !== 'freedraw' && (
           <div className="bg-gradient-to-r from-amber-400 via-pink-500 to-rose-500 text-white p-3.5 rounded-2xl shadow-lg flex items-center justify-between gap-3 animate-fade-in">
             <div className="flex items-center space-x-2.5">
@@ -511,14 +930,14 @@ export default function TracingGame({ chapter, subject }: TracingGameProps) {
         )}
       </div>
 
-      {/* Bottom Action Controls */}
+      {/* 6. Bottom Action Controls */}
       <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
         <button
-          onClick={drawCanvasGuide}
+          onClick={clearDrawCanvas}
           className="px-4 py-2.5 rounded-2xl border-2 border-slate-300 text-slate-700 font-black text-xs flex items-center space-x-1.5 hover:bg-slate-50 transition"
         >
           <RefreshCw className="w-4 h-4" />
-          <span>{language === 'ml' ? 'മായ്ക്കുക' : 'Clear Canvas'}</span>
+          <span>{language === 'ml' ? 'മായ്ക്കുക' : 'Clear My Drawing'}</span>
         </button>
 
         {category !== 'freedraw' && !completed && (
