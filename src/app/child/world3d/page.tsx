@@ -8,6 +8,7 @@ import {
   Volume2,
   BookOpen,
   Box,
+  Sparkles,
 } from 'lucide-react';
 import { useApp } from '@/lib/context/AppContext';
 import SolarSystem3D from '@/components/3d/SolarSystem3D';
@@ -16,6 +17,7 @@ import AlphabetWorld3D from '@/components/3d/AlphabetWorld3D';
 import Classroom3D from '@/components/3d/Classroom3D';
 import ChapterConcept3D from '@/components/3d/ChapterConcept3D';
 import ThreeCanvasFallback from '@/components/3d/ThreeCanvasFallback';
+import { getTopicDetail, getChapterTopicsList } from '@/components/3d/chapter3dData';
 import { soundEffects } from '@/lib/audio/soundEffects';
 import { Subject, Textbook, TextbookChapter } from '@/lib/db/types';
 
@@ -86,6 +88,8 @@ function World3DContent() {
 
   const activeSubject = subjects.find((s) => s.id === selectedSubjectId);
   const activeChapter = subjectChapters.find((c) => c.id === selectedChapterId) || subjectChapters[0];
+  const activeChapterFirstTopic = activeChapter ? getChapterTopicsList(activeChapter)[0] : '';
+  const activeChapterPreview = activeChapter ? getTopicDetail(activeChapter, activeChapterFirstTopic, 0) : null;
 
   const handleSubjectSelect = (subId: string) => {
     soundEffects.playPop();
@@ -93,15 +97,17 @@ function World3DContent() {
     const subTbs = textbooks.filter((tb) => tb.subjectId === subId);
     const chaps = subTbs.flatMap((tb) => tb.chapters || []);
     setSelectedChapterId(chaps[0]?.id || '');
+    setActiveZone('chapter3d');
   };
 
   const handleChapterSelect = (chapId: string) => {
     soundEffects.playPop();
     setSelectedChapterId(chapId);
+    setActiveZone('chapter3d');
   };
 
   const zones = [
-    { id: 'chapter3d', label: 'Chapter 3D Explorer', malayalamLabel: 'പാഠഭാഗം 3D 🧊', icon: '🧊' },
+    { id: 'chapter3d', label: 'Chapter 3D PBR Studio', malayalamLabel: 'പാഠഭാഗം 3D 🧊', icon: '🧊' },
     { id: 'science', label: '3D Solar System', malayalamLabel: 'സൗരയൂഥം 🪐', icon: '🪐' },
     { id: 'math', label: '3D Math Counting', malayalamLabel: 'കണക്ക് ലോകം 🍎', icon: '🍎' },
     { id: 'english', label: '3D Phonics & A-Z', malayalamLabel: 'അക്ഷര ലോകം 🔤', icon: '🔤' },
@@ -120,35 +126,48 @@ function World3DContent() {
           <span>{language === 'ml' ? 'തിരികെ' : 'Back'}</span>
         </button>
 
-        <button
-          onClick={() => {
-            soundEffects.playPop();
-            setUseFallback2D(!useFallback2D);
-          }}
-          className="text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 flex items-center space-x-1"
-        >
-          <Eye className="w-3.5 h-3.5 text-sky-500" />
-          <span>{useFallback2D ? 'Switch to 3D WebGL' : '2D Mode (Lightweight)'}</span>
-        </button>
+        <div className="flex items-center space-x-2">
+          <span className="hidden sm:inline-flex items-center space-x-1 text-[11px] font-black px-3 py-1.5 rounded-xl bg-amber-100 text-amber-800 border border-amber-300">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+            <span>57+ Realistic PBR 3D Templates</span>
+          </span>
+          <button
+            onClick={() => {
+              soundEffects.playPop();
+              setUseFallback2D(!useFallback2D);
+            }}
+            className="text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 flex items-center space-x-1"
+          >
+            <Eye className="w-3.5 h-3.5 text-sky-500" />
+            <span>{useFallback2D ? 'Switch to 3D WebGL' : '2D Mode (Lightweight)'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Banner */}
-      <div className="bg-gradient-to-r from-sky-500 via-indigo-600 to-purple-600 rounded-4xl p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div>
-          <span className="text-xs font-black uppercase tracking-wider text-amber-200 bg-white/20 px-3 py-1 rounded-full">
-            {activeSubject ? `${activeSubject.icon} ${activeSubject.name} • 3D Interactive Syllabus` : 'Interactive 3D Engine'}
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-black mt-2">
+      <div className="bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-700 rounded-4xl p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-black uppercase tracking-wider text-amber-200 bg-white/20 px-3 py-1 rounded-full">
+              {activeSubject ? `${activeSubject.icon} ${activeSubject.name} • Realistic 3D Syllabus` : 'Interactive 3D Engine'}
+            </span>
+            {activeZone === 'chapter3d' && activeChapterPreview && (
+              <span className="text-[11px] font-black text-emerald-200 bg-emerald-950/50 border border-emerald-400/40 px-3 py-1 rounded-full">
+                🧱 {activeChapterPreview.materialNote}
+              </span>
+            )}
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black">
             {activeZone === 'chapter3d' && activeChapter
               ? `Ch ${activeChapter.chapterNumber}: ${activeChapter.title}`
               : t('world3d')}
           </h1>
-          <p className="text-xs sm:text-sm text-sky-100 mt-1 max-w-2xl">
+          <p className="text-xs sm:text-sm text-sky-100 max-w-2xl">
             {activeZone === 'chapter3d' && activeChapter
               ? activeChapter.summary
               : language === 'ml'
               ? 'വസ്തുക്കളെ തിരിക്കാം, തൊടാം, ശബ്ദം കേട്ട് ആസ്വദിച്ചു പഠിക്കാം!'
-              : 'Rotate, touch, zoom, and explore every subject & chapter in 3D!'}
+              : 'Rotate, zoom, explode parts, and inspect realistic 3D materials matched to every chapter!'}
           </p>
         </div>
 
@@ -165,7 +184,9 @@ function World3DContent() {
               <span>{language === 'ml' ? 'ശബ്ദം കേൾക്കാം' : 'Listen to Chapter'}</span>
             </button>
           )}
-          <span className="text-5xl animate-bounce-gentle">🚀</span>
+          <span className="text-5xl animate-bounce-gentle">
+            {activeZone === 'chapter3d' && activeChapterPreview ? activeChapterPreview.emoji : '🚀'}
+          </span>
         </div>
       </div>
 
@@ -176,7 +197,7 @@ function World3DContent() {
           <div>
             <p className="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-2 flex items-center space-x-1">
               <BookOpen className="w-3.5 h-3.5 text-sky-500" />
-              <span>{language === 'ml' ? '1. വിഷയം തിരഞ്ഞെടുക്കുക:' : '1. Select Subject for 3D Exploration:'}</span>
+              <span>{language === 'ml' ? '1. വിഷയം തിരഞ്ഞെടുക്കുക:' : '1. Select Subject for Realistic 3D Exploration:'}</span>
             </p>
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
               {subjects.map((sub) => {
@@ -199,27 +220,45 @@ function World3DContent() {
             </div>
           </div>
 
-          {/* Chapter Pills */}
+          {/* Chapter Pills with Exact 3D Template Preview */}
           {subjectChapters.length > 0 && (
             <div>
               <p className="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-2 flex items-center space-x-1">
                 <Box className="w-3.5 h-3.5 text-indigo-500" />
-                <span>{language === 'ml' ? '2. പാഠം തിരഞ്ഞെടുക്കുക (3D മോഡൽ):' : '2. Select Chapter for 3D Model:'}</span>
+                <span>
+                  {language === 'ml'
+                    ? '2. പാഠം തിരഞ്ഞെടുക്കുക (യഥാർത്ഥ 3D മോഡലും മെറ്റീരിയലും):'
+                    : '2. Select Chapter (Exact-Matched 3D Template & Material):'}
+                </span>
               </p>
               <div className="flex items-center gap-2 overflow-x-auto pb-1">
                 {subjectChapters.map((chap) => {
                   const isSelected = chap.id === (activeChapter?.id || selectedChapterId) && activeZone === 'chapter3d';
+                  const chapTopics = getChapterTopicsList(chap);
+                  const preview = getTopicDetail(chap, chapTopics[0] || chap.title, 0);
                   return (
                     <button
                       key={chap.id}
                       onClick={() => handleChapterSelect(chap.id)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border ${
+                      className={`px-3.5 py-2 rounded-2xl text-left transition border flex items-center space-x-2 shrink-0 ${
                         isSelected
-                          ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                          : 'bg-white text-slate-600 border-slate-200 hover:bg-indigo-50 hover:border-indigo-200'
+                          ? 'bg-indigo-600 text-white border-indigo-600 shadow-md scale-[1.01]'
+                          : 'bg-white text-slate-700 border-slate-200 hover:bg-indigo-50 hover:border-indigo-200'
                       }`}
                     >
-                      Ch {chap.chapterNumber}: {chap.title}
+                      <span className="text-lg">{preview.emoji}</span>
+                      <div>
+                        <div className="text-xs font-black whitespace-nowrap">
+                          Ch {chap.chapterNumber}: {chap.title}
+                        </div>
+                        <div
+                          className={`text-[10px] font-bold whitespace-nowrap ${
+                            isSelected ? 'text-amber-200' : 'text-slate-400'
+                          }`}
+                        >
+                          {chapTopics.length} 3D Models • {preview.shortLabel}
+                        </div>
+                      </div>
                     </button>
                   );
                 })}

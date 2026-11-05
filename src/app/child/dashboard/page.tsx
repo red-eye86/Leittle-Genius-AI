@@ -192,7 +192,7 @@ export default function ChildDashboardPage() {
                 {t('world3d')}
               </h3>
               <p className="text-[11px] text-sky-100 font-bold mt-1">
-                {language === 'ml' ? 'സൗരയൂഥം 3D' : 'Explore Planets'}
+                {language === 'ml' ? 'യഥാർത്ഥ 3D പാഠങ്ങൾ 🧊' : 'Realistic 3D Chapters 🧊'}
               </p>
             </div>
           </div>
@@ -255,7 +255,7 @@ export default function ChildDashboardPage() {
                 {t('gamesZone')}
               </h3>
               <p className="text-[11px] text-pink-100 font-bold mt-1">
-                {isUKG ? 'Tracing & Apples' : 'Math Blitz'}
+                {language === 'ml' ? '3D ബ്ലോക്സ് ഒബ്ബി & കാർട്ട് 🎮' : '3D Blox Obby & Kart 🎮'}
               </p>
             </div>
           </div>

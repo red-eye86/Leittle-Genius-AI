@@ -9,6 +9,7 @@ import MathSpeedChallenge from '@/components/games/MathSpeedChallenge';
 import MemoryCardGame from '@/components/games/MemoryCardGame';
 import ChapterQuestGame from '@/components/games/ChapterQuestGame';
 import MathBlocks3D from '@/components/3d/MathBlocks3D';
+import RobloxWorldGames3D, { RobloxGameMode } from '@/components/3d/RobloxWorldGames3D';
 import { soundEffects } from '@/lib/audio/soundEffects';
 import { Subject, Textbook, TextbookChapter } from '@/lib/db/types';
 
@@ -24,7 +25,7 @@ function GamesArenaContent() {
   const [textbooks, setTextbooks] = useState<Textbook[]>([]);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>(querySubjectId);
   const [selectedChapterId, setSelectedChapterId] = useState<string>(queryChapterId);
-  const [activeGame, setActiveGame] = useState<string>('chapter_quest');
+  const [activeGame, setActiveGame] = useState<string>('roblox_obby');
 
   const isUKG = activeChild?.classGrade === 'UKG';
 
@@ -91,6 +92,30 @@ function GamesArenaContent() {
 
   const games = [
     {
+      id: 'roblox_obby',
+      label: '🏃‍♂️ 3D Blox Obby Parkour',
+      malayalamLabel: '🏃‍♂️ 3D ബ്ലോക്സ് ഒബ്ബി പാർക്കർ',
+      isRoblox: true,
+    },
+    {
+      id: 'roblox_kart',
+      label: '🏎️ 3D Blox Speed Kart',
+      malayalamLabel: '🏎️ 3D ബ്ലോക്സ് കാർട്ട് റേസിംഗ്',
+      isRoblox: true,
+    },
+    {
+      id: 'roblox_tycoon',
+      label: '🏰 3D Blox Tycoon Builder',
+      malayalamLabel: '🏰 3D ബ്ലോക്സ് ടൈക്കൂൺ ബിൽഡർ',
+      isRoblox: true,
+    },
+    {
+      id: 'roblox_treasure',
+      label: '💎 3D Blox Crystal Quest',
+      malayalamLabel: '💎 3D ബ്ലോക്സ് ട്രഷർ ഹണ്ട്',
+      isRoblox: true,
+    },
+    {
       id: 'chapter_quest',
       label: 'Chapter Concept Matcher 🎯',
       malayalamLabel: 'പാഠഭാഗം മാച്ചിംഗ് ഗെയിം 🎯',
@@ -116,6 +141,15 @@ function GamesArenaContent() {
       malayalamLabel: '3D ആപ്പിൾ എണ്ണൽ 🍎',
     },
   ];
+
+  const getRobloxMode = (gameId: string): RobloxGameMode | null => {
+    if (gameId === 'roblox_obby') return 'obby';
+    if (gameId === 'roblox_kart') return 'kart';
+    if (gameId === 'roblox_tycoon') return 'tycoon';
+    if (gameId === 'roblox_treasure') return 'treasure';
+    return null;
+  };
+  const activeRobloxMode = getRobloxMode(activeGame);
 
   return (
     <div className="space-y-6 pb-16 animate-fade-in max-w-5xl mx-auto">
@@ -279,7 +313,11 @@ function GamesArenaContent() {
             }}
             className={`px-4 py-3 rounded-2xl text-xs sm:text-sm font-black whitespace-nowrap transition flex items-center space-x-1.5 ${
               activeGame === g.id
-                ? 'bg-pink-500 text-white shadow-md scale-105'
+                ? g.isRoblox
+                  ? 'bg-gradient-to-r from-indigo-600 via-purple-600 to-rose-500 text-white shadow-lg scale-105 border-2 border-amber-300'
+                  : 'bg-pink-500 text-white shadow-md scale-105'
+                : g.isRoblox
+                ? 'bg-slate-900 text-amber-300 hover:bg-slate-800 border-2 border-indigo-400/60 shadow-sm'
                 : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
             }`}
           >
@@ -290,6 +328,14 @@ function GamesArenaContent() {
 
       {/* Active Game Area */}
       <div className="pt-2">
+        {activeRobloxMode && (
+          <RobloxWorldGames3D
+            initialMode={activeRobloxMode}
+            chapter={activeChapter}
+            subject={activeSubject}
+            isUKG={isUKG}
+          />
+        )}
         {activeGame === 'chapter_quest' && (
           <ChapterQuestGame chapter={activeChapter} subject={activeSubject} />
         )}
