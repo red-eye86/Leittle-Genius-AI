@@ -5,6 +5,7 @@ import { Send, Volume2, VolumeX, Sparkles, BookOpen, RefreshCw, Mic } from 'luci
 import { useApp } from '@/lib/context/AppContext';
 import MascotOwl from '@/components/ui/MascotOwl';
 import VoiceInput from '@/components/ui/VoiceInput';
+import LiveVoiceButton from '@/components/ui/LiveVoiceButton';
 import { soundEffects } from '@/lib/audio/soundEffects';
 
 interface Message {
@@ -396,11 +397,14 @@ export default function AITeacherPage() {
           onChange={(e) => setInputText(e.target.value)}
           placeholder={
             language === 'ml'
-              ? 'ചോദിക്കൂ: "ആകാശം എന്തുകൊണ്ട് നീല നിറത്തിൽ കാണുന്നു?" അല്ലെങ്കിൽ മൈക്കിൽ തൊട്ട് സംസാരിക്കൂ...'
+              ? 'ചോദിക്കൂ: "ആകാശം എന്തുകൊണ്ട് നീല നിറത്തിൽ കാണുന്നു?" അല്ലെങ്കിൽ സംസാരിക്കൂ...'
               : 'Ask "Why is the sky blue?" or "How many 5s are there in 20?"...'
           }
           className="flex-1 bg-transparent px-3 py-2 text-sm sm:text-base font-bold text-slate-800 outline-none placeholder:text-slate-400"
         />
+
+        {/* Exact ChatGPT Style Blue Waveform Live Voice Chat Button */}
+        <LiveVoiceButton size="md" />
 
         <button
           type="submit"

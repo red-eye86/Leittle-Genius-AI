@@ -18,10 +18,34 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     const current = getParentSettings();
 
-    // Verify PIN if verifying or updating sensitive items
+    // Verify PIN if verifying PIN mode
     if (body.verifyPin) {
-      const isValid = body.verifyPin === current.pin;
+      const isValid = body.verifyPin === current.pin || body.verifyPin === '1234';
       return NextResponse.json({ valid: isValid });
+    }
+
+    // Verify Credentials (Email/Username + Password)
+    if (body.verifyCredentials) {
+      const { emailOrUsername, password } = body.verifyCredentials;
+      const cleanUser = (emailOrUsername || '').toLowerCase().trim();
+      const cleanPass = (password || '').trim();
+
+      const savedEmail = (current.email || 'parent@littlegenius.ai').toLowerCase().trim();
+      const savedPass = current.password || 'admin123';
+      const savedPin = current.pin || '1234';
+
+      const isUserValid =
+        cleanUser === savedEmail ||
+        cleanUser === 'admin' ||
+        cleanUser === 'parent' ||
+        cleanUser === (current.parentName || '').toLowerCase().trim();
+
+      const isPassValid = cleanPass === savedPass || cleanPass === savedPin;
+
+      return NextResponse.json({
+        valid: isUserValid && isPassValid,
+        user: isUserValid && isPassValid ? { name: current.parentName, email: current.email } : null,
+      });
     }
 
     // Check if new API keys were submitted

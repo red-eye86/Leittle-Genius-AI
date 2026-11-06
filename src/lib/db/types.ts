@@ -174,6 +174,7 @@ export interface ParentSettings {
   pin: string;
   parentName: string;
   email: string;
+  password?: string;
   llmProvider: LLMProvider;
   geminiApiKey: string;
   openAiApiKey: string;

@@ -24,6 +24,13 @@ interface AppContextType {
   addStars: (count: number) => void;
   refreshProfiles: () => Promise<void>;
   allChildren: ChildProfile[];
+  isLiveVoiceOpen: boolean;
+  openLiveVoice: () => void;
+  closeLiveVoice: () => void;
+  isAuthenticated: boolean;
+  isAuthLoading: boolean;
+  loginUser: () => void;
+  logoutUser: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -34,9 +41,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [soundEnabled, setSoundEnabledState] = useState<boolean>(true);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [allChildren, setAllChildren] = useState<ChildProfile[]>([]);
+  const [isLiveVoiceOpen, setIsLiveVoiceOpen] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
 
   // Load initial settings and children from localStorage / server
   useEffect(() => {
+    const token =
+      localStorage.getItem('lg_auth_token') || sessionStorage.getItem('lg_auth_token');
+    if (token === 'true') {
+      setIsAuthenticated(true);
+    }
+    setIsAuthLoading(false);
+
     const savedChildId = localStorage.getItem('lg_active_child');
     if (savedChildId) setActiveChildIdState(savedChildId);
 
@@ -52,6 +69,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     refreshProfiles();
   }, []);
+
+  const openLiveVoice = () => setIsLiveVoiceOpen(true);
+  const closeLiveVoice = () => setIsLiveVoiceOpen(false);
+
+  const loginUser = () => {
+    setIsAuthenticated(true);
+    localStorage.setItem('lg_auth_token', 'true');
+    sessionStorage.setItem('lg_auth_token', 'true');
+    sessionStorage.setItem('lg_parent_unlocked', 'true');
+  };
+
+  const logoutUser = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('lg_auth_token');
+    sessionStorage.removeItem('lg_auth_token');
+    sessionStorage.removeItem('lg_parent_unlocked');
+  };
 
   const refreshProfiles = async () => {
     try {
@@ -146,6 +180,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         addStars,
         refreshProfiles,
         allChildren,
+        isLiveVoiceOpen,
+        openLiveVoice,
+        closeLiveVoice,
+        isAuthenticated,
+        isAuthLoading,
+        loginUser,
+        logoutUser,
       }}
     >
       {children}

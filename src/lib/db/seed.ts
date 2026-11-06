@@ -789,6 +789,7 @@ export const initialDatabaseState: DatabaseState = {
     pin: '1234',
     parentName: 'Parent',
     email: 'parent@littlegenius.ai',
+    password: 'admin123',
     llmProvider: 'smart_built_in',
     geminiApiKey: '',
     openAiApiKey: '',

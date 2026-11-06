@@ -154,6 +154,10 @@ class SoundManager {
   playTada(): void {
     this.playStar();
   }
+
+  playChime(): void {
+    this.playStar();
+  }
 }
 
 export const soundEffects = new SoundManager();

@@ -170,11 +170,12 @@ function cleanTextForSpeech(text: string): string {
     .trim();
 }
 
-function splitIntoChunks(text: string, maxLen = 180): string[] {
+function splitIntoChunks(text: string, maxLen = 280): string[] {
   const cleaned = cleanTextForSpeech(text);
   if (!cleaned) return [];
 
-  const rawSentences = cleaned.split(/(?<=[.!?।])\s+/);
+  // Split on natural sentence breaks: full stops, question marks, exclamation marks, or commas
+  const rawSentences = cleaned.split(/(?<=[.!?।,\n])\s+/);
   const chunks: string[] = [];
   let current = '';
 
@@ -486,18 +487,15 @@ export function speakText(
   }
   isCancelled = false;
 
-  const enginePref = localStorage.getItem('lg_voice_engine') || 'system'; // 'system' | 'cloud'
-  const hasMalayalamChars = /[\u0D00-\u0D7F]/.test(text);
-  const voices = cachedVoices.length > 0 ? cachedVoices : window.speechSynthesis?.getVoices?.() || [];
-  const hasNativeMalayalamVoice = voices.some((v) => v.lang.toLowerCase().startsWith('ml'));
+  // Default to Gemini Cloud Voice across the entire application for studio-grade Malayalam & English
+  const enginePref = localStorage.getItem('lg_voice_engine') || 'gemini'; // 'gemini' | 'system'
 
-  // Use Native Browser/OS SpeechSynthesis by default for English (works directly with Windows Headsets!)
-  // Only use Cloud TTS stream when user explicitly chooses 'cloud' OR when speaking Malayalam without a native Malayalam voice.
-  const profile = VOICE_PROFILES[getVoiceProfile()] || VOICE_PROFILES.kid_sweet;
+  const profile = VOICE_PROFILES[getVoiceProfile()] || VOICE_PROFILES.natural;
   const effectiveRate = rate === 0.95 ? profile.rate : rate;
   const effectivePitch = pitch === 1.1 ? profile.pitch : pitch;
 
-  if (enginePref === 'cloud' || (hasMalayalamChars && !hasNativeMalayalamVoice)) {
+  // Use Gemini Voice output unless explicitly disabled by user
+  if (enginePref !== 'offline_browser') {
     return speakWithCloudAudio(text, language, effectiveRate, effectivePitch, onEnd, character);
   }
 

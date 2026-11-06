@@ -23,12 +23,14 @@ import EditChildProfileModal from '@/components/ui/EditChildProfileModal';
 
 export default function ParentSettingsPage() {
   const router = useRouter();
-  const { allChildren } = useApp();
+  const { allChildren, speak } = useApp();
   const [editingChild, setEditingChild] = useState<ChildProfile | null>(null);
 
   const [llmProvider, setLlmProvider] = useState<string>('smart_built_in');
   const [geminiApiKey, setGeminiApiKey] = useState('');
   const [openAiApiKey, setOpenAiApiKey] = useState('');
+  const [parentEmail, setParentEmail] = useState('parent@littlegenius.ai');
+  const [password, setPassword] = useState('admin123');
   const [pin, setPin] = useState('1234');
   const [dailyLimit, setDailyLimit] = useState(45);
   const [enableVoice, setEnableVoice] = useState(true);
@@ -46,6 +48,8 @@ export default function ParentSettingsPage() {
           setLlmProvider(s.llmProvider || 'smart_built_in');
           setGeminiApiKey(s.geminiApiKey || '');
           setOpenAiApiKey(s.openAiApiKey || '');
+          setParentEmail(s.email || 'parent@littlegenius.ai');
+          setPassword(s.password || 'admin123');
           setPin(s.pin || '1234');
           setDailyLimit(s.dailyTimeLimitMinutes || 45);
           setEnableVoice(s.enableVoice !== false);
@@ -67,6 +71,8 @@ export default function ParentSettingsPage() {
           llmProvider,
           geminiApiKey,
           openAiApiKey,
+          email: parentEmail,
+          password,
           pin,
           dailyTimeLimitMinutes: Number(dailyLimit),
           enableVoice,
@@ -179,16 +185,53 @@ export default function ParentSettingsPage() {
           </div>
 
           {llmProvider === 'gemini' && (
-            <div className="space-y-1 pt-2">
-              <label className="text-xs font-bold text-slate-600">Google Gemini API Key:</label>
+            <div className="space-y-3 pt-3 bg-indigo-50/60 p-4 rounded-2xl border border-indigo-200">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-black text-indigo-900 flex items-center space-x-1.5">
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  <span>Google Gemini API Key (Brain & Voice):</span>
+                </label>
+                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                  Gemini Voice Active
+                </span>
+              </div>
               <input
                 type="password"
                 value={geminiApiKey}
                 onChange={(e) => setGeminiApiKey(e.target.value)}
                 placeholder="AIzaSy..."
-                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 outline-none focus:border-indigo-500"
+                className="w-full p-3 bg-white border border-indigo-200 rounded-xl text-xs font-mono text-slate-800 outline-none focus:border-indigo-500 shadow-sm"
               />
-              <p className="text-[11px] text-slate-400">Never exposed to frontend. Stored securely on server-side.</p>
+              <p className="text-[11px] text-slate-600 leading-relaxed">
+                Powers <strong>Chikoo AI JARVIS</strong> and generates high-fidelity <strong>Gemini Voice output</strong> across the entire app with native, authentic Malayalam & English.
+              </p>
+
+              {/* Instant Voice Test Buttons */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEffects.playPop();
+                    speak('നമസ്കാരം! ചിക്കുവിന്റെ ജെമിനി ശബ്ദം പൂർണ്ണമായും തയ്യാറാണ്! മലയാളം പാഠങ്ങൾ നമുക്ക് ഒന്നിച്ചു പഠിക്കാം!');
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center space-x-1 shadow-sm transition btn-kid-3d"
+                >
+                  <Volume2 className="w-3.5 h-3.5" />
+                  <span>Test Malayalam Voice (മലയാളം)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEffects.playPop();
+                    speak('Hello Champion! Chikoo JARVIS is online and ready to guide your learning adventures!');
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs flex items-center space-x-1 shadow-sm transition btn-kid-3d"
+                >
+                  <Volume2 className="w-3.5 h-3.5" />
+                  <span>Test English Voice</span>
+                </button>
+              </div>
             </div>
           )}
 
@@ -230,20 +273,48 @@ export default function ParentSettingsPage() {
           </div>
         </div>
 
-        {/* Parent Security PIN */}
-        <div className="space-y-2 pb-6 border-b border-slate-100">
+        {/* Parent Security & Login Credentials */}
+        <div className="space-y-4 pb-6 border-b border-slate-100">
           <label className="text-xs font-black uppercase text-slate-500 tracking-wider flex items-center space-x-1.5">
             <Lock className="w-4 h-4 text-rose-500" />
-            <span>Parent Security Gate PIN (4 digits):</span>
+            <span>Parent & Admin Login Credentials:</span>
           </label>
-          <input
-            type="text"
-            maxLength={4}
-            value={pin}
-            onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-            className="w-36 p-3 bg-slate-50 border-2 border-slate-200 rounded-2xl text-center text-lg font-black tracking-widest text-slate-800 outline-none focus:border-indigo-500"
-          />
-          <p className="text-[11px] text-slate-400">Used to unlock the Parent Dashboard and upload textbooks.</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-600">Parent Email / Username:</label>
+              <input
+                type="text"
+                value={parentEmail}
+                onChange={(e) => setParentEmail(e.target.value)}
+                placeholder="parent@littlegenius.ai"
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-indigo-500"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-600">Login Password:</label>
+              <input
+                type="text"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="admin123"
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-indigo-500 font-mono"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1 pt-1">
+            <label className="text-xs font-bold text-slate-600">Quick 4-Digit Security PIN:</label>
+            <input
+              type="text"
+              maxLength={4}
+              value={pin}
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+              className="w-36 p-3 bg-slate-50 border-2 border-slate-200 rounded-2xl text-center text-lg font-black tracking-widest text-slate-800 outline-none focus:border-indigo-500"
+            />
+            <p className="text-[11px] text-slate-400">Used for fast PIN unlocking on mobile/tablet screens.</p>
+          </div>
         </div>
 
         {/* Child Safety & Audio Toggles */}

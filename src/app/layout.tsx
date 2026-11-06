@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { AppProvider } from '@/lib/context/AppContext';
 import Navbar from '@/components/ui/Navbar';
+import ChikooJarvisWidget from '@/components/ui/ChikooJarvisWidget';
+import LiveVoiceModal from '@/components/ui/LiveVoiceModal';
 
 export const metadata: Metadata = {
   title: 'Little Genius AI — Learn, Play, Explore, Grow',
@@ -21,6 +23,10 @@ export default function RootLayout({
           <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
             {children}
           </main>
+          {/* Global Personal JARVIS Assistant Widget */}
+          <ChikooJarvisWidget />
+          {/* Hands-free ChatGPT Style Live Voice Mode Modal */}
+          <LiveVoiceModal />
         </AppProvider>
       </body>
     </html>

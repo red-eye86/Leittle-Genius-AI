@@ -7,10 +7,19 @@ import { useApp } from '@/lib/context/AppContext';
 import MascotOwl from '@/components/ui/MascotOwl';
 import KidAvatar from '@/components/ui/KidAvatar';
 import { soundEffects } from '@/lib/audio/soundEffects';
+import LoginCard from '@/components/ui/LoginCard';
 
 export default function LandingPage() {
   const router = useRouter();
-  const { allChildren, setActiveChildId, language, t, speak } = useApp();
+  const {
+    allChildren,
+    setActiveChildId,
+    language,
+    t,
+    speak,
+    isAuthenticated,
+    isAuthLoading,
+  } = useApp();
 
   const handleSelectChild = (id: string, name: string) => {
     soundEffects.playStar();
@@ -18,6 +27,28 @@ export default function LandingPage() {
     speak(language === 'ml' ? `സ്വാഗതം ${name}! നമുക്ക് പഠനം തുടങ്ങാം!` : `Welcome ${name}! Let's start learning!`);
     router.push('/child/dashboard');
   };
+
+  // If loading authentication state, show sleek spinner
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  // If not logged in, immediately show the Main Security Login Page
+  if (!isAuthenticated) {
+    return (
+      <LoginCard
+        isMainPage={true}
+        redirectTo="/"
+        onSuccess={() => {
+          // Stay on this main page so the user sees the child profile selector (Who is ready to learn today?)
+        }}
+      />
+    );
+  }
 
   return (
     <div className="space-y-12 py-4">

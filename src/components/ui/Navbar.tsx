@@ -15,11 +15,13 @@ import {
   Headphones,
   CheckCircle2,
   Tv,
+  LogOut,
 } from 'lucide-react';
 import { useApp } from '@/lib/context/AppContext';
 import MascotOwl from './MascotOwl';
 import ParentPinModal from './ParentPinModal';
 import KidAvatar from './KidAvatar';
+import LiveVoiceButton from './LiveVoiceButton';
 import { soundEffects } from '@/lib/audio/soundEffects';
 import {
   setPreferredAudioOutputDevice,
@@ -45,6 +47,8 @@ export default function Navbar() {
     speak,
     stopSpeech,
     t,
+    isAuthenticated,
+    logoutUser,
   } = useApp();
 
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
@@ -193,6 +197,11 @@ export default function Navbar() {
 
           {/* Right Controls: Child Profile, Language, Sound & Headset Settings, Parent Gate */}
           <div className="flex items-center space-x-2 sm:space-x-3">
+            {/* ChatGPT Style Live Voice Button */}
+            {!isParentRoute && (
+              <LiveVoiceButton size="sm" className="hidden xs:flex" />
+            )}
+
             {/* Child Profile Quick Switcher (when not in parent zone) */}
             {!isParentRoute && activeChild && (
               <div className="relative">
@@ -475,7 +484,14 @@ export default function Navbar() {
             {/* Parent Zone Access Button */}
             {!isParentRoute ? (
               <button
-                onClick={() => setIsPinModalOpen(true)}
+                onClick={() => {
+                  const isUnlocked = typeof window !== 'undefined' && sessionStorage.getItem('lg_parent_unlocked') === 'true';
+                  if (isUnlocked) {
+                    router.push('/parent/dashboard');
+                  } else {
+                    router.push('/parent/login');
+                  }
+                }}
                 className="flex items-center space-x-1.5 bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-2xl text-xs font-black shadow-sm transition btn-kid-3d"
               >
                 <Shield className="w-3.5 h-3.5" />
@@ -487,6 +503,22 @@ export default function Navbar() {
                 className="flex items-center space-x-1 bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-2xl text-xs font-black shadow-sm transition"
               >
                 <span>🧒 Student Zone</span>
+              </button>
+            )}
+
+            {/* Logout Button */}
+            {isAuthenticated && (
+              <button
+                onClick={() => {
+                  soundEffects.playPop();
+                  logoutUser();
+                  router.push('/');
+                }}
+                className="flex items-center space-x-1 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-200 px-2.5 py-1.5 rounded-2xl text-xs font-black transition active:scale-95"
+                title="Log Out of Little Genius AI"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Log Out</span>
               </button>
             )}
           </div>
