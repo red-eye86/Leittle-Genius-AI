@@ -71,3 +71,12 @@ body {
   line-height: 1.6;
 }
 
+/* Ensure Netlify deploy badge/drawer stays below floating UI components */
+[data-netlify-deploy-id],
+.netlify-badge,
+iframe[id*="netlify"],
+div[class*="netlify-feedback"] {
+  z-index: 30 !important;
+  opacity: 0.8 !important;
+}
+

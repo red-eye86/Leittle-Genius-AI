@@ -492,10 +492,10 @@ export default function ChikooJarvisWidget() {
   }, [wakeWordEnabled, isMalayalam]);
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end select-none">
+    <div className="fixed bottom-20 right-4 sm:bottom-24 sm:right-7 z-[9999] flex flex-col items-end select-none">
       {/* Expanded Holographic HUD */}
       {isOpen && (
-        <div className="mb-3 w-[92vw] sm:w-[420px] max-h-[580px] bg-slate-900/95 backdrop-blur-xl border-2 sm:border-3 border-cyan-400 rounded-3xl shadow-2xl flex flex-col overflow-hidden text-white animate-fade-in ring-4 ring-cyan-500/20">
+        <div className="mb-3 w-[92vw] sm:w-[420px] max-h-[520px] bg-slate-900/95 backdrop-blur-xl border-2 sm:border-3 border-cyan-400 rounded-3xl shadow-2xl flex flex-col overflow-hidden text-white animate-fade-in ring-4 ring-cyan-500/20">
           {/* Top Bar */}
           <div className="px-4 py-3 bg-gradient-to-r from-indigo-900 via-sky-900 to-slate-900 border-b border-cyan-500/30 flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
